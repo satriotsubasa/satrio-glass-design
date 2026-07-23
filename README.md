@@ -145,7 +145,7 @@ runTokenUsagePolicy({
   srcRoots: ['src'],
   tokenCssPaths: [
     fileURLToPath(
-      new URL('../node_modules/@satrio/glass-design/src/styles/tokens.css', import.meta.url),
+      new URL('../../node_modules/@satrio/glass-design/src/styles/tokens.css', import.meta.url),
     ),
     'src/styles/brand.css',
   ],

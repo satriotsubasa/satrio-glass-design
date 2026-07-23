@@ -84,13 +84,14 @@ export interface TokenUsagePolicyOptions {
  * `srcRoots` must be defined in one of `tokenCssPaths`.
  *
  * @example
+ * // src/styles/glassPolicy.test.ts
  * // In the consumer's own vitest run, checking their src against the kit + their brand overrides:
  * import { runTokenUsagePolicy } from '@satrio/glass-design/testing'
  * import { fileURLToPath } from 'node:url'
  * runTokenUsagePolicy({
  *   srcRoots: ['src'],
  *   tokenCssPaths: [
- *     fileURLToPath(new URL('../node_modules/@satrio/glass-design/src/styles/tokens.css', import.meta.url)),
+ *     fileURLToPath(new URL('../../node_modules/@satrio/glass-design/src/styles/tokens.css', import.meta.url)),
  *     'src/styles/brand.css',
  *   ],
  * })

@@ -94,8 +94,10 @@ import './brand.css'                            // your overrides win by coming 
 
 `tokens.css` ends with two accessibility blocks — `@media (prefers-reduced-transparency:
 reduce)` and `@media (prefers-contrast: more)` — that flatten every blur and (under Increase
-Contrast) pin the translucent surfaces opaque. They are plain `:root` rules, so they win over
-the base `:root` **only by coming later in the file**.
+Contrast) pin the translucent surfaces opaque. The reduced-transparency block is a plain
+`:root` rule, so it wins over the base `:root` **only by coming later in the file**; the
+contrast block is theme-scoped (`:root[data-theme='dark']`, etc.), so it wins by
+**specificity** instead.
 
 Your `brand.css` is imported *after* `tokens.css`. So a base override like
 `:root { --panel-blur: 30px }` sits later in the cascade than those `@media` blocks and, at
