@@ -1,0 +1,17 @@
+.control {
+  width: 100%; height: 44px; padding: 0 14px; font: inherit; color: var(--label);
+  /* iOS Safari zooms the viewport when a focused input's font-size is below 16px (and won't zoom
+     back out until it blurs), so 16px is a hard floor — NOT the 15px --fs-body. max() keeps the
+     zoom guard at every fontScale while letting the field ride the type ramp once --fs-body passes
+     16px (fontScale ≳ 1.07). Same idiom as SearchField/AmountRangeInputs; every kit text input
+     (TextInput, Textarea, MoneyField, TitleSuggestInput) inherits this one .control declaration. */
+  font-size: max(16px, var(--fs-body));
+  background: var(--surface); border: 0.5px solid var(--separator); border-radius: var(--radius-control);
+  transition: border-color var(--dur-press) var(--ease-glass), box-shadow var(--dur-press) var(--ease-glass);
+}
+.control::placeholder { color: var(--label-3); }
+.control:focus-visible { outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.invalid { border-color: var(--danger); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.textarea { height: auto; min-height: 96px; padding: 12px 14px; resize: vertical; }

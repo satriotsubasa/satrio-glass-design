@@ -1,0 +1,42 @@
+/* RECESSED track (design/motion plan Task 6 — the iOS segmented-control idiom): the control
+   used to wear the shared `.glass` chrome material, but it always sits ON another translucent
+   surface (.dash-card on Dashboard/Settings, .sheet in the editors) — and an element with
+   backdrop-filter is a Backdrop Root for its descendants, so the chip's blur sampled only the
+   parent's flat fill (blurring nothing) while its white film + saturate compounded on the
+   parent's into a milky blob: a full wasted compositor pass. The correct read is the inverse of
+   glass — a track pressed INTO the surface (opaque theme fill + inset shadow), with the active
+   pill raised out of it. */
+.wrap { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px;
+  background: var(--surface-2);
+  border: 0.5px solid var(--separator);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+/* Dark/black: the recess needs a deeper inset shadow to read against low-luminance surfaces
+   (the 6% black of the light theme is invisible on #2a201c). */
+:root[data-theme='dark'] .wrap,
+:root[data-theme-mode='black'] .wrap {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.seg { border: none; background: transparent; cursor: pointer; font: inherit; font-weight: 600; color: var(--label-2);
+  font-size: var(--fs-callout); padding: 6px 14px; border-radius: 999px;
+  transition: background var(--dur-press) var(--ease-glass), color var(--dur-press) var(--ease-glass),
+    transform var(--dur-press) var(--ease-glass); }
+.seg:active { transform: scale(0.97); }
+/* Theme-robust active cue (ported from MonthTabs.module.css): accent-tinted fill + accent
+   outline — the old `var(--surface)` pill + black box-shadow was nearly invisible in the dark
+   (#201714 on #14100e) and black (#0d0b0a on #050505) themes. `outline-offset: -1px` keeps the
+   ring inside the pill. */
+.active {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--label);
+  outline: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: -1px;
+  /* Raised out of the recessed track — a small drop shadow in the theme's own shadow tone
+     (warm on light, black on dark/black), the counterpart of the .wrap inset above. */
+  box-shadow: 0 1px 3px -1px var(--glass-shadow);
+}
+@media (hover: hover) { .seg:not(.active):hover { color: var(--label); } }
+/* Disabled state (matches Toggle.module.css): dim the whole pill, keep the active cue readable. */
+.disabled { opacity: 0.5; }
+.seg:disabled { cursor: not-allowed; }
+.seg:disabled:active { transform: none; }

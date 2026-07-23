@@ -1,0 +1,4 @@
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: var(--fs-callout); font-weight: 600; color: var(--label-2); }
+.hint { font-size: var(--fs-caption); color: var(--label-3); margin: 0; }
+.error { font-size: var(--fs-caption); color: var(--danger); margin: 0; }
