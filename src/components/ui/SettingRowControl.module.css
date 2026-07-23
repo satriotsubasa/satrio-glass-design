@@ -1,0 +1,59 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--label);
+  border-radius: var(--radius-tile);
+}
+
+.main {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.iconTile {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-top: 1px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--label);
+}
+
+.description {
+  font-size: var(--fs-caption);
+  color: var(--label-2);
+}
+
+.control {
+  flex-shrink: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 60%;
+}

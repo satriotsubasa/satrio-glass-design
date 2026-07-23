@@ -1,0 +1,15 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.card > * + * {
+  border-top: 0.5px solid var(--separator);
+}

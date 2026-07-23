@@ -1,0 +1,90 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--label);
+  border-radius: var(--radius-tile);
+}
+button.row {
+  cursor: pointer;
+  transition: background var(--dur-press) var(--ease-glass), transform var(--dur-press) var(--ease-glass);
+}
+button.row:active {
+  transform: scale(0.98);
+}
+button.row:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (hover: hover) {
+  button.row:not(:disabled):hover {
+    background: color-mix(in srgb, var(--label) 6%, transparent);
+  }
+}
+.disabled {
+  opacity: 0.5;
+}
+
+.main {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.iconTile {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-top: 1px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.text {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--label);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.destructive {
+  color: var(--danger);
+}
+
+.description {
+  font-size: var(--fs-caption);
+  color: var(--label-2);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--label-3);
+}
+
+.right {
+  flex-shrink: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}

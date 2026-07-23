@@ -1,0 +1,28 @@
+.backdrop { position: fixed; inset: 0; z-index: 320; background: rgba(0,0,0,0.4); }
+.backdrop[data-state="open"] { animation: fadeIn 0.2s ease; }
+.backdrop[data-state="closed"] { animation: fadeOut 0.16s ease; }
+.modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 321;
+  width: min(420px, calc(100vw - 32px)); max-height: 85vh; overflow-y: auto;
+  border-radius: var(--radius-card); padding: var(--space-3); color: var(--label);
+  /* sheet tier — the modal is the same modal-layer material as the Sheet (its >640px sibling) */
+  background: var(--menu-bg); backdrop-filter: blur(var(--blur-sheet)) saturate(150%); -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(150%);
+  border: 0.5px solid var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-sheet); }
+.modal[data-state="open"] { animation: pop 0.22s cubic-bezier(0.22,1,0.36,1); }
+/* Exit mirrors the enter's starting point (scale 0.96 — Apple §7: leave toward where it came
+   from) but FASTER: 160ms out vs 220ms in is deliberate asymmetry (emil: exits faster than
+   enters), not a mirror. Radix's Presence keeps the node mounted while a [data-state="closed"]
+   animation runs (it sends ANIMATION_OUT when the closed animation-name differs from the open
+   one, and unmounts on animationend) — no forceMount needed. transform-origin stays the default
+   center: emil's explicit modal exception. */
+.modal[data-state="closed"] { animation: popOut 0.16s var(--ease-glass); }
+.title { font-size: var(--fs-headline); line-height: var(--lh-headline); font-weight: 600; margin: 0 0 var(--space-1); }
+.footer { margin-top: var(--space-3); display: flex; gap: 10px; justify-content: flex-end; }
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes fadeOut { to { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translate(-50%,-50%) scale(0.96); } }
+@keyframes popOut { to { opacity: 0; transform: translate(-50%,-50%) scale(0.96); } }
+/* No local prefers-reduced-motion override: the global tiers already cap these one-shot
+   animations (global.css — OS reduce + data-motion='reduced' → 60ms gentle cross-fade;
+   data-motion='none' → 0.001ms single frame). The old `animation: none` here routed the OS
+   signal to a hard cut, contradicting that tier design — and would leave Radix nothing to wait
+   on, teleporting the exit for exactly the users who asked for gentler motion. */

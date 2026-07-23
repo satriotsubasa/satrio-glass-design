@@ -1,0 +1,5 @@
+/* A stable min-width so the label swapping "Save"/"Saving"/"Saved" never reflows the header. */
+.save {
+  min-width: 88px;
+  justify-content: center;
+}

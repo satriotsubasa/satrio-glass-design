@@ -1,0 +1,9 @@
+.label {
+  margin: 0 0 6px;
+  padding: 0 10px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--label-3);
+}

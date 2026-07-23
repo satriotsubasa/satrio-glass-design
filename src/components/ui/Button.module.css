@@ -1,0 +1,44 @@
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; cursor: pointer; font: inherit; font-weight: 600; white-space: nowrap;
+  border-radius: var(--radius-control); color: var(--label);
+  transition: transform var(--dur-press) var(--ease-glass),
+    background var(--dur-press) var(--ease-glass), filter var(--dur-press) var(--ease-glass);
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:active:not(:disabled) { transform: scale(0.97); }
+@media (hover: hover) { .btn:not(:disabled):hover { filter: brightness(1.05); } }
+
+.sm { height: 34px; padding: 0 14px; font-size: var(--fs-callout); }
+.md { height: 42px; padding: 0 18px; font-size: var(--fs-body); }
+.lg { height: 50px; padding: 0 22px; font-size: var(--fs-headline); line-height: var(--lh-headline); }
+.iconOnly { padding: 0; aspect-ratio: 1; }
+
+.primary { color: #fff;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent-fill) 82%, white), var(--accent-fill));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 16px -6px color-mix(in srgb, var(--accent-fill) 60%, transparent); }
+.tonal { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.ghost { background: transparent; }
+@media (hover: hover) { .ghost:not(:disabled):hover { background: color-mix(in srgb, var(--label) 8%, transparent); } }
+.outline { background: transparent; border: 0.5px solid var(--separator); }
+.danger { color: #fff;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--danger) 84%, white), var(--danger));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+
+.spinner { width: 1em; height: 1em; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* Settings appAnimations 'reduced' (<html data-motion>, see global.css): the loading spinner is
+   FUNCTIONAL feedback, not decoration — global.css caps every animation-duration to 60ms under
+   'reduced', which would turn this infinite loop into a strobe. Re-assert the authored speed
+   (same source-level opt-out pattern as Skeleton's shimmer, in the opposite direction: this
+   loop must KEEP spinning). The higher specificity beats global.css's `*` rule on the
+   !important tie. 'none' still freezes it via the global iteration cap, by design. */
+:global(:root[data-motion='reduced']) .spinner { animation-duration: 0.6s !important; }
+/* The OS-preference twin of the rule above: global.css routes prefers-reduced-motion to the same
+   60ms gentle tier, which would strobe this infinite loop too. Same reasoning, same speed. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 0.6s !important; }
+}
+
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

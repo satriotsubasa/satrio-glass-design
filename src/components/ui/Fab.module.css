@@ -1,0 +1,59 @@
+/* The one `.fab` in src/ — the appearanceConsumers/pressStates scans assert EXACTLY this module
+   defines the class, so a page-local copy (the pre-extraction value-drift failure mode) fails by
+   construction. Rounded-RECT tile (18px radius), not a circle — the 2026-07-19 shape decision.
+   Lane math: the dock's bottom edge sits at max(env(safe-area-inset-bottom, 0px), 10px)
+   (BottomNav.module.css — keep the max() in sync) and the pill is 64px tall, so +78px puts the
+   Fab's bottom edge 14px above the dock's top edge. z-index 40 floats over the dock's 30. */
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(max(env(safe-area-inset-bottom, 0px), 10px) + 78px);
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 18px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 40;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent-fill) 82%, white), var(--accent-fill));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 12px 28px -10px color-mix(in srgb, var(--accent-fill) 60%, transparent);
+  transition: transform var(--dur-press) var(--ease-glass), filter var(--dur-press) var(--ease-glass);
+}
+.fab:active {
+  transform: scale(0.94);
+}
+@media (hover: hover) {
+  .fab:hover {
+    filter: brightness(1.05);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    transition: none;
+  }
+}
+/* Desktop (≥1024px): no dock — AppShell hides the BottomNav and shows the Sidebar — so the Fab
+   drops to the plain corner offset. */
+@media (min-width: 1024px) {
+  .fab {
+    bottom: calc(env(safe-area-inset-bottom) + 28px);
+  }
+}
+
+/* Settings leftHandedMode (<html data-left-handed-mode="on">, set by applyLeftHandedMode):
+   MOBILE ONLY (<1024px) — the Fab swaps to the bottom-LEFT lane with the exact mirrored offset
+   (it is the only floating corner control — theme switching lives in Settings → Appearance).
+   On DESKTOP (≥1024px) the swap must NOT apply: the fixed Sidebar owns the left edge (a mirrored
+   Fab at z-index 40 would float over it — Sidebar.module.css is z-index 20), and handedness is a
+   thumb-reach concern that doesn't exist with a pointer, so the Fab stays bottom-right there. */
+@media (max-width: 1023.98px) {
+  :global(:root[data-left-handed-mode='on']) .fab {
+    right: auto;
+    left: 20px;
+  }
+}

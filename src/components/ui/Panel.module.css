@@ -1,0 +1,6 @@
+.panel { border-radius: var(--radius-card); color: var(--label); }
+.solid { background: var(--surface); border: 0.5px solid var(--separator); }
+.p_none { padding: 0; }
+.p_sm { padding: var(--space-1); }
+.p_md { padding: var(--space-2); }
+.p_lg { padding: var(--space-3); }
