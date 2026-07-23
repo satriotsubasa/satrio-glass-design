@@ -1,0 +1,168 @@
+/* satrio glass — brand override template.
+
+   Copy this file into your app as `brand.css` and import it AFTER global.css:
+       import '@satrio/glass-design/styles/global.css'
+       import './brand.css'
+   Later-in-cascade wins, so your values re-point the system's brand tokens without
+   forking tokens.css. Only the tokens listed here are brandable — the type ramp,
+   spacing, blur ladder tiers, easings and durations are the shared structure and
+   stay locked (a `runBrandPolicy` test fails the build if a brand file touches them).
+
+   Uncomment the tokens you want to change and drop in your own values; every value
+   shown is the current system default. The @media tail at the very bottom is
+   MANDATORY and must stay last — it re-asserts the accessibility collapse (Reduce
+   Transparency / Increase Contrast) that a later-in-cascade override would otherwise
+   silently defeat. See docs/brand-layer.md for the full contract and the reasoning. */
+
+/* ============================ LIGHT (default scope) ============================ */
+:root {
+  /* ---- neutral palette + text ---- */
+  /* --bg: #f4efe9; */
+  /* --surface: #fffaf6; */
+  /* --surface-2: #f6ece5; */
+  /* --label: #241a16; */
+  /* --label-2: #6a564d; */
+  /* --label-3: #9a877d; */
+  /* --separator: rgba(60, 40, 30, 0.12); */
+
+  /* ---- accent + status ---- */
+  /* --accent: #cf5410; */       /* colored glyphs/text on glass */
+  /* --accent-fill: #d95b43; */  /* solid accent behind white text (buttons/badges) */
+  /* --danger: #d0342c; */
+  /* --income: #0b6e2f; */
+  /* --expense: #c0392b; */
+  /* --warning: #8a5200; */      /* warning text/glyphs on tinted chips */
+  /* --warning-fill: #d08a2c; */ /* solid warning fill behind no text */
+
+  /* ---- glass + surface tints (colours, not blur amounts) ---- */
+  /* --glass-bg: rgba(255, 250, 246, 0.22); */
+  /* --glass-bg-strong: rgba(255, 250, 246, 0.46); */
+  /* --glass-border: rgba(255, 255, 255, 0.55); */
+  /* --glass-highlight: rgba(255, 255, 255, 0.65); */
+  /* --glass-shadow: rgba(86, 55, 43, 0.22); */
+  /* --shadow-sheet: 0 30px 80px -20px rgba(86, 55, 43, 0.34); */
+  /* --sheet-bg: rgba(255, 251, 248, 0.92); */
+  /* --menu-bg: rgba(255, 251, 248, 0.94); */
+  /* --nav-bg: color-mix(in srgb, var(--surface) 82%, transparent); */
+  /* --panel-bg: rgba(255, 250, 246, 0.62); */
+  /* --panel-border: rgba(255, 255, 255, 0.55); */
+  /* --card-bg: rgba(255, 250, 246, 0.55); */
+  /* --card-border: rgba(255, 255, 255, 0.55); */
+  /* --card-highlight: rgba(255, 255, 255, 0.65); */
+  /* --card-shadow: 0 18px 50px -28px rgba(86, 55, 43, 0.32); */
+
+  /* ---- accent-tinted backdrop (spec: subtle, not a photo) ---- */
+  /* --backdrop:
+       radial-gradient(circle at 18% -8%, color-mix(in srgb, var(--accent) 25%, transparent) 0%, transparent 42%),
+       radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--accent-fill) 17%, transparent) 0%, transparent 46%),
+       linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)) 0%, var(--bg) 60%); */
+
+  /* ---- geometry (concentric radii: card > tile > control) ---- */
+  /* --radius-card: 22px; */
+  /* --radius-tile: 14px; */
+  /* --radius-control: 11px; */
+
+  /* ---- material thickness ALIASES (retarget to another tier or a length;
+          the ladder tiers --blur-chip/card/chrome/sheet themselves stay locked) ---- */
+  /* --glass-blur: var(--blur-chrome); */
+  /* --panel-blur: var(--blur-card); */
+  /* --card-blur: var(--blur-card); */
+}
+
+/* ============================ DARK scope ============================
+   Lists the tokens the system re-themes at night (its dark defaults). The tokens
+   NOT shown here — --nav-bg, --backdrop, --radius-card/tile/control, and the blur
+   aliases --glass-blur/--panel-blur/--card-blur — inherit :root and are rarely
+   re-themed; add any of them to this block if a token genuinely needs a night value.
+   A per-theme override still counts as a base override for the collapse rule below. */
+:root[data-theme='dark'] {
+  /* --bg: #14100e; */
+  /* --surface: #201714; */
+  /* --surface-2: #2a201c; */
+  /* --label: #f6e8df; */
+  /* --label-2: #cabab1; */
+  /* --label-3: #93837b; */
+  /* --separator: rgba(255, 255, 255, 0.12); */
+
+  /* --accent: #ffb4a5; */
+  /* --accent-fill: #d95b43; */
+  /* --danger: #ff6b6b; */
+  /* --income: #4ade80; */
+  /* --expense: #ff8f7a; */
+  /* --warning: #f0b269; */
+  /* --warning-fill: #d08a2c; */
+
+  /* --glass-bg: rgba(40, 30, 26, 0.34); */
+  /* --glass-bg-strong: rgba(48, 36, 32, 0.54); */
+  /* --glass-border: rgba(255, 255, 255, 0.14); */
+  /* --glass-highlight: rgba(255, 255, 255, 0.18); */
+  /* --glass-shadow: rgba(0, 0, 0, 0.55); */
+  /* --shadow-sheet: 0 30px 80px -20px rgba(0, 0, 0, 0.6); */
+  /* --sheet-bg: rgba(38, 28, 25, 0.93); */
+  /* --menu-bg: rgba(38, 28, 25, 0.95); */
+  /* --panel-bg: rgba(32, 23, 20, 0.60); */
+  /* --panel-border: rgba(255, 255, 255, 0.12); */
+  /* --card-bg: rgba(32, 23, 20, 0.55); */
+  /* --card-border: rgba(255, 255, 255, 0.12); */
+  /* --card-highlight: rgba(255, 255, 255, 0.18); */
+  /* --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.5); */
+}
+
+/* ============================ worked example ============================
+   example: the portfolio site's cool palette — a cool iOS-grey neutral by day that
+   switches to a sky-blue accent at night, versus the system's warm-tangerine default.
+   Note --panel-blur is collapse-managed: the mandatory tail below already re-asserts
+   it, so uncommenting this override stays accessibility-safe with no extra work.
+
+   :root {
+     --bg: #f2f2f7;
+     --surface: #ffffff;
+     --label: #1c1c1e;
+     --radius-card: 24px;
+     --panel-blur: 30px;
+   }
+   :root[data-theme='dark'] {
+     --accent: #6cb2ff;
+     --accent-fill: #0a84ff;
+   }
+*/
+
+/* ==================== MANDATORY ACCESSIBILITY COLLAPSE TAIL ====================
+   KEEP THIS LAST. A brand override beats tokens.css's a11y @media blocks by source order
+   (a :root[data-theme=…] override also beats them by specificity), so those blocks must
+   be re-asserted here. Each selector list below spans :root + both theme scopes, so it
+   out-ranks a plain OR a theme-scoped override — a plain :root tail would lose to a
+   :root[data-theme='dark'] override and leave Increase Contrast broken in dark. This tail
+   re-declares every brandable collapse-managed token, so any override above (base or
+   per-theme) stays flat under Reduce Transparency and opaque under Increase Contrast with
+   no per-token bookkeeping. Trim a line only if you never override that token, and keep
+   the tail's selector at least as specific as the override it covers — the policy test
+   flags any override you forget to cover here. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme-mode='black'] {
+    --glass-blur: 0px;
+    --panel-blur: 0px;
+    --card-blur: 0px;
+  }
+}
+@media (prefers-contrast: more) {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme-mode='black'] {
+    --glass-blur: 0px;
+    --panel-blur: 0px;
+    --card-blur: 0px;
+    --glass-bg: var(--surface);
+    --glass-bg-strong: var(--surface);
+    --panel-bg: var(--surface);
+    --card-bg: var(--surface);
+    --sheet-bg: var(--surface);
+    --menu-bg: var(--surface);
+    --nav-bg: var(--surface);
+    --glass-border: var(--label-3);
+    --panel-border: var(--label-3);
+    --card-border: var(--label-3);
+  }
+}
