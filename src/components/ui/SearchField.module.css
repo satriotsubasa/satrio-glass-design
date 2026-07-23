@@ -52,11 +52,18 @@
   color: var(--label-3);
   cursor: pointer;
   border-radius: 999px;
+  transition: transform var(--dur-press) var(--ease-glass);
 }
 
-.clear:hover {
-  color: var(--label);
-  background: color-mix(in srgb, var(--label) 8%, transparent);
+.clear:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  .clear:hover {
+    color: var(--label);
+    background: color-mix(in srgb, var(--label) 8%, transparent);
+  }
 }
 
 .clear:focus-visible {
