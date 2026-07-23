@@ -1,0 +1,261 @@
+/* padding-top composes env(safe-area-inset-top): installed to an iOS home screen (standalone,
+   viewport-fit=cover) the inset is the status-bar height; in browser tabs / desktop it's 0px. */
+.page {
+  max-width: 960px;
+  margin-inline: auto;
+  padding: calc(var(--space-3) + env(safe-area-inset-top, 0px)) var(--space-2) var(--space-4);
+}
+
+.pageHead {
+  margin-bottom: var(--space-3);
+}
+
+.pageTitle {
+  font-size: var(--fs-large-title);
+  line-height: var(--lh-large-title);
+  font-weight: 700;
+  margin: 0 0 var(--space-1);
+}
+
+.intro {
+  color: var(--label-2);
+  font-size: var(--fs-callout);
+  margin: 0;
+  max-width: 60ch;
+}
+
+.themeSwitcher {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  color: var(--label-3);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  min-width: 96px;
+}
+
+.section {
+  margin-bottom: var(--space-4);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.row:last-child {
+  margin-bottom: 0;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-2);
+}
+
+.panelSwatch p {
+  margin: 0;
+  color: var(--label-2);
+  font-size: var(--fs-callout);
+}
+
+.progressTrack {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* Unstyled button shell around a Chip inside the PillRail demo — the Chip is a span, so
+   interactivity comes from a real <button>. */
+.pillButton {
+  flex: 0 0 auto;
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.note {
+  color: var(--label-2);
+  font-size: var(--fs-caption);
+  margin: var(--space-1) 0 0;
+}
+
+/* ---- Motion tokens catalogue ---- */
+.motionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.motionSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: var(--space-2);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius-tile);
+  background: color-mix(in srgb, var(--label) 4%, transparent);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+/* The dot's travel resolves against the TRACK's inline size via container-query units, so the
+   swatch stays fluid in the grid — 100cqw minus the dot (16px) and its 2px inset each side. */
+.motionTrack {
+  container-type: inline-size;
+  position: relative;
+  display: block;
+  height: 20px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--label) 8%, transparent);
+}
+
+.motionDot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-fill);
+  transform: translateX(0);
+  transition-property: transform; /* duration/easing come inline, per token */
+}
+
+.motionDotRun {
+  transform: translateX(calc(100cqw - 20px));
+}
+
+.motionToken {
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  color: var(--label);
+}
+
+/* ---- Materials catalogue ---- */
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Each swatch paints its own BUSY test pattern behind a translucent pane, so the four tiers'
+   thickness differences are actually visible — the real --backdrop is deliberately smooth and
+   reads near-identical under any blur radius. */
+.materialSwatch {
+  position: relative;
+  height: 140px;
+  border-radius: var(--radius-tile);
+  overflow: hidden;
+  border: 0.5px solid var(--separator);
+}
+
+.materialBackdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 22% 28%, var(--accent-fill) 0 10px, transparent 11px),
+    radial-gradient(circle at 72% 24%, var(--income) 0 12px, transparent 13px),
+    radial-gradient(circle at 46% 74%, var(--expense) 0 9px, transparent 10px),
+    radial-gradient(circle at 86% 68%, var(--warning-fill) 0 11px, transparent 12px),
+    repeating-linear-gradient(
+      45deg,
+      color-mix(in srgb, var(--accent) 32%, var(--bg)) 0 10px,
+      var(--bg) 10px 20px
+    );
+}
+
+/* The pane's backdrop-filter (per blur tier) comes inline from Gallery.tsx, per swatch. */
+.materialPane {
+  position: absolute;
+  inset: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-control);
+  background: var(--glass-bg);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+
+.materialRole {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--label-2);
+}
+
+/* SegmentedControl surface demos: the recessed track is QA'd on the translucent surfaces it
+   actually ships on. The dash-card demo composes the global .dash-card material; the sheet demo
+   reproduces the sheet material (sheet-tier blur over --sheet-bg) as a static block. */
+.surfaceDemo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+}
+
+.sheetSurfaceDemo {
+  border-radius: var(--radius-card);
+  background: var(--sheet-bg);
+  backdrop-filter: blur(var(--blur-sheet)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(150%);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-sheet);
+}
+
+/* ---- Type ramp catalogue ---- */
+.typeRampRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--space-1);
+  border-bottom: 0.5px solid var(--separator);
+}
+
+.typeRampRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.typeRampSample {
+  color: var(--label);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fab catalogue host — the kit Fab is fixed-position chrome (the bottom lane above the dock);
+   the catalogue pins it STATIC so the tile renders in flow here instead of floating over the
+   whole gallery. Element selector on purpose: Fab's props deliberately take no className. */
+.fabDemo button {
+  position: static;
+}

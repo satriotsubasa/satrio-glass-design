@@ -3,7 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#fdf3ed" />
     <title>satrio glass</title>
+    <!-- Pre-paint theme stamp: mirrors src/docs/ThemeControl.tsx's applyDocsTheme mapping exactly.
+         Duplicated inline (not imported) so <html> carries the theme before first paint; keep the
+         two in sync. -->
+    <script>
+      ;(function () {
+        try {
+          var mode = localStorage.getItem('glass-docs-theme') || 'system'
+          if (mode === 'system')
+            mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          var root = document.documentElement
+          root.dataset.theme = mode === 'black' ? 'dark' : mode
+          if (mode === 'black') root.dataset.themeMode = 'black'
+          root.style.colorScheme = mode === 'light' ? 'light' : 'dark'
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
