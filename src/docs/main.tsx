@@ -1,3 +1,6 @@
+import '@satrio/glass-design/fonts'
+import '@satrio/glass-design/styles/global.css'
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'

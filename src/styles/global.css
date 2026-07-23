@@ -1,0 +1,230 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--label);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* App backdrop — painted on a viewport-FIXED pseudo-element, NOT via
+   `background: var(--backdrop) fixed` on body: --backdrop is MULTI-LAYER (comma-separated
+   gradients, tokens.css), and in the `background` shorthand a single `fixed` keyword attaches
+   only to the LAST layer — the other layers size against the DOCUMENT, so long pages stretched
+   and diluted the accent radials (inconsistent gradient intensity per page). Mobile Chrome also
+   ignores fixed attachment entirely. `position: fixed; inset: 0` sizes every layer to the
+   viewport on every page instead. `z-index: -1` sits it behind all content: body's own
+   `background-color` above propagates to the canvas (painting beneath even this layer, and
+   covering overscroll), so nothing paints over the pseudo-element. The colorfulInterface
+   off-gate (`:root[data-colorful-interface='off']`, tokens.css) still applies — it overrides
+   the --backdrop var itself, not this rule. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--backdrop);
+  background-color: var(--bg);
+  pointer-events: none;
+}
+
+/* Theme cross-fade — applyTheme() stamps this class on <html> for ~260ms around the data-theme
+   flip, so a theme change eases instead of hard-cutting the whole viewport in one frame
+   (#f4efe9 → #14100e). Apple §14 names this exactly: "ease abrupt brightness jumps (dark↔light
+   theme changes)". TRANSIENT by design: applyTheme owns the removal — a PERMANENT global colour
+   transition would make every unrelated hover/press tint feel laggy. Scoped to the root/body/
+   backdrop layers only (the dominant paint); colour easing, not movement, so it is deliberately
+   NOT gated behind prefers-reduced-motion — easing the jump IS the §14 accommodation (the
+   reduced tiers below cap it to 60ms, which still eases). --ease-hover (`ease`) per emil §3:
+   colour-only transitions take `ease`, not a quintic. */
+:root.theme-transition,
+:root.theme-transition body,
+:root.theme-transition body::before {
+  transition:
+    background-color 260ms var(--ease-hover),
+    color 260ms var(--ease-hover),
+    border-color 260ms var(--ease-hover),
+    fill 260ms var(--ease-hover);
+}
+
+/* metadata (amounts, dates, tags) render in mono — a satrio signature */
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Liquid Glass material — CHROME (floats over content) */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%) brightness(1.06);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) brightness(1.06);
+  border: 0.5px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-highlight),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.08),
+    0 12px 40px -8px var(--glass-shadow);
+}
+:root[data-theme="dark"] .glass,
+:root[data-theme-mode="black"] .glass {
+  backdrop-filter: blur(var(--glass-blur)) saturate(170%) brightness(0.92);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(170%) brightness(0.92);
+}
+.glass-strong { background: var(--glass-bg-strong); }
+
+/* Translucent CONTENT panel — backdrop shows through a legibility veil */
+.panel-material {
+  position: relative;
+  background: var(--panel-bg);
+  backdrop-filter: blur(var(--panel-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--panel-blur)) saturate(160%);
+  border: 0.5px solid var(--panel-border);
+  box-shadow:
+    inset 0 1px 0 0 var(--glass-highlight),
+    0 20px 60px -24px rgba(0, 0, 0, 0.40);
+}
+
+/* Unified DASH CARD material — softer, more translucent than .panel-material;
+   the single surface every dashboard widget will route through (Phase 3a1). */
+.dash-card {
+  position: relative;
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--card-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--card-blur)) saturate(160%);
+  border: 0.5px solid var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 0 var(--card-highlight), var(--card-shadow);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .glass-strong, .panel-material {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .dash-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--surface);
+  }
+}
+
+/* OS Increase Contrast — same fallback shape as the reduced-transparency block above: the
+   translucent materials go opaque and their backdrop-filter is cleared, so text always sits on
+   a solid surface. The dark/black `.glass` inversion above outranks these rules (0-3-0 vs
+   0-1-0) exactly as it does the reduced-transparency ones — there the filter survives but its
+   blur resolves to 0px via the zeroed tier tokens in tokens.css, which also pin every
+   --*-bg surface fill to the opaque --surface per theme. */
+@media (prefers-contrast: more) {
+  .glass, .glass-strong, .panel-material {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .dash-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--surface);
+  }
+}
+
+/* 60ms, not 0.001ms — Apple §14: reduced means gentler, not none. Mirrors the
+   `data-motion='reduced'` tier below; 0.001ms is the 'none' tier and must stay reachable only
+   from the explicit setting. Looping animations opt out (or re-assert) at their source, exactly
+   as under the data-motion tier — see the 'reduced' block's comment below. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 60ms !important; transition-duration: 60ms !important; }
+}
+
+/* ---- App animations (Settings: appAnimations) ----
+   Attribute-driven equivalents of the OS media query above: <html data-motion> is set by
+   applyAppAnimations (domEffects.ts) — 'all' (default: no rule; only the OS preference above
+   applies), 'reduced', or 'none'. These gate CSS transitions/animations only; framer-motion
+   springs are gated separately by the AppMotionConfig wrapper in App.tsx.
+
+   'none' = instant: every transition/animation collapses to one 0.001ms frame, and
+   `animation-iteration-count: 1` stops looping animations (Skeleton shimmer, Button spinner)
+   from re-running that frame forever. */
+:root[data-motion='none'] *,
+:root[data-motion='none'] *::before,
+:root[data-motion='none'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+/* 'reduced' = quick and functional: transitions AND one-shot keyframe animations (Modal pop,
+   disclosure reveal) capped short so state changes still read as changes (hover/press/nav tint)
+   without sweeping movement. LOOPING animations can't take a global 60ms cap (a 60ms loop
+   strobes), so each loop handles itself: purely decorative loops opt out at their source
+   (Skeleton.module.css and the wavy progress bars set `animation: none` for 'reduced'/'none',
+   mirroring their own prefers-reduced-motion rules), while the functional Button loading
+   spinner re-asserts its authored duration in Button.module.css (higher-specificity
+   !important) — a strobing or frozen spinner would read as a glitch/hang. */
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 60ms !important;
+  transition-duration: 60ms !important;
+}
+
+/* ---- Scroll behavior (Settings: scrollBehavior) ----
+   <html data-scroll-behavior> is set by applyScrollBehavior (domEffects.ts). HONEST WEB MAPPING:
+   the ported app's native options describe scroll-edge physics the web platform does not expose —
+   CSS cannot reproduce native bounce physics or add spring curves. What the web does control is
+   overscroll-behavior (whether the platform's own edge effect / scroll chaining is allowed) and
+   programmatic scroll smoothing, so the options map onto those:
+   - 'default': no rule — browser/platform default everywhere.
+   - 'simple':  instant programmatic scrolls + no edge effect / no overscroll chaining at all.
+   - 'stretch': keep the platform's local edge effect but contain it (never chains to a parent).
+   - 'bounce':  explicitly allow the native bounce/glow where the platform has one (iOS rubber-
+                band, Android glow); on desktop browsers with no edge effect this is a no-op.
+   Set on both the root and body so viewport propagation works across engines. */
+:root[data-scroll-behavior='simple'],
+:root[data-scroll-behavior='simple'] body {
+  scroll-behavior: auto;
+  overscroll-behavior-y: none;
+}
+:root[data-scroll-behavior='stretch'],
+:root[data-scroll-behavior='stretch'] body {
+  overscroll-behavior-y: contain;
+}
+:root[data-scroll-behavior='bounce'],
+:root[data-scroll-behavior='bounce'] body {
+  overscroll-behavior-y: auto;
+}
+
+/* ---- Icon shape system (Settings: iconShape) ----
+   Square-ish icon CONTAINERS (category tiles, settings icon tiles, account avatars) opt in via
+   the global `icon-shape` class; the active shape comes from <html data-icon-shape="...">, set
+   by applyIconShape. An absent attribute or 'rounded-square' keeps each surface's own
+   border-radius (the app's default look). The lobed shapes clip through the objectBoundingBox
+   clipPaths mounted once by IconShapeDefs (src/components/common/IconShapeDefs.tsx). */
+:root[data-icon-shape='circle'] .icon-shape { border-radius: 50%; }
+:root[data-icon-shape='pebble'] .icon-shape { border-radius: 38%; }
+:root[data-icon-shape='clover'] .icon-shape { border-radius: 0; clip-path: url(#icon-shape-clover); }
+:root[data-icon-shape='blossom'] .icon-shape { border-radius: 0; clip-path: url(#icon-shape-blossom); }
+:root[data-icon-shape='flower'] .icon-shape { border-radius: 0; clip-path: url(#icon-shape-flower); }
+
+/* Standalone per-shape classes — render a SPECIFIC shape regardless of the root selection
+   (the Appearance picker's swatches, /gallery). */
+.icon-shape--circle { border-radius: 50%; }
+.icon-shape--rounded-square { border-radius: 26%; }
+.icon-shape--pebble { border-radius: 38%; }
+.icon-shape--clover { clip-path: url(#icon-shape-clover); }
+.icon-shape--blossom { clip-path: url(#icon-shape-blossom); }
+.icon-shape--flower { clip-path: url(#icon-shape-flower); }
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+
+button { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }

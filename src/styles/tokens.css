@@ -1,0 +1,265 @@
+/* satrio glass — single source of truth for design tokens. Extracted from the finance app (macOS/iOS-26 glass); values here are the system defaults — apps override brand tokens per docs/brand-layer.md. */
+:root {
+  color-scheme: light dark;
+
+  /* ---- fonts (self-hosted variable fonts, see src/fonts.ts) ---- */
+  --font-sans: 'IBM Plex Sans Variable', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
+
+  /* ---- macOS type scale (size / line-height; weight per component) ----
+     Every SIZE multiplies by --app-font-scale — the Settings fontScale consumer, set inline on
+     <html> by applyFontSettings (0.85–1.2, default 1) — so the whole ramp scales together.
+     LEADING is UNITLESS (Apple §15: leading tracks size inversely): a ratio applies to the
+     already-scaled font-size and inherits as a ratio, so it needs no --app-font-scale multiply —
+     the old absolute px values froze inherited leading at body's 22px for every rule that set a
+     --fs-* size without its own line-height (182 of 328). */
+  --app-font-scale: 1;
+  --fs-large-title: calc(30px * var(--app-font-scale)); --lh-large-title: 1.1;
+  --fs-title: calc(22px * var(--app-font-scale));       --lh-title: 1.25;
+  --fs-headline: calc(17px * var(--app-font-scale));    --lh-headline: 1.3;
+  --fs-body: calc(15px * var(--app-font-scale));        --lh-body: 1.47;
+  --fs-callout: calc(13px * var(--app-font-scale));     --lh-callout: 1.4;
+  --fs-caption: calc(12px * var(--app-font-scale));     --lh-caption: 1.35;
+  /* caption2 (11px): dock tab labels under the 26px icons — one step below caption so the
+     icon+label stack clears the 64px pill at every fontScale. Leading tracks size inversely
+     (Apple §15), so it sits between caption's 1.35 and a tighter floor. */
+  --fs-caption2: calc(11px * var(--app-font-scale));    --lh-caption2: 1.27;
+
+  /* ---- tracking ramp (Apple §15: tracking is size-specific — never one value for all sizes).
+     em resolves against the already-scaled font-size, so no --app-font-scale multiply needed. */
+  --tracking-large-title: -0.02em;  --tracking-title: -0.015em;
+  --tracking-headline: -0.01em;     --tracking-body: 0em;
+  --tracking-callout: 0.005em;      --tracking-caption: 0.01em;
+  --tracking-eyebrow: 0.08em;       /* uppercase caption — the one exception to the ramp */
+
+  /* ---- spacing + concentric radii ----
+     Spacing joins Dynamic Type (Apple §15: scale layout WITH the text): every gap multiplies by
+     the same --app-font-scale as the type ramp, so larger text gets proportionally more air
+     instead of 20% more text crammed into frozen padding. Radii stay fixed — corner rounding is
+     a surface property, not a density one. */
+  --space-1: calc(8px * var(--app-font-scale));
+  --space-2: calc(16px * var(--app-font-scale));
+  --space-3: calc(24px * var(--app-font-scale));
+  --space-4: calc(32px * var(--app-font-scale));
+  --radius-card: 22px;
+  --radius-tile: 14px;
+  --radius-control: 11px;
+
+  /* ---- semantic color (light) ---- */
+  --bg: #f4efe9;
+  --surface: #fffaf6;
+  --surface-2: #f6ece5;
+  --label: #241a16;
+  --label-2: #6a564d;
+  --label-3: #9a877d;
+  --separator: rgba(60, 40, 30, 0.12);
+  --accent: #cf5410;       /* colored glyphs/text on glass */
+  --accent-fill: #d95b43;  /* solid accent behind white text (buttons/badges) */
+  --danger: #d0342c;
+  --income: #0b6e2f;
+  --expense: #c0392b;
+  --warning: #8a5200;      /* warning text/glyphs on tinted chips (AA at caption sizes) */
+  --warning-fill: #d08a2c; /* solid warning fill behind no text (progress bars) */
+
+  /* ---- Material blur ladder (Apple §12: bigger surfaces read as THICKER material) ----
+     One tier per surface ROLE, strictly increasing with surface size, so the heaviest blur is
+     spent where a surface actually floats over busy content. The old ladder was exactly
+     backwards: sheets (up to 94vh over live pages) blurred at 20px while dash-cards spent 30px
+     blurring the smooth --backdrop gradient — visually near-identity. Every backdrop-filter in
+     the app resolves to one of these four (the scan test in tokens.test.ts forbids literal px). */
+  --blur-chip: 12px;    /* smallest translucent elements (chips, mini pills) */
+  --blur-card: 20px;    /* content surfaces: .dash-card, .panel-material */
+  --blur-chrome: 24px;  /* floating chrome: nav pill, sidebar (.glass), menus, toasts */
+  --blur-sheet: 36px;   /* the modal layer: sheets + dialogs — biggest, busiest backdrop */
+
+  /* ---- Liquid Glass — CHROME (nav/dock/controls/sheets) ----
+     --glass-blur used to be calc(4px + 22px * --glass-intensity): the intensity knob presented
+     as a user-facing control but was never wired to Settings, never themed, and reached only
+     .glass — a quarter of the app's glass. Folded (design/motion plan Task 6): .glass now rides
+     the chrome tier of the ladder above, through this alias so the nav fallbacks and the dark
+     .glass inversion (global.css) keep their single shared token. */
+  --glass-blur: var(--blur-chrome);
+  --glass-bg: rgba(255, 250, 246, 0.22);
+  --glass-bg-strong: rgba(255, 250, 246, 0.46);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-highlight: rgba(255, 255, 255, 0.65);
+  --glass-shadow: rgba(86, 55, 43, 0.22);
+  /* Sheet/dialog drop shadow — WARM on light (the --glass-shadow/--card-shadow convention:
+     rgba(86,55,43,…) matches the tangerine brand; a literal neutral black casts a cold grey
+     shadow adjacent to warm card shadows), true black in the dark scope. */
+  --shadow-sheet: 0 30px 80px -20px rgba(86, 55, 43, 0.34);
+  --sheet-bg: rgba(255, 251, 248, 0.92);
+  --menu-bg: rgba(255, 251, 248, 0.94);
+  /* NAV chrome fill (BottomNav pill + desktop Sidebar): deliberately far more opaque than
+     --glass-bg — the floating nav must stay legible over busy scrolled content while keeping the
+     .glass blur. Mixed from --surface, so the one definition resolves per theme (light/dark/black)
+     without per-theme overrides. */
+  --nav-bg: color-mix(in srgb, var(--surface) 82%, transparent);
+
+  /* ---- translucent CONTENT panel ---- */
+  --panel-bg: rgba(255, 250, 246, 0.62);
+  --panel-border: rgba(255, 255, 255, 0.55);
+  --panel-blur: var(--blur-card); /* content surface → card tier (was a flat 30px) */
+
+  /* ---- translucent DASH CARD (unified dashboard widget surface) ---- */
+  --card-bg: rgba(255, 250, 246, 0.55);
+  --card-border: rgba(255, 255, 255, 0.55);
+  --card-highlight: rgba(255, 255, 255, 0.65);
+  --card-blur: var(--blur-card); /* content surface → card tier (was a flat 30px) */
+  --card-shadow: 0 18px 50px -28px rgba(86, 55, 43, 0.32);
+
+  /* ---- accent-tinted backdrop (spec: subtle, not a photo) ---- */
+  --backdrop:
+    radial-gradient(circle at 18% -8%, color-mix(in srgb, var(--accent) 25%, transparent) 0%, transparent 42%),
+    radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--accent-fill) 17%, transparent) 0%, transparent 46%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)) 0%, var(--bg) 60%);
+
+  /* ---- motion (purpose-split easings — emil §3: one curve per job, never one for all) ---- */
+  --ease-glass:  cubic-bezier(0.22, 1, 0.36, 1);   /* enter/exit — KEEP, do not touch */
+  --ease-move:   cubic-bezier(0.77, 0, 0.175, 1);  /* on-screen movement/morph */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);   /* sheet/drawer travel */
+  --ease-hover:  ease;                             /* hover + colour only */
+  --dur-enter: 240ms;   /* was 320ms — emil §4 hard cap is 300ms */
+  --dur-exit:  180ms;
+  --dur-hover: 150ms;
+  --dur-press: 140ms;   /* KEEP */
+}
+
+:root[data-theme="dark"] {
+  --bg: #14100e;
+  --surface: #201714;
+  --surface-2: #2a201c;
+  --label: #f6e8df;
+  --label-2: #cabab1;
+  --label-3: #93837b;
+  --separator: rgba(255, 255, 255, 0.12);
+  --accent: #ffb4a5;
+  --accent-fill: #d95b43;
+  --danger: #ff6b6b;
+  --income: #4ade80;
+  --expense: #ff8f7a;
+  --warning: #f0b269;      /* lightened for text contrast on dark tints; black theme inherits
+                              this via data-theme="dark" (see applyTheme.ts), like --income */
+  --warning-fill: #d08a2c;
+
+  --glass-bg: rgba(40, 30, 26, 0.34);
+  --glass-bg-strong: rgba(48, 36, 32, 0.54);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(0, 0, 0, 0.55);
+  --shadow-sheet: 0 30px 80px -20px rgba(0, 0, 0, 0.6); /* black scope inherits (already black) */
+  --sheet-bg: rgba(38, 28, 25, 0.93);
+  --menu-bg: rgba(38, 28, 25, 0.95);
+
+  --panel-bg: rgba(32, 23, 20, 0.60);
+  --panel-border: rgba(255, 255, 255, 0.12);
+
+  --card-bg: rgba(32, 23, 20, 0.55);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --card-highlight: rgba(255, 255, 255, 0.18);
+  --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.5);
+}
+
+/* Black paints BOTH data-theme="dark" and data-theme-mode="black" (applyTheme.ts), so any
+   surface token this block omits silently inherits the DARK value — that is how sheets, menus
+   and strong glass rendered warm brown rgb(38,28,25) on the #050505 OLED canvas (~7× the
+   luminance of --surface #0d0b0a). Every translucent surface fill the dark block overrides
+   must be re-grounded to near-black here. */
+:root[data-theme-mode="black"] {
+  --bg: #050505;
+  --surface: #0d0b0a;
+  --surface-2: #141010;
+  --label: #f8ede6;
+  --label-2: #d0bfb6;
+  --label-3: #8b7a72;
+  --separator: rgba(255, 255, 255, 0.10);
+  --glass-bg: rgba(12, 9, 8, 0.40);
+  --glass-bg-strong: rgba(20, 16, 15, 0.56);
+  --sheet-bg: rgba(16, 13, 12, 0.94);
+  --menu-bg: rgba(16, 13, 12, 0.96);
+  --panel-bg: rgba(12, 9, 8, 0.62);
+
+  --card-bg: rgba(12, 9, 8, 0.58);
+  --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.5);
+}
+
+/* ---- High text contrast (Settings: highTextContrast) ----
+   <html data-high-text-contrast="on"> is set by applyHighTextContrast (domEffects.ts).
+   Strengthens the SECONDARY text ramp toward --label and firms up separators/borders — a
+   legibility boost, not a redesign: --label, accents, and surfaces stay untouched.
+
+   Ordering/specificity contract: these three blocks sit AFTER every theme block. The light
+   selector (specificity 0-2-0) would tie with the plain dark block, so the theme-scoped combos
+   (0-3-0) re-override per theme; the black combo comes LAST because the black theme paints BOTH
+   data-theme="dark" and data-theme-mode="black" (applyTheme.ts) and both combos match at 0-3-0. */
+:root[data-high-text-contrast='on'] {
+  --label-2: #453529;                    /* was #6a564d — deep warm gray, close to --label */
+  --label-3: #6a564d;                    /* was #9a877d — promoted to the old --label-2 */
+  --separator: rgba(60, 40, 30, 0.28);   /* was 0.12 — hairlines read clearly on light glass */
+}
+:root[data-theme='dark'][data-high-text-contrast='on'] {
+  --label-2: #ece0d8;                    /* was #cabab1 — near-white, close to --label */
+  --label-3: #c2b2a8;                    /* was #93837b — clearly readable on dark surfaces */
+  --separator: rgba(255, 255, 255, 0.30); /* was 0.12 */
+}
+:root[data-theme-mode='black'][data-high-text-contrast='on'] {
+  --label-2: #f1e5dd;                    /* was #d0bfb6 — near-white against #050505 */
+  --label-3: #cdbdb4;                    /* was #8b7a72 */
+  --separator: rgba(255, 255, 255, 0.28); /* was 0.10 */
+}
+
+/* ---- Colorful interface (Settings: colorfulInterface — the "Material You" toggle) ----
+   <html data-colorful-interface="off"> is set by applyColorfulInterface (domEffects.ts).
+   OFF strips the ACCENT TINT from the app backdrop — the two accent color-mix radials and the
+   accent-mixed top of the base gradient above — leaving a plain neutral --bg wash (kept as a
+   gradient so the viewport-fixed `body::before` backdrop layer in global.css keeps resolving
+   to an image).
+   ON (default, or attribute absent) is the stock tinted look; every theme inherits this same
+   override since --backdrop is only defined on :root and the gradient resolves the CURRENT
+   theme's --bg. Accent-colored controls (--accent/--accent-fill) are untouched. */
+:root[data-colorful-interface='off'] {
+  --backdrop: linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+}
+
+/* Every blur tier collapses under Reduce Transparency — including the ladder itself, so ALL
+   consumers (sheets, dialogs, menus, toasts, cards) go flat, not just the .glass/.panel classes
+   the global.css fallback rules can reach. --glass-blur/--panel-blur/--card-blur resolve to the
+   tiers, but they are re-zeroed explicitly: an alias retarget must never re-open this hole. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-blur: 0px; --panel-blur: 0px; --card-blur: 0px;
+    --blur-chip: 0px; --blur-card: 0px; --blur-chrome: 0px; --blur-sheet: 0px;
+  }
+}
+
+/* ---- OS Increase Contrast (Apple §14's THIRD independent a11y signal) ----
+   prefers-reduced-transparency and the manual data-high-text-contrast setting were handled;
+   the OS contrast preference was not — a user who set Increase Contrast still got the full
+   translucent stack. Modeled on the reduced-transparency block above: zero every blur tier and
+   pin the translucent surface fills to the CURRENT theme's opaque --surface, with the glass
+   hairline borders promoted to --label-3 so edges read as drawn lines, not translucency.
+   This ADDS alongside the data-high-text-contrast contract above (which strengthens the text
+   ramp) — it neither replaces nor reorders those blocks, and it must stay AFTER them (§5
+   ordering gate). The theme-scoped selectors are required: the surface fills are overridden at
+   0-2-0 specificity in the dark/black theme blocks, so a plain :root pin would lose to them. */
+@media (prefers-contrast: more) {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme-mode='black'] {
+    --glass-blur: 0px; --panel-blur: 0px; --card-blur: 0px;
+    --blur-chip: 0px; --blur-card: 0px; --blur-chrome: 0px; --blur-sheet: 0px;
+    --glass-bg: var(--surface);
+    --glass-bg-strong: var(--surface);
+    --panel-bg: var(--surface);
+    --card-bg: var(--surface);
+    --sheet-bg: var(--surface);
+    --menu-bg: var(--surface);
+    /* --nav-bg composes from --surface (82% mix), so one line here covers all three themes —
+       without it the nav.bar/aside.bar consumers (element-qualified 0-1-1, they BEAT the .glass
+       opaque fallback by specificity) kept an 18%-transparent fill with their blur zeroed. */
+    --nav-bg: var(--surface);
+    --glass-border: var(--label-3);
+    --panel-border: var(--label-3);
+    --card-border: var(--label-3);
+  }
+}
