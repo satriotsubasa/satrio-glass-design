@@ -1,0 +1,75 @@
+/* The TRACK owns the pill shape: 999px radius + overflow:hidden clip everything inside to the
+   pill, so the fill layers below can animate with compositor-only transforms — never width,
+   which forces layout+paint on every frame of every bar (BudgetRailWidget renders one per
+   budget). --bar-cap is the RESOLVED pill radius (track height / 2); the body layer's
+   pre-translate below is tied to it. */
+.track { height: 8px; --bar-cap: 4px; border-radius: 999px; background: color-mix(in srgb, var(--label) 10%, transparent); overflow: hidden; }
+
+/* .fill is an UNSCALED full-size wrapper — it paints nothing itself. It carries: the tone/custom
+   classes (which only SET --bar-fill; a caller-supplied `color` prop is written as an INLINE
+   --bar-fill here, beating the class value in the cascade, and inherits into the painted layers
+   below), the inline --bar-progress driving both transforms, and the wavy mask (mask on an
+   unscaled element, so the 12px wave tile never stretches horizontally with progress — riding
+   the scaled layer would distort the wavelength at low fractions). */
+.fill { position: relative; width: 100%; height: 100%; }
+
+/* The two painted layers. Progress animates on `transform` only (compositor-only); the timing
+   tokens are exactly what the old width transition used. Both transforms are linear in
+   --bar-progress with the same transition, so the layers stay in lockstep mid-animation.
+   LTR-only app today: origin-left scaling and the left-anchored cap translate are
+   direction-sensitive — revisit both if RTL ever lands.
+   - .fillBody: plain rect (no radius — nothing to squash), scaleX(progress) about the left
+     edge, pre-translated -1 cap so its flat right edge stops exactly where the cap's rounding
+     begins (edge = progress·100% − 4px at every fraction).
+   - .fillCap: a full-width pill translated so its rounded right end sits at progress·100% —
+     a FIXED-radius end cap that cannot squash into an ellipse at any fraction (translation
+     never scales geometry). Its flat midsection covers everything left of the cap, so
+     body ∪ cap is a true pill; the track's own 999px corner clips the left end identically
+     to the old width-based fill. Fill colours are opaque by contract (tones are theme tokens,
+     `color` comes from the app palette), so the overlap between the two layers is invisible. */
+.fillBody, .fillCap { position: absolute; inset: 0; background: var(--bar-fill, var(--accent-fill)); transition: transform var(--dur-enter) var(--ease-glass); }
+.fillBody { transform: translateX(calc(-1 * var(--bar-cap))) scaleX(var(--bar-progress, 0)); transform-origin: left center; }
+.fillCap { border-radius: 999px; transform: translateX(calc(var(--bar-progress, 0) * 100% - 100%)); }
+
+.accent { --bar-fill: var(--accent-fill); }
+.income { --bar-fill: var(--income); }
+.expense { --bar-fill: var(--expense); }
+.warning { --bar-fill: var(--warning-fill); }
+
+/* Contrast floor for the caller-supplied `color` override ONLY (the tone classes above keep
+   painting pure var(--bar-fill) — they're theme-tuned already). An arbitrary saturated colour
+   (e.g. #673AB7) can drop below 3:1 against the track in dark/black themes; tinting 15% towards
+   var(--label) lightens it in dark themes and darkens it in light ones, in every theme's favour.
+   Applied on the painted layers since .fill is now a non-painting wrapper. */
+.customFill .fillBody, .customFill .fillCap { background: color-mix(in srgb, var(--bar-fill) 85%, var(--label)); }
+
+/* ---- Wavy variant (Settings: progressBarStyle = 'wavy') ----
+   The fill keeps its tone; a repeating SVG wave mask (12px tile, ±1px amplitude around y=3)
+   scallops the fill's TOP edge like the legacy app — the flat track shows through the dips. The mask
+   sits on the UNSCALED .fill wrapper (masking both layers as a group), anchored at the track's
+   left like the old width-based fill was, so phase, wavelength and coverage are unchanged — and
+   scaleX on the body can't stretch the tile. A slow mask-position drift makes the wave travel.
+   The drift is purely decorative, so it opts out at the source (like Skeleton's shimmer) under
+   OS prefers-reduced-motion AND the in-app data-motion 'reduced'/'none' gates — global.css's
+   'none' rule would collapse it anyway, but the OS media rule caps duration WITHOUT an
+   iteration cap, so an explicit `animation: none` is required to keep the 0.001ms loop from
+   re-queuing forever. The static wave shape itself remains in every motion mode. Mirrored in
+   BudgetProgressBar.module.css. */
+.wavy {
+  --progress-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M0 3 Q3 1 6 3 T12 3 L12 8 L0 8 Z'/%3E%3C/svg%3E");
+  mask-image: var(--progress-wave);
+  mask-repeat: repeat-x;
+  mask-size: 12px 100%;
+  mask-position: 0 0;
+  -webkit-mask-image: var(--progress-wave);
+  -webkit-mask-repeat: repeat-x;
+  -webkit-mask-size: 12px 100%;
+  -webkit-mask-position: 0 0;
+  animation: waveDrift 2.4s linear infinite;
+}
+@keyframes waveDrift {
+  to { mask-position: 12px 0; -webkit-mask-position: 12px 0; }
+}
+@media (prefers-reduced-motion: reduce) { .wavy { animation: none; } }
+:global(:root[data-motion='reduced']) .wavy,
+:global(:root[data-motion='none']) .wavy { animation: none; }

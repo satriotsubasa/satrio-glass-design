@@ -1,0 +1,9 @@
+.chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; white-space: nowrap;
+  font-family: var(--font-mono); font-weight: 600; }
+.sm { font-size: var(--fs-caption); padding: 2px 9px; }
+.md { font-size: var(--fs-callout); padding: 3px 11px; }
+.neutral { background: color-mix(in srgb, var(--label) 10%, transparent); color: var(--label-2); }
+.accent { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.income { background: color-mix(in srgb, var(--income) 16%, transparent); color: var(--income); }
+.expense { background: color-mix(in srgb, var(--expense) 16%, transparent); color: var(--expense); }
+.warning { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }

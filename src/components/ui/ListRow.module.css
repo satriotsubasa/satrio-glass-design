@@ -1,0 +1,10 @@
+.row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px;
+  border: none; background: transparent; font: inherit; color: var(--label); border-radius: var(--radius-tile); }
+.interactive { cursor: pointer; transition: background var(--dur-press) var(--ease-glass), transform var(--dur-press) var(--ease-glass); }
+.interactive:active { transform: scale(0.98); }
+@media (hover: hover) { .interactive:hover { background: color-mix(in srgb, var(--label) 6%, transparent); } }
+.leading { flex-shrink: 0; display: inline-flex; }
+.body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.title { font-size: var(--fs-body); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.subtitle { font-size: var(--fs-caption); color: var(--label-2); }
+.trailing { flex-shrink: 0; margin-left: auto; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }

@@ -1,0 +1,59 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.row + .row {
+  border-top: 0.5px solid var(--separator);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.moveControls {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0;
+  padding-right: 4px;
+}
+
+/* 44×32px hit area per button (the 13px glyph stays visually small; the padding-extended target
+   satisfies the WCAG 2.5.8 24px floor and the kit's own ≥44px-wide touch-target house rule —
+   see Toggle.tsx). Stacked with no gap so the pair reads as one compact control. */
+.moveBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--label-2);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background var(--dur-press) var(--ease-glass), color var(--dur-press) var(--ease-glass),
+    transform var(--dur-press) var(--ease-glass);
+}
+/* 0.97 (compact tier): the pressed surface is the 44×32 move BUTTON, not the full-width row. */
+.moveBtn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.moveBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+@media (hover: hover) {
+  .moveBtn:not(:disabled):hover {
+    background: color-mix(in srgb, var(--label) 8%, transparent);
+    color: var(--label);
+  }
+}

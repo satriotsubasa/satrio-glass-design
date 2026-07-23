@@ -1,0 +1,12 @@
+.skeleton { display: block; background: linear-gradient(90deg,
+  color-mix(in srgb, var(--label) 8%, transparent) 25%,
+  color-mix(in srgb, var(--label) 14%, transparent) 37%,
+  color-mix(in srgb, var(--label) 8%, transparent) 63%);
+  background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+/* Settings appAnimations ('reduced'/'none' via <html data-motion>, see global.css): the shimmer
+   is a purely decorative loop — kill it at the source; the static gradient base still reads as
+   a placeholder. ('none' would freeze it globally anyway; 'reduced' needs this opt-out.) */
+:global(:root[data-motion='reduced']) .skeleton,
+:global(:root[data-motion='none']) .skeleton { animation: none; }

@@ -1,0 +1,24 @@
+.rail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-inline: var(--space-2);
+  padding-block: 2px;
+  margin-inline: calc(-1 * var(--space-2));
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rail {
+    cursor: grab;
+  }
+  .rail:active {
+    cursor: grabbing;
+  }
+}

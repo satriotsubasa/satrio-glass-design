@@ -1,0 +1,39 @@
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 999px;
+  font-size: var(--fs-callout);
+  padding: 6px 14px;
+  background: color-mix(in srgb, var(--label) 10%, transparent);
+  color: var(--label-2);
+  transition: background var(--dur-press) var(--ease-glass), color var(--dur-press) var(--ease-glass),
+    transform var(--dur-press) var(--ease-glass);
+}
+.chip:active {
+  transform: scale(0.97);
+}
+.chip:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .chip:not(.active):hover {
+    background: color-mix(in srgb, var(--label) 16%, transparent);
+    color: var(--label);
+  }
+}
+.active {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
