@@ -169,7 +169,7 @@ tests above run against as their own dogfood target.
 
 ```
 npm run dev      # vite dev server for the gallery
-npm run build    # tsc -b && vite build → dist/ (deployed to design.satrio.io, see docs/deploy.md)
+npm run build    # tsc -b && vite build → dist/ (deployed to design.satrio.io)
 npm run preview  # serve the production build locally
 npm test         # full vitest suite, including this package's own policy self-enforcement
 ```
