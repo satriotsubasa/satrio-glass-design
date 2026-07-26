@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
-import { fileURLToPath, URL } from 'node:url'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { TOKENS_CSS_PATH } from './paths'
 
 /**
  * Which tokens a consumer brand file MAY override. Everything else is the
@@ -268,18 +269,27 @@ export function findMissingCollapseTails(
  * the file overrides only brand-approved tokens, and every collapse-managed token
  * it touches re-asserts the a11y collapse so a later-cascade override cannot
  * silently defeat Reduce Transparency / Increase Contrast.
+ *
+ * Paths are plain strings, resolved against `process.cwd()` when relative. Never wrap one in
+ * `fileURLToPath(new URL(<string literal>, import.meta.url))` (Vite and vitest rewrite that
+ * expression into an http dev-server URL under a jsdom/happy-dom test environment).
+ *
+ * @example
+ * // src/styles/brand.policy.test.ts — in the consumer's own vitest run:
+ * import { runBrandPolicy } from '@satrio/glass-design/testing'
+ * runBrandPolicy({ brandCssPath: 'src/styles/brand.css' })
  */
 export function runBrandPolicy({
   brandCssPath,
   tokensCssPath,
 }: {
   brandCssPath: string
-  /** defaults to the package's own tokens.css resolved relative to this file */
+  /** defaults to TOKENS_CSS_PATH — this package's own tokens.css */
   tokensCssPath?: string
 }): void {
   describe('brand policy: ' + brandCssPath, () => {
     it('overrides only brand-approved tokens', () => {
-      const brandCss = readFileSync(brandCssPath, 'utf8')
+      const brandCss = readFileSync(resolve(process.cwd(), brandCssPath), 'utf8')
       const disallowed = findDisallowedTokens(brandCss)
       expect(
         disallowed,
@@ -291,10 +301,8 @@ export function runBrandPolicy({
     })
 
     it('re-asserts the a11y collapse for every collapse-managed token it overrides', () => {
-      const brandCss = readFileSync(brandCssPath, 'utf8')
-      const resolvedTokensPath =
-        tokensCssPath ?? fileURLToPath(new URL('../styles/tokens.css', import.meta.url))
-      const tokensCss = readFileSync(resolvedTokensPath, 'utf8')
+      const brandCss = readFileSync(resolve(process.cwd(), brandCssPath), 'utf8')
+      const tokensCss = readFileSync(resolve(process.cwd(), tokensCssPath ?? TOKENS_CSS_PATH), 'utf8')
       const missing = findMissingCollapseTails(brandCss, tokensCss)
       expect(
         missing,

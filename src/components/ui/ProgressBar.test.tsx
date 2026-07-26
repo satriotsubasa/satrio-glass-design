@@ -6,7 +6,7 @@ import { render } from '@testing-library/react'
 import { ProgressBar } from './ProgressBar'
 import styles from './ProgressBar.module.css'
 
-// NOT `new URL('./…', import.meta.url)` — Vite statically rewrites that pattern into a
+// NOT `new URL(<string literal>, import.meta.url)` — Vite statically rewrites that pattern into a
 // `self.location`-based http URL under jsdom. Raw `import.meta.url` stays a file:// URL
 // (same convention as Sheet.test.tsx).
 const moduleCss = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'ProgressBar.module.css'), 'utf8')

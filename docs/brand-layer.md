@@ -143,14 +143,18 @@ consumer app.
 
 ```ts
 // src/styles/brand.policy.test.ts
-import { fileURLToPath } from 'node:url'
 import { runBrandPolicy } from '@satrio/glass-design/testing'
 
 runBrandPolicy({
-  brandCssPath: fileURLToPath(new URL('./brand.css', import.meta.url)),
+  brandCssPath: 'src/styles/brand.css',
   // tokensCssPath is optional — defaults to the package's own tokens.css
 })
 ```
+
+`brandCssPath` is a plain string, resolved against `process.cwd()` when relative. Do **not** wrap
+it in `fileURLToPath(new URL(<string literal>, import.meta.url))`: under a `jsdom`/`happy-dom` test
+environment Vite and vitest rewrite that literal expression into an `http://` dev-server URL and
+`fileURLToPath` throws `The URL must be of scheme file`.
 
 It asserts two things: your file overrides **only** brand-approved tokens, and it re-asserts
 the a11y collapse for every collapse-managed token it touches.

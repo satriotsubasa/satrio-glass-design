@@ -426,7 +426,7 @@ describe('Sheet — grabber-driven drag: framer must never stamp touch-action on
     // The rendered-style assertions above would also pass if drag were removed entirely; this
     // pins the mechanism itself so the framer stamp cannot return via a "simplifying" refactor
     // that re-enables the built-in drag listener.
-    // NOT `new URL('./Sheet.tsx', import.meta.url)` — Vite statically rewrites that pattern
+    // NOT `new URL(<string literal>, import.meta.url)` — Vite statically rewrites that pattern
     // into a `self.location`-based http URL. Raw `import.meta.url` stays a file:// URL.
     const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'Sheet.tsx'), 'utf8')
     // Anchored to the CONTIGUOUS JSX prop cluster (not a bare `dragListener={false}` match,

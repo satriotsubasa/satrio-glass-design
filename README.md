@@ -121,22 +121,29 @@ copy-ready starting point ships at `@satrio/glass-design/styles/brand-template.c
 
 `@satrio/glass-design/testing` exports four test factories. Each registers its own
 `describe`/`it` suite, so call them at the top level of a vitest file in your app (`vitest` is an
-optional peer — add it as a devDependency):
+optional peer — add it as a devDependency).
+
+Every path option is a plain string, resolved against `process.cwd()` (the directory you run
+vitest from) when relative. Pass paths as strings — do **not** wrap them in
+`fileURLToPath(new URL(<string literal>, import.meta.url))`: under a `jsdom`/`happy-dom` test
+environment Vite and vitest rewrite that literal expression into an `http://` dev-server URL and
+`fileURLToPath` throws `The URL must be of scheme file`. For the kit's own `tokens.css`, import the
+exported `TOKENS_CSS_PATH` instead of hand-writing a `node_modules/…` path.
 
 ```ts
 // src/styles/glassPolicy.test.ts
-import { fileURLToPath } from 'node:url'
 import {
   runBrandPolicy,
   runPressStatePolicy,
   runTokenUsagePolicy,
   runInputZoomPolicy,
+  TOKENS_CSS_PATH,
 } from '@satrio/glass-design/testing'
 
 // Only BRAND_TOKENS may be overridden, and every collapse-managed token you override must
 // re-assert the a11y collapse tail.
 runBrandPolicy({
-  brandCssPath: fileURLToPath(new URL('./brand.css', import.meta.url)),
+  brandCssPath: 'src/styles/brand.css',
   // tokensCssPath is optional — defaults to the package's own tokens.css
 })
 
@@ -151,12 +158,7 @@ runPressStatePolicy({
 // tokens.css or your own brand.css.
 runTokenUsagePolicy({
   srcRoots: ['src'],
-  tokenCssPaths: [
-    fileURLToPath(
-      new URL('../../node_modules/@satrio/glass-design/src/styles/tokens.css', import.meta.url),
-    ),
-    'src/styles/brand.css',
-  ],
+  tokenCssPaths: [TOKENS_CSS_PATH, 'src/styles/brand.css'],
 })
 
 // Every font-size in your raw <input>/<textarea> CSS floors at 16px (iOS Safari's focus-zoom

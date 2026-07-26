@@ -83,17 +83,19 @@ export interface TokenUsagePolicyOptions {
  * Register the token-existence suite: every `--fs|lh|tracking|space|dur|ease|blur-*` consumed under
  * `srcRoots` must be defined in one of `tokenCssPaths`.
  *
+ * Paths are plain strings, resolved against `process.cwd()` when relative. `TOKENS_CSS_PATH` is
+ * this package's own `tokens.css`, already resolved — prefer it over a hand-written
+ * `node_modules/@satrio/glass-design/...` path, and never wrap a path in
+ * `fileURLToPath(new URL(<string literal>, import.meta.url))` (Vite and vitest rewrite that
+ * expression into an http dev-server URL under a jsdom/happy-dom test environment).
+ *
  * @example
  * // src/styles/glassPolicy.test.ts
  * // In the consumer's own vitest run, checking their src against the kit + their brand overrides:
- * import { runTokenUsagePolicy } from '@satrio/glass-design/testing'
- * import { fileURLToPath } from 'node:url'
+ * import { runTokenUsagePolicy, TOKENS_CSS_PATH } from '@satrio/glass-design/testing'
  * runTokenUsagePolicy({
  *   srcRoots: ['src'],
- *   tokenCssPaths: [
- *     fileURLToPath(new URL('../../node_modules/@satrio/glass-design/src/styles/tokens.css', import.meta.url)),
- *     'src/styles/brand.css',
- *   ],
+ *   tokenCssPaths: [TOKENS_CSS_PATH, 'src/styles/brand.css'],
  * })
  */
 export function runTokenUsagePolicy({ srcRoots, tokenCssPaths }: TokenUsagePolicyOptions): void {
