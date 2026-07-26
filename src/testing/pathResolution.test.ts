@@ -21,10 +21,17 @@ import { describe, expect, it } from 'vitest'
  * Every test file in THIS repo declares `// @vitest-environment node`, whose SSR transform runs
  * neither plugin, so the failure cannot be reproduced from inside this repo — hence a SOURCE scan.
  * Test files never ship (package.json "files" excludes them) and may keep the simple pattern.
+ *
+ * The alternation mirrors vitest's own `vitest:normalize-url` matcher (single/double-quoted,
+ * template-literal, and the `'' + import.meta.url` spelling it also rewrites) rather than a
+ * narrower guess, so a still-broken spelling this repo has not written yet does not slip past
+ * the scan the day it is.
  */
 
-/** `new URL(<string literal>, import.meta.url)` — the exact shape both transforms match. */
-const REWRITTEN_PATTERN = /new\s+URL\s*\(\s*(?:'[^']+'|"[^"]+"|`[^`]+`)\s*,\s*import\.meta\.url/
+/** `new URL(<string literal>, import.meta.url)` — the exact shape both transforms match, in
+ *  every quoting vitest's own rewriter accepts (including the `'' + import.meta.url` variant). */
+const REWRITTEN_PATTERN =
+  /new\s+URL\s*\(\s*(?:'[^']+'|"[^"]+"|`[^`]+`)\s*,\s*(?:''\s*\+\s*)?import\.meta\.url/
 
 const toPosix = (p: string): string => p.replace(/\\/g, '/')
 
@@ -54,11 +61,34 @@ describe('shipped path resolution never uses the Vite-rewritten new URL idiom', 
     expect(docFiles, 'the README must be in the scanned doc set').toContain('README.md')
   })
 
-  it('still bites: the pattern matches the idiom it bans and clears the sanctioned one', () => {
-    expect(REWRITTEN_PATTERN.test("fileURLToPath(new URL('../styles/tokens.css', import.meta.url))")).toBe(true)
-    expect(REWRITTEN_PATTERN.test("join(dirname(fileURLToPath(import.meta.url)), '..', 'styles', 'tokens.css')")).toBe(
-      false,
-    )
+  it('still bites: the pattern matches every quoting the idiom can take and clears the sanctioned forms', () => {
+    const stillBroken = [
+      // single-quoted — the original shape.
+      "fileURLToPath(new URL('../styles/tokens.css', import.meta.url))",
+      // double-quoted.
+      'fileURLToPath(new URL("../styles/tokens.css", import.meta.url))',
+      // template literal, plain and interpolated.
+      'fileURLToPath(new URL(`../styles/tokens.css`, import.meta.url))',
+      'fileURLToPath(new URL(`${base}/tokens.css`, import.meta.url))',
+      // vitest's own `'' + import.meta.url` alternative — still rewritten to self.location.
+      "fileURLToPath(new URL('../styles/tokens.css', '' + import.meta.url))",
+      // prettier-wrapped multi-line call.
+      "fileURLToPath(new URL(\n  '../styles/tokens.css',\n  import.meta.url,\n))",
+    ]
+    for (const source of stillBroken) {
+      expect(REWRITTEN_PATTERN.test(source), `should flag: ${source}`).toBe(true)
+    }
+
+    const sanctioned = [
+      // the idiom this repo's own source uses instead.
+      "join(dirname(fileURLToPath(import.meta.url)), '..', 'styles', 'tokens.css')",
+      // no string-literal first argument — nothing here for Vite's asset-rewrite to match.
+      'new URL(import.meta.url)',
+      'new URL(someVar, import.meta.url)',
+    ]
+    for (const source of sanctioned) {
+      expect(REWRITTEN_PATTERN.test(source), `should clear: ${source}`).toBe(false)
+    }
   })
 
   it('leaves the idiom out of every shipped source file', () => {

@@ -12,6 +12,7 @@ export interface SelectProps {
   disabled?: boolean
   className?: string
   'aria-label'?: string
+  'aria-describedby'?: string
 }
 export function Select({ value, onValueChange, options, placeholder, invalid, id, disabled, className, ...aria }: SelectProps) {
   return (

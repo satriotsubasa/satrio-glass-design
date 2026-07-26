@@ -103,11 +103,14 @@ body::before {
 }
 
 /* Class-based fallback for the three named materials. It is a belt to the token pins in
-   tokens.css, not a replacement: the dark/black `.glass` inversion above outranks this rule
-   (0-3-0 vs 0-1-0), so in those themes only the zeroed tier tokens and the --*-bg surface pins
-   flatten the material — and any surface that reads a fill token directly, with no material
-   class, is reachable ONLY by those token pins. What this rule adds is clearing saturate()/
-   brightness(), which a 0px blur leaves in place. */
+   tokens.css, not a replacement. The `background: var(--surface)` pin below is UNCONTESTED and
+   wins in all three themes: the dark/black `.glass` inversion above declares no `background` at
+   all (only backdrop-filter), so there is nothing at (0-3-0) for it to lose to. Only
+   `backdrop-filter: none` is outranked by that inversion (0-3-0 vs 0-1-0 here) — so in dark/black
+   the filter survives, its blur resolved to 0px through the zeroed tier tokens in tokens.css,
+   while saturate()/brightness() remain; harmless, since the background pin above already made
+   the element's own fill opaque. Any surface that reads a fill token directly, with no material
+   class, is reachable ONLY by those token pins. */
 @media (prefers-reduced-transparency: reduce) {
   .glass, .glass-strong, .panel-material {
     background: var(--surface);
@@ -123,10 +126,11 @@ body::before {
 
 /* OS Increase Contrast — same fallback shape as the reduced-transparency block above: the
    translucent materials go opaque and their backdrop-filter is cleared, so text always sits on
-   a solid surface. The dark/black `.glass` inversion above outranks these rules (0-3-0 vs
-   0-1-0) exactly as it does the reduced-transparency ones — there the filter survives but its
-   blur resolves to 0px via the zeroed tier tokens in tokens.css, which also pin every
-   --*-bg surface fill to the opaque --surface per theme. */
+   a solid surface. As above, the `background: var(--surface)` pin is uncontested and wins in all
+   three themes; only `backdrop-filter: none` is outranked by the dark/black `.glass` inversion
+   (0-3-0 vs 0-1-0 here) exactly as it is for the reduced-transparency block — the filter survives
+   there but its blur resolves to 0px via the zeroed tier tokens in tokens.css, which also pin
+   every --*-bg surface fill to the opaque --surface per theme. */
 @media (prefers-contrast: more) {
   .glass, .glass-strong, .panel-material {
     background: var(--surface);

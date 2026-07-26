@@ -115,8 +115,9 @@ turns a forgotten tail into a test failure, naming the token and the missing blo
 **The tail's selector must be at least as specific as the override's.** A theme-scoped
 override such as `:root[data-theme='dark'] { --glass-bg: … }` has specificity (0,2,0) and
 beats a plain `:root` tail (0,1,0) *by specificity* — so re-asserting it under `:root` alone
-still leaves Increase Contrast broken in dark. Hand-rolling a tail, match the override's
-scope:
+still leaves the tail broken in dark under EITHER a11y block (Reduce Transparency as much as
+Increase Contrast — a too-weak selector loses the same way regardless of which `@media` block
+it sits under). Hand-rolling a tail, match the override's scope, under BOTH blocks:
 
 ```css
 /* override */
@@ -125,7 +126,14 @@ scope:
 /* WRONG — :root (0,1,0) loses to the dark override (0,2,0) */
 @media (prefers-contrast: more) { :root { --glass-bg: var(--surface); } }
 
-/* RIGHT — the tail carries the same theme scope (or a list that includes it) */
+/* RIGHT — the tail carries the same theme scope (or a list that includes it), under BOTH
+   a11y blocks: the reduced-transparency collapse and the contrast collapse are independent
+   OS signals, each with its own tail requirement */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme-mode='black'] { --glass-bg: var(--surface); }
+}
 @media (prefers-contrast: more) {
   :root,
   :root[data-theme='dark'],

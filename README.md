@@ -117,6 +117,33 @@ whenever either changes:
 If your CSP disallows inline scripts, hash this exact script's content (see `public/_headers` in
 this repo for the pattern) rather than adding `'unsafe-inline'`.
 
+## Field / forms wiring
+
+`Field` renders `hint` and `error` together, hint first, so the format rule stays visible after
+validation fires rather than being replaced by it. `error` renders into a `role="alert"` live
+region, which is assertive — set it only on submit or blur, never per keystroke, or it interrupts
+a screen reader on every character typed.
+
+When `Field` is given `htmlFor`, it publishes `${htmlFor}-hint` / `${htmlFor}-error` ids on the
+hint/error text it renders — but it does not wire them anywhere itself (`children` is often a
+wrapper around the real control, so `Field` cloning it would describe the wrapper instead). **The
+caller owns the control and must add the wiring**, same as it already owns `aria-invalid`:
+
+```tsx
+<Field label="Amount" htmlFor="amount" hint="Enter a positive number" error={amountError}>
+  <TextInput id="amount" invalid={!!amountError} aria-describedby="amount-hint amount-error" />
+</Field>
+```
+
+Always list both ids in `aria-describedby`, even when only one of `hint`/`error` is set for this
+render — the id for the absent one simply does not exist yet, and screen readers ignore an
+idref that resolves to nothing. See `src/docs/Gallery.tsx`'s "Field, TextInput, Textarea, Select"
+section for every combination wired this way.
+
+Also move focus to the first invalid control on submit. Safari/VoiceOver do not reliably announce
+a `role="alert"` node that is inserted already containing its text — moving focus there makes the
+message audible via the `aria-describedby` description regardless, and is good form-UX besides.
+
 ## Brand layer
 
 Palette, accents, surface tints, corner radii, and material thickness are re-skinned per app via a

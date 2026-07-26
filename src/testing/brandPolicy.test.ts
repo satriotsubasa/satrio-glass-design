@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import {
+  A11Y_MEDIA,
   BRAND_TOKENS,
   findDisallowedTokens,
   findMissingCollapseTails,
@@ -224,8 +225,53 @@ describe('findMissingCollapseTails (collapse-coverage check)', () => {
   })
 })
 
-// runBrandPolicy used exactly as a consumer would: register the real suite over
-// the shipped template. Proves the template obeys its own contract end-to-end.
+// The shipped template's tail, checked DIRECTLY against tokens.css rather than through
+// runBrandPolicy (below). Every value line above the tail is commented out — a deliberate
+// starting point for a consumer to uncomment — so the template never carries a live base
+// override, and findMissingCollapseTails's `baseOverrides.length === 0 -> continue` skips every
+// token as a result: runBrandPolicy's collapse-tail check cannot exercise this file's tail AT
+// ALL. This suite is what actually holds the tail to tokens.css, and fails naming the exact
+// token(s) if a line is ever lost from it.
+describe('brand-template.css tail coverage (derived from tokens.css)', () => {
+  const templateCss = readFileSync(
+    fileURLToPath(new URL('../styles/brand-template.css', import.meta.url)),
+    'utf8',
+  )
+
+  it('ships with no live base declaration — the check above is intentionally vacuous, not accidental', () => {
+    const declared = parseDeclaredTokens(templateCss)
+    const liveBase = Array.from(declared.entries())
+      .filter(([, scopeKeys]) => scopeKeys.some((key) => key.startsWith('base|')))
+      .map(([token]) => token)
+    expect(liveBase, 'every value line in brand-template.css should ship commented out').toEqual([])
+  })
+
+  it('re-asserts every collapse-managed brand-approved token from tokens.css at all three tail scopes', () => {
+    const tokensDeclared = parseDeclaredTokens(tokensCss)
+    const templateDeclared = parseDeclaredTokens(templateCss)
+    const missing: string[] = []
+    for (const media of A11Y_MEDIA) {
+      for (const [token, scopeKeys] of tokensDeclared) {
+        if (!BRAND_TOKENS.has(token)) continue
+        if (!scopeKeys.some((key) => key.startsWith(`${media}|`))) continue
+        for (const scope of ['root', 'dark', 'black']) {
+          const key = `${media}|${scope}`
+          if (!(templateDeclared.get(token) ?? []).includes(key)) missing.push(`${token} @ (${media}) [${scope}]`)
+        }
+      }
+    }
+    expect(
+      missing,
+      missing.length === 0 ? '' : `brand-template.css's mandatory tail is missing: ${missing.join(', ')}`,
+    ).toEqual([])
+  })
+})
+
+// runBrandPolicy used exactly as a consumer would: register the real suite over the shipped
+// template. Its disallowed-token check is meaningful here — it would catch a locked structural
+// token left uncommented. Its collapse-tail check is VACUOUS against this specific file: with no
+// live base override (see above), findMissingCollapseTails has no override to require a tail
+// FOR, so this call cannot prove the tail is complete — the derived suite above does that.
 runBrandPolicy({
   brandCssPath: fileURLToPath(new URL('../styles/brand-template.css', import.meta.url)),
 })
