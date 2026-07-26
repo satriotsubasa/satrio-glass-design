@@ -20,7 +20,7 @@ both the visual QA surface and this package's docs, deployed at `design.satrio.i
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.0.0
+npm i github:satriotsubasa/satrio-glass-design#v1.1.0
 ```
 
 Peer dependencies you must already have (or add): `react@^19`, `react-dom@^19`,
@@ -224,11 +224,14 @@ gallery is the canonical catalogue — there is no separate docs source to fall 
 
 ## Adoption order
 
-1. **finance.satrio.io** first — the design system's origin (its `tokens.css` began as a copy of
-   satrio.io's), so re-pointing it at this package is close to a file move; its existing scan
-   tests keep the migration honest.
-2. **satrio.io** (the portfolio site) next — it keeps its cool palette and iOS-blue dark mode via
-   its own `brand.css` rather than unifying on finance's warm palette; see
+1. **finance.satrio.io** — adopted. The design system's origin (its `tokens.css` began as a copy of
+   satrio.io's), so re-pointing it at this package was close to a file move; its existing scan
+   tests kept the migration honest.
+2. **satrio.io** (the portfolio site) — adopted. It keeps its cool palette and iOS-blue dark mode
+   via its own `brand.css` rather than unifying on finance's warm palette; see
    [`docs/brand-layer.md`](./docs/brand-layer.md) for how a per-theme override interacts with the
    a11y collapse tail.
 3. New sites start straight at `npm install` + a thin shell.
+
+Both consumer adoptions fed fixes back upstream, which is the intended direction: a problem found in
+one app becomes a guard every app inherits.
