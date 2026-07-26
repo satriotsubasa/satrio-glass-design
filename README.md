@@ -81,6 +81,14 @@ component tree:
 import { toast } from '@satrio/glass-design/toast'
 ```
 
+The package declares `sideEffects` in its manifest, so the root barrel is tree-shakeable: importing
+a handful of members from `@satrio/glass-design` does not drag the rest of the barrel — its CSS or
+its third-party dependencies — into your entry chunk. A component reached only through your own
+`lazy()` boundary is dropped from the eager bundle even though the import statement still comes
+from the barrel. Measured effect of declaring `sideEffects` alone, consumer source unchanged: an
+entry chunk went from 76,513 to 60,470 bytes gzip (−21%). No consumer needs a deep import for
+bundle-size reasons.
+
 ### Pre-paint theme stamping
 
 The theme (light/dark/black) must be stamped onto `<html>` **before first paint**, or the page

@@ -5,6 +5,7 @@
   "description": "satrio glass — the shared design language: tokens, materials, motion, components, and the policy tests that enforce them.",
   "repository": "github:satriotsubasa/satrio-glass-design",
   "files": ["src", "!src/docs", "!src/**/*.test.ts", "!src/**/*.test.tsx", "!src/test"],
+  "sideEffects": ["**/*.css", "./src/fonts.ts"],
   "exports": {
     ".": "./src/index.ts",
     "./fonts": "./src/fonts.ts",
