@@ -49,7 +49,7 @@ const brandBlurWithTails = `
 }
 `
 
-/** 5. overrides a surface fill pinned only under prefers-contrast, no tail. */
+/** 5. overrides a surface fill pinned under BOTH a11y blocks, no tail. */
 const brandGlassBgNoTail = `
 :root {
   --glass-bg: rgba(255, 255, 255, 0.5);
@@ -90,10 +90,13 @@ const brandDarkGlassRootTail = `
 }
 `
 
-/** 6b. same dark override, tail carries the matching theme-scoped selector → safe. */
+/** 6b. same dark override, tails under BOTH media carry the matching theme-scoped selector -> safe. */
 const brandDarkGlassDarkTail = `
 :root[data-theme='dark'] {
   --glass-bg: rgba(20, 20, 20, 0.4);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme='dark'] { --glass-bg: var(--surface); }
 }
 @media (prefers-contrast: more) {
   :root[data-theme='dark'] { --glass-bg: var(--surface); }
@@ -200,8 +203,9 @@ describe('findMissingCollapseTails (collapse-coverage check)', () => {
     expect(findMissingCollapseTails(brandBlurWithTails, tokensCss)).toEqual([])
   })
 
-  it('reports a surface-fill override missing only its prefers-contrast tail', () => {
+  it('reports a surface-fill override with no tail under BOTH a11y blocks', () => {
     expect(findMissingCollapseTails(brandGlassBgNoTail, tokensCss)).toEqual([
+      { token: '--glass-bg', media: 'prefers-reduced-transparency: reduce' },
       { token: '--glass-bg', media: 'prefers-contrast: more' },
     ])
   })
@@ -210,6 +214,7 @@ describe('findMissingCollapseTails (collapse-coverage check)', () => {
     // The tail declares --glass-bg under the right media, but at :root (0,1,0) it
     // loses to the :root[data-theme='dark'] override (0,2,0) — contrast stays broken.
     expect(findMissingCollapseTails(brandDarkGlassRootTail, tokensCss)).toEqual([
+      { token: '--glass-bg', media: 'prefers-reduced-transparency: reduce' },
       { token: '--glass-bg', media: 'prefers-contrast: more' },
     ])
   })

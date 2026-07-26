@@ -28,8 +28,9 @@ export const BRAND_TOKENS: ReadonlySet<string> = new Set([
 
 /**
  * The two OS accessibility signals whose token collapse a later-in-cascade brand
- * override can silently defeat. tokens.css re-zeroes blurs (both) and pins the
- * translucent surface fills opaque (contrast) inside these @media blocks; a brand
+ * override can silently defeat. tokens.css re-zeroes every blur and pins the
+ * translucent surface fills to the opaque --surface inside BOTH of these @media
+ * blocks (the contrast block additionally promotes the hairline borders); a brand
  * override of a managed token at :root beats them by source order and must
  * therefore re-assert the token under each block that governs it.
  */

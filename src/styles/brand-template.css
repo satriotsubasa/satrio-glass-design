@@ -137,7 +137,8 @@
    per-theme) stays flat under Reduce Transparency and opaque under Increase Contrast with
    no per-token bookkeeping. Trim a line only if you never override that token, and keep
    the tail's selector at least as specific as the override it covers — the policy test
-   flags any override you forget to cover here. */
+   flags any override you forget to cover here. Both blocks pin the same seven translucent
+   fills; the border promotion to --label-3 is contrast-only. */
 @media (prefers-reduced-transparency: reduce) {
   :root,
   :root[data-theme='dark'],
@@ -145,6 +146,13 @@
     --glass-blur: 0px;
     --panel-blur: 0px;
     --card-blur: 0px;
+    --glass-bg: var(--surface);
+    --glass-bg-strong: var(--surface);
+    --panel-bg: var(--surface);
+    --card-bg: var(--surface);
+    --sheet-bg: var(--surface);
+    --menu-bg: var(--surface);
+    --nav-bg: var(--surface);
   }
 }
 @media (prefers-contrast: more) {

@@ -93,11 +93,13 @@ import './brand.css'                            // your overrides win by coming 
 ## The collapse-tail rule (and why)
 
 `tokens.css` ends with two accessibility blocks — `@media (prefers-reduced-transparency:
-reduce)` and `@media (prefers-contrast: more)` — that flatten every blur and (under Increase
-Contrast) pin the translucent surfaces opaque. The reduced-transparency block is a plain
-`:root` rule, so it wins over the base `:root` **only by coming later in the file**; the
-contrast block is theme-scoped (`:root[data-theme='dark']`, etc.), so it wins by
-**specificity** instead.
+reduce)` and `@media (prefers-contrast: more)`. Both flatten every blur tier and pin the
+translucent surface fills (`--glass-bg`, `--glass-bg-strong`, `--panel-bg`, `--card-bg`,
+`--sheet-bg`, `--menu-bg`, `--nav-bg`) to the current theme's opaque `--surface`; the contrast
+block additionally promotes the hairline borders to `--label-3`. Both use the theme-scoped
+selector list (`:root, :root[data-theme='dark'], :root[data-theme-mode='black']`) because those
+fills are re-declared at (0,2,0) inside the dark/black theme blocks — a plain `:root` pin would
+lose to them by specificity, however late it sits in the file.
 
 Your `brand.css` is imported *after* `tokens.css`. So a base override like
 `:root { --panel-blur: 30px }` sits later in the cascade than those `@media` blocks and, at
@@ -134,6 +136,12 @@ scope:
 The template's tails use that three-selector list precisely so they cover a plain *or* a
 theme-scoped override; `runBrandPolicy` fails a tail whose selector is too weak for the scope
 it is meant to protect.
+
+**Upgrading to 1.1:** The fills are now collapse-managed under Reduce Transparency as well as
+Increase Contrast, so `runBrandPolicy` requires a reduced-transparency tail for any of the seven
+you override at base. If you already keep the template tail verbatim, add the seven fill lines
+to its reduced-transparency block; if you hand-rolled a tail, the failure message names the
+exact token and media.
 
 ## Wiring `runBrandPolicy` into your app
 

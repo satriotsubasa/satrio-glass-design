@@ -224,20 +224,42 @@
 /* Every blur tier collapses under Reduce Transparency — including the ladder itself, so ALL
    consumers (sheets, dialogs, menus, toasts, cards) go flat, not just the .glass/.panel classes
    the global.css fallback rules can reach. --glass-blur/--panel-blur/--card-blur resolve to the
-   tiers, but they are re-zeroed explicitly: an alias retarget must never re-open this hole. */
+   tiers, but they are re-zeroed explicitly: an alias retarget must never re-open this hole.
+   The translucent surface FILLS are pinned to the current theme's opaque --surface for the same
+   reason: a surface that reads a fill token DIRECTLY (Sheet, Modal, Select, and the nav/sidebar
+   chromes downstream) carries no .glass/.panel-material/.dash-card class, so the class fallbacks
+   in global.css cannot reach it — it would stay translucent with its blur zeroed, which is the
+   transparency the user asked to remove. Borders are deliberately NOT promoted here (that is the
+   contrast block's job): a translucent border paints over the element's own now-opaque
+   background, so it leaks no backdrop. The theme-scoped selectors are required: every fill below
+   is overridden at 0-2-0 specificity inside the dark/black theme blocks, so a plain :root pin
+   would lose to them — a pin that loses the cascade looks fixed and is not. */
 @media (prefers-reduced-transparency: reduce) {
-  :root {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme-mode='black'] {
     --glass-blur: 0px; --panel-blur: 0px; --card-blur: 0px;
     --blur-chip: 0px; --blur-card: 0px; --blur-chrome: 0px; --blur-sheet: 0px;
+    --glass-bg: var(--surface);
+    --glass-bg-strong: var(--surface);
+    --panel-bg: var(--surface);
+    --card-bg: var(--surface);
+    --sheet-bg: var(--surface);
+    --menu-bg: var(--surface);
+    /* --nav-bg composes from --surface (82% mix), so one line here covers all three themes —
+       and its consumers (nav.bar/aside.bar, element-qualified 0-1-1) beat the .glass opaque
+       fallback by specificity, so only the token pin can flatten the two primary chromes. */
+    --nav-bg: var(--surface);
   }
 }
 
 /* ---- OS Increase Contrast (Apple §14's THIRD independent a11y signal) ----
    prefers-reduced-transparency and the manual data-high-text-contrast setting were handled;
    the OS contrast preference was not — a user who set Increase Contrast still got the full
-   translucent stack. Modeled on the reduced-transparency block above: zero every blur tier and
-   pin the translucent surface fills to the CURRENT theme's opaque --surface, with the glass
-   hairline borders promoted to --label-3 so edges read as drawn lines, not translucency.
+   translucent stack. Carries the SAME collapse as the reduced-transparency block above (every
+   blur tier zeroed, every translucent fill pinned to the current theme's opaque --surface) and
+   ADDS the border promotion: the glass hairlines become --label-3 so edges read as drawn lines
+   rather than translucency — that promotion is a CONTRAST measure and belongs only here.
    This ADDS alongside the data-high-text-contrast contract above (which strengthens the text
    ramp) — it neither replaces nor reorders those blocks, and it must stay AFTER them (§5
    ordering gate). The theme-scoped selectors are required: the surface fills are overridden at

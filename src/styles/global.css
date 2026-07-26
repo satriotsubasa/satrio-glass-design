@@ -102,6 +102,12 @@ body::before {
   box-shadow: inset 0 1px 0 0 var(--card-highlight), var(--card-shadow);
 }
 
+/* Class-based fallback for the three named materials. It is a belt to the token pins in
+   tokens.css, not a replacement: the dark/black `.glass` inversion above outranks this rule
+   (0-3-0 vs 0-1-0), so in those themes only the zeroed tier tokens and the --*-bg surface pins
+   flatten the material — and any surface that reads a fill token directly, with no material
+   class, is reachable ONLY by those token pins. What this rule adds is clearing saturate()/
+   brightness(), which a 0px blur leaves in place. */
 @media (prefers-reduced-transparency: reduce) {
   .glass, .glass-strong, .panel-material {
     background: var(--surface);

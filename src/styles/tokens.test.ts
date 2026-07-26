@@ -199,7 +199,7 @@ describe('tokens.css', () => {
     expect(sheet, '--blur-sheet must be the thickest tier').toBeGreaterThan(chrome)
   })
 
-  it('zeroes every blur tier under prefers-reduced-transparency (the a11y collapse covers the whole ladder, not just the legacy glass/panel tokens)', () => {
+  it('zeroes every blur tier AND pins the translucent surface fills opaque under prefers-reduced-transparency (the a11y collapse covers the whole ladder, not just the legacy glass/panel tokens)', () => {
     const start = css.indexOf('@media (prefers-reduced-transparency: reduce)')
     expect(start).toBeGreaterThan(-1)
     const block = css.slice(start, css.indexOf('@media', start + 1) === -1 ? css.length : css.indexOf('@media', start + 1))
@@ -209,6 +209,25 @@ describe('tokens.css', () => {
     ]) {
       expect(block, `${token} must collapse to 0px under reduced transparency`)
         .toMatch(new RegExp(`${token}:\\s*0px`))
+    }
+    // Class-less consumers (Sheet, Modal, Select, and the nav/sidebar chromes downstream) read
+    // these fills directly — the .glass/.panel-material/.dash-card fallbacks in global.css cannot
+    // reach them, so only the token pin removes their translucency.
+    for (const token of ['--glass-bg', '--glass-bg-strong', '--panel-bg', '--card-bg', '--sheet-bg', '--menu-bg', '--nav-bg']) {
+      expect(block, `${token} must pin to the opaque --surface under reduced transparency`)
+        .toMatch(new RegExp(`${token}:\\s*var\\(--surface\\)`))
+    }
+    // The fills are theme-overridden at 0-2-0, so the block needs the theme-scoped selectors to
+    // win — and dark/black resolve var(--surface) per theme.
+    expect(block).toContain(":root[data-theme='dark']")
+    expect(block).toContain(":root[data-theme-mode='black']")
+    // Ordering: theme-scoped now, so it must sit AFTER every theme + high-text-contrast block.
+    expect(start).toBeGreaterThan(css.indexOf(":root[data-theme-mode='black'][data-high-text-contrast='on']"))
+    // Borders stay OUT: a translucent border paints over the element's own opaque background, so
+    // it leaks no backdrop. Promoting them is the CONTRAST block's job, not this one.
+    for (const token of ['--glass-border', '--panel-border', '--card-border']) {
+      expect(block, `${token} must NOT be promoted under reduced transparency — that is contrast-only`)
+        .not.toContain(`${token}:`)
     }
   })
 
