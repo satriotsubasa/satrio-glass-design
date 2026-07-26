@@ -594,7 +594,7 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
 
       <Section
         title="Field, TextInput, Textarea, Select"
-        subheading="Normal, hint, and error (invalid) states — Select uses the Radix API"
+        subheading={'Normal, hint, error, and hint+error together — the error is a role="alert" live region and each control points aria-describedby at Field\'s ${htmlFor}-hint / ${htmlFor}-error ids'}
       >
         <div className={styles.grid}>
           <Field label="Merchant" htmlFor="gallery-input-normal">
@@ -603,8 +603,8 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
           <Field label="Amount" htmlFor="gallery-input-hint" hint="Shown with a hint below the field">
             <TextInput id="gallery-input-hint" mono placeholder="0.00" defaultValue="42.50" />
           </Field>
-          <Field label="Reference" htmlFor="gallery-input-error" error="This field is required">
-            <TextInput id="gallery-input-error" invalid placeholder="Required" />
+          <Field label="Reference" htmlFor="gallery-input-error" hint="Hint and error render together — the format rule survives the failure" error="This field is required">
+            <TextInput id="gallery-input-error" invalid placeholder="Required" aria-describedby="gallery-input-error-hint gallery-input-error-error" />
           </Field>
           <Field label="Notes" htmlFor="gallery-textarea" hint="Multi-line input">
             <Textarea id="gallery-textarea" placeholder="Add a note…" defaultValue="Lunch with the team." />
@@ -626,6 +626,7 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
               onValueChange={setCategoryValue}
               placeholder="Choose a category"
               invalid
+              aria-describedby="gallery-select-error-error"
             />
           </Field>
         </div>
