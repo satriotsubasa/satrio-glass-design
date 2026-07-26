@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { toast as toastViaSubpath } from '@satrio/glass-design/toast'
 import * as pkg from './index'
 import type {
   AppAnimations,
@@ -42,5 +43,13 @@ export type RootTypeContract =
 describe('package root export contract', () => {
   it.each(VALUE_EXPORTS)('exports %s', (name) => {
     expect((pkg as Record<string, unknown>)[name], `@satrio/glass-design must export "${name}" from its root`).toBeDefined()
+  })
+})
+
+describe('toast subpath export', () => {
+  it('resolves @satrio/glass-design/toast to the same toast helper as the root', () => {
+    // Non-UI consumers (stores/hooks) import toast without pulling the component barrel.
+    expect(toastViaSubpath).toBeTypeOf('function')
+    expect(toastViaSubpath).toBe(pkg.toast)
   })
 })

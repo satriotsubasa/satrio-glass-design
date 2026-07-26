@@ -11,6 +11,7 @@ export default defineConfig({
     alias: [
       { find: '@satrio/glass-design/fonts', replacement: fileURLToPath(new URL('./src/fonts.ts', import.meta.url)) },
       { find: '@satrio/glass-design/testing', replacement: fileURLToPath(new URL('./src/testing/index.ts', import.meta.url)) },
+      { find: '@satrio/glass-design/toast', replacement: fileURLToPath(new URL('./src/components/common/toast.ts', import.meta.url)) },
       { find: '@satrio/glass-design/styles', replacement: fileURLToPath(new URL('./src/styles', import.meta.url)) },
       { find: '@satrio/glass-design', replacement: fileURLToPath(new URL('./src/index.ts', import.meta.url)) },
     ],

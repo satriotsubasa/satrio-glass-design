@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./fonts": "./src/fonts.ts",
     "./testing": "./src/testing/index.ts",
+    "./toast": "./src/components/common/toast.ts",
     "./styles/tokens.css": "./src/styles/tokens.css",
     "./styles/global.css": "./src/styles/global.css",
     "./styles/brand-template.css": "./src/styles/brand-template.css"

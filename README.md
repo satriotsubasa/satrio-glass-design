@@ -73,6 +73,14 @@ export default function App() {
 }
 ```
 
+To *fire* a toast, import `toast` from the `@satrio/glass-design/toast` subpath rather than the
+root barrel — non-UI code (stores, hooks, effects) then reaches the helper without pulling the
+component tree:
+
+```ts
+import { toast } from '@satrio/glass-design/toast'
+```
+
 ### Pre-paint theme stamping
 
 The theme (light/dark/black) must be stamped onto `<html>` **before first paint**, or the page

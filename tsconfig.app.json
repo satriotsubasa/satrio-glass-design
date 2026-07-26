@@ -19,7 +19,8 @@
     "paths": {
       "@satrio/glass-design": ["./src/index.ts"],
       "@satrio/glass-design/fonts": ["./src/fonts.ts"],
-      "@satrio/glass-design/testing": ["./src/testing/index.ts"]
+      "@satrio/glass-design/testing": ["./src/testing/index.ts"],
+      "@satrio/glass-design/toast": ["./src/components/common/toast.ts"]
     }
   },
   "include": ["src"]
