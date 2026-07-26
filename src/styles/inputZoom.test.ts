@@ -9,4 +9,7 @@ import { runInputZoomPolicy } from '../testing/inputZoomPolicy'
  *  files. The allowlist stays empty: every font-size here IS a focus-zooming text input. */
 runInputZoomPolicy({
   cssPaths: ['src/components/ui/control.module.css', 'src/components/ui/SearchField.module.css'],
+  // These are BOTH the kit's own text-input modules, so each must keep its own floor — per-file, so
+  // dropping the floor from one is caught even though the other still has one.
+  requireFloorPerFile: true,
 })

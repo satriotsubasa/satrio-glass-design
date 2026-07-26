@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   countFlooredFontSizes,
+  findFloorlessFiles,
   findStaleAllowlist,
   findUnflooredFontSizes,
   type ScannedFile,
@@ -55,6 +56,25 @@ describe('findUnflooredFontSizes', () => {
 describe('countFlooredFontSizes', () => {
   it('counts the floor idiom, whitespace variants included', () => {
     expect(countFlooredFontSizes([flooredInput])).toBe(2)
+  })
+})
+
+describe('findFloorlessFiles', () => {
+  it('returns [] when every file carries its own floor', () => {
+    // flooredInput has two floors; rawInput has one — both are covered per-file.
+    expect(findFloorlessFiles([flooredInput, rawInput])).toEqual([])
+  })
+
+  it('names a file that has font-sizes but no floor, even beside a floored sibling', () => {
+    const floorless: ScannedFile = { path: 'src/x.module.css', content: '.x { font-size: var(--fs-body); }' }
+    expect(findFloorlessFiles([flooredInput, floorless])).toEqual(['src/x.module.css'])
+  })
+
+  it('names a file whose only floor was deleted (the per-file hole the set-wide count misses)', () => {
+    const deleted: ScannedFile = { path: 'src/control.module.css', content: '.control { color: red; }' }
+    // countFlooredFontSizes stays > 0 across the pair (rawInput still floors), yet control lost its floor.
+    expect(countFlooredFontSizes([deleted, rawInput])).toBeGreaterThan(0)
+    expect(findFloorlessFiles([deleted, rawInput])).toEqual(['src/control.module.css'])
   })
 })
 

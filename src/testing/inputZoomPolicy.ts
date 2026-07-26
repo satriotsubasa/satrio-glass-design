@@ -61,6 +61,14 @@ export function countFlooredFontSizes(files: ScannedFile[]): number {
   return n
 }
 
+/** Paths of files that carry NO 16px floor at all. The set-wide `countFlooredFontSizes` guard stays
+ *  green when the floor is DELETED from one file as long as a sibling still has one — this finds that
+ *  per-file hole, for callers (like the package's own control/SearchField self-pin) where every
+ *  listed file is a text-input module that must floor its own font-size. */
+export function findFloorlessFiles(files: ScannedFile[]): string[] {
+  return files.filter((file) => countFlooredFontSizes([file]) === 0).map((file) => file.path)
+}
+
 /** Allowlist entries whose `${path}: ${value}` site no longer exists in `files` (a stale entry is a
  *  hole in the scan). */
 export function findStaleAllowlist(files: ScannedFile[], allowlist: string[]): string[] {
@@ -78,6 +86,12 @@ export interface InputZoomPolicyOptions {
   /** Documented `${displayPath}: ${value}` exceptions for a `font-size` that is NOT a focus-zooming
    *  text input (e.g. an icon glyph sized in px inside an input module). A stale entry fails. */
   rawInputAllowlist?: string[]
+  /** When true, EACH `cssPath` must carry its own 16px floor — so deleting the floor from one file
+   *  is caught even if a sibling still has one (the set-wide plausibility guard cannot see that).
+   *  Off by default, since a consumer may legitimately pass an input module with no floor of its own;
+   *  a producer self-pinning its own text-input CSS (every listed file IS an input module) turns it
+   *  on. */
+  requireFloorPerFile?: boolean
 }
 
 /**
@@ -91,7 +105,11 @@ export interface InputZoomPolicyOptions {
  *   rawInputAllowlist: [], // grows only with a documented non-input font-size
  * })
  */
-export function runInputZoomPolicy({ cssPaths, rawInputAllowlist = [] }: InputZoomPolicyOptions): void {
+export function runInputZoomPolicy({
+  cssPaths,
+  rawInputAllowlist = [],
+  requireFloorPerFile = false,
+}: InputZoomPolicyOptions): void {
   const files: ScannedFile[] = cssPaths.map((p) => ({
     path: toPosix(p),
     content: readFileSync(resolve(process.cwd(), p), 'utf8'),
@@ -108,12 +126,24 @@ export function runInputZoomPolicy({ cssPaths, rawInputAllowlist = [] }: InputZo
       ).toEqual([])
     })
 
-    it('actually finds a 16px floor (the scan is not vacuously green)', () => {
-      expect(
-        countFlooredFontSizes(files),
-        `no max(16px, var(--fs-*)) floor found in ${cssPaths.join(', ')} — did the input CSS paths change?`,
-      ).toBeGreaterThan(0)
-    })
+    if (requireFloorPerFile) {
+      it('carries a 16px floor in every input file (so deleting one file’s floor is caught)', () => {
+        const floorless = findFloorlessFiles(files)
+        expect(
+          floorless,
+          floorless
+            .map((path) => `no max(16px, var(--fs-*)) floor in ${path} — a text-input module must floor its own font-size; did the floor get deleted?`)
+            .join('\n'),
+        ).toEqual([])
+      })
+    } else {
+      it('actually finds a 16px floor (the scan is not vacuously green)', () => {
+        expect(
+          countFlooredFontSizes(files),
+          `no max(16px, var(--fs-*)) floor found in ${cssPaths.join(', ')} — did the input CSS paths change?`,
+        ).toBeGreaterThan(0)
+      })
+    }
 
     it('carries no stale rawInputAllowlist entries', () => {
       const stale = findStaleAllowlist(files, rawInputAllowlist)
