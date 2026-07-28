@@ -20,7 +20,7 @@ both the visual QA surface and this package's docs, deployed at `design.satrio.i
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.1.0
+npm i github:satriotsubasa/satrio-glass-design#v1.2.0
 ```
 
 Peer dependencies you must already have (or add): `react@^19`, `react-dom@^19`,
