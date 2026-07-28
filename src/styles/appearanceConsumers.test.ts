@@ -23,6 +23,10 @@ const buttonCss = read('../components/ui/Button.module.css')
 const progressBarCss = read('../components/ui/ProgressBar.module.css')
 const backdropsCss = read('./backdrops.css')
 const legibilityCss = read('./legibility.css')
+const panelCss = read('../components/ui/Panel.module.css')
+const selectCss = read('../components/ui/Select.module.css')
+const chipCss = read('../components/ui/Chip.module.css')
+const filterChipCss = read('../components/ui/FilterChip.module.css')
 /** Comment-stripped legibility.css — for whole-file substring scans where the prose in this
  *  file's own header comment (which legitimately DISCUSSES selectors like `data-theme-mode`
  *  and `.backdrop-chrome` in English) would otherwise read as a false hit. */
@@ -435,10 +439,19 @@ describe('legibility layer (the inseparable half of the backdrop contract — st
         }
       }
       walk(srcRoot)
-      // An ALLOW-LIST, not "exactly these two files forever": a later change legitimately adds
-      // :global(:root[data-backdrop]) rules to component modules, which extends this list by a
-      // deliberate edit rather than an unnoticed drift.
-      expect(matches.sort()).toEqual(['styles/backdrops.css', 'styles/legibility.css'])
+      // An ALLOW-LIST, not "exactly these two files forever": this commit legitimately extends it
+      // to the opaque kit surfaces whose hashed module classes the shared reset in legibility.css
+      // cannot reach by name (Panel .solid, Select .trigger), and to the kit's own chips (Chip,
+      // FilterChip), which use the identical color-mix(..., transparent) idiom that vanishes over
+      // a photo. A SEVENTH file then requires a deliberate edit here, not an unnoticed drift.
+      expect(matches.sort()).toEqual([
+        'components/ui/Chip.module.css',
+        'components/ui/FilterChip.module.css',
+        'components/ui/Panel.module.css',
+        'components/ui/Select.module.css',
+        'styles/backdrops.css',
+        'styles/legibility.css',
+      ])
     })
 
     it('keeps the two files PROPERTY-DISJOINT — backdrops.css declares only --backdrop; legibility.css never declares it — which is what makes the @import order provably irrelevant', () => {
@@ -470,13 +483,13 @@ describe('legibility layer (the inseparable half of the backdrop contract — st
   it('writes the material reset AFTER both text-shadow rules — their shared (0,4,0) specificity makes this a SOURCE-ORDER bound, not a specificity one', () => {
     const lightIdx = legibilityCss.indexOf(':root[data-backdrop] :is(main, .backdrop-scope) {')
     const darkIdx = legibilityCss.indexOf(":root[data-theme='dark'][data-backdrop] :is(main, .backdrop-scope)")
-    const resetIdx = legibilityCss.indexOf(':is(.glass, .glass-strong, .panel-material, .dash-card)')
+    const resetIdx = legibilityCss.indexOf(':is(.glass, .glass-strong, .panel-material, .dash-card, input, textarea)')
     expect(lightIdx).toBeGreaterThan(-1)
     expect(darkIdx).toBeGreaterThan(lightIdx)
     expect(resetIdx, 'the material reset must come after both text-shadow rules').toBeGreaterThan(darkIdx)
   })
 
-  it("bounds the reset and the h+p exclusion list to EXACTLY the material classes global.css defines — derived, not hardcoded, with a floor so the derivation cannot go vacuous", () => {
+  it("bounds the reset to EXACTLY the material classes global.css defines plus input/textarea, and the h+p exclusion list to EXACTLY the material classes alone — derived, not hardcoded, with a floor so the derivation cannot go vacuous", () => {
     const reduceStart = globalCss.indexOf('@media (prefers-reduced-transparency: reduce)')
     // Comment-stripped: global.css's OWN prose (e.g. "tokens.css, not a replacement") would
     // otherwise read as a stray ".css" class to the naive class-name scan below.
@@ -488,13 +501,27 @@ describe('legibility layer (the inseparable half of the backdrop contract — st
 
     const materialList = materials.join(', ')
     const notList = materials.map((name) => `${name} *`).join(', ')
-    expect(legibilityCss, 'the material reset must cover exactly the derived material classes').toContain(
-      `:is(${materialList})`,
-    )
+    // input/textarea are native elements (not classes) that this same reset reaches directly —
+    // the two opaque kit surfaces hidden behind a HASHED module class (Panel .solid, Select
+    // .trigger) instead get their own :global(:root[data-backdrop]) reset in their own files.
+    expect(
+      legibilityCss,
+      'the material reset must cover exactly the derived material classes plus input and textarea',
+    ).toContain(`:is(${materialList}, input, textarea)`)
     expect(
       legibilityCss,
       "the h+p promotion's exclusion list must cover exactly the derived material classes",
     ).toContain(`:not(${notList})`)
+  })
+
+  it("keeps `button` OUT of the shared reset's :is() list — an unstamped ghost Button label on the backdrop legitimately KEEPS the glow (.backdrop-chrome is the opt-in for a floating control that doesn't want it)", () => {
+    const isLists = [...legibilityCssNoComments.matchAll(/:is\(([^)]*)\)/g)].map((match) => match[1])
+    const listsWithInput = isLists.filter((list) => list.includes('input'))
+    expect(listsWithInput.length, 'the reset :is() list containing input must exist').toBeGreaterThan(0)
+    for (const list of listsWithInput) {
+      const tokens = list.split(',').map((token) => token.trim())
+      expect(tokens, `"${list}" must not blanket-reset button`).not.toContain('button')
+    }
   })
 
   it("promotes the two on-backdrop text ramps the kit's own components produce (SectionHeader's h2+p, SettingsGroup's SectionLabel <p> before its .dash-card)", () => {
@@ -583,6 +610,89 @@ describe('legibility layer (the inseparable half of the backdrop contract — st
     expect(ruleStart).toBeGreaterThan(-1)
     const ruleBlock = globalCss.slice(ruleStart, globalCss.indexOf('}', ruleStart))
     expect(ruleBlock).not.toContain('overflow')
+  })
+})
+
+describe('opaque kit surfaces close the on-backdrop glow gap (Panel .solid, Select .trigger — hashed classes the shared reset in legibility.css can never reach by name)', () => {
+  it('Panel material="solid" resets text-shadow under [data-backdrop] — .solid carries no global material class, so material="none" (which renders no surface of its own) is the only Panel variant that keeps the glow', () => {
+    const start = panelCss.indexOf(':global(:root[data-backdrop]) .solid')
+    expect(start, 'Panel.module.css must reset .solid under [data-backdrop]').toBeGreaterThan(-1)
+    const open = panelCss.indexOf('{', start)
+    const rule = panelCss.slice(open + 1, panelCss.indexOf('}', open))
+    expect(rule).toContain('text-shadow: none')
+  })
+
+  it("Select's trigger resets text-shadow under [data-backdrop] — the popover content portals to document.body via RSelect.Portal and never inherits the glow, so only the inline trigger needs the reset", () => {
+    const start = selectCss.indexOf(':global(:root[data-backdrop]) .trigger')
+    expect(start, 'Select.module.css must reset .trigger under [data-backdrop]').toBeGreaterThan(-1)
+    const open = selectCss.indexOf('{', start)
+    const rule = selectCss.slice(open + 1, selectCss.indexOf('}', open))
+    expect(rule).toContain('text-shadow: none')
+    // The popover content sits OUTSIDE main/.backdrop-scope (Radix portals it to document.body) —
+    // it is unreachable by the glow in the first place and must not carry a reset of its own.
+    expect(selectCss).not.toContain(':global(:root[data-backdrop]) .content')
+  })
+})
+
+describe('Chip / FilterChip stay legible on-backdrop (color-mix(..., transparent) is a vanishing-tint idiom over a photo or saturated preset)', () => {
+  const CHIP_BACKDROP_TONES = ['neutral', 'accent', 'income', 'expense', 'warning'] as const
+
+  it.each(CHIP_BACKDROP_TONES)('Chip .%s mixes into --surface under [data-backdrop], with a reduce twin back to the stock transparent mix', (tone) => {
+    const backdropStart = chipCss.indexOf(`:global(:root[data-backdrop]) .${tone}`)
+    expect(backdropStart, `Chip.module.css must back .${tone} under [data-backdrop]`).toBeGreaterThan(-1)
+    const backdropRule = chipCss.slice(chipCss.indexOf('{', backdropStart) + 1, chipCss.indexOf('}', backdropStart))
+    expect(backdropRule).toContain('var(--surface)')
+    expect(backdropRule).not.toContain('transparent')
+
+    const reduceStart = chipCss.indexOf('@media (prefers-reduced-transparency: reduce)')
+    expect(reduceStart, 'Chip.module.css must carry a reduce twin').toBeGreaterThan(-1)
+    const reduceBlock = chipCss.slice(reduceStart)
+    const twinStart = reduceBlock.indexOf(`:global(:root[data-backdrop]) .${tone}`)
+    expect(twinStart, `.${tone}'s reduce twin must exist`).toBeGreaterThan(-1)
+    const twinRule = reduceBlock.slice(reduceBlock.indexOf('{', twinStart) + 1, reduceBlock.indexOf('}', twinStart))
+    expect(twinRule).toContain('transparent')
+  })
+
+  it('FilterChip base/.chipActive/hover mix into --surface under [data-backdrop], each with a reduce twin back to the stock transparent mix', () => {
+    const selectors = [
+      ':global(:root[data-backdrop]) .chip {',
+      ':global(:root[data-backdrop]) .chipActive {',
+      ':global(:root[data-backdrop]) .chip:not(.chipActive):hover {',
+    ]
+    for (const selector of selectors) {
+      const start = filterChipCss.indexOf(selector)
+      expect(start, `FilterChip.module.css must contain "${selector}"`).toBeGreaterThan(-1)
+      const rule = filterChipCss.slice(filterChipCss.indexOf('{', start) + 1, filterChipCss.indexOf('}', start))
+      expect(rule).toContain('var(--surface)')
+      expect(rule).not.toContain('transparent')
+    }
+
+    const reduceStart = filterChipCss.indexOf('@media (prefers-reduced-transparency: reduce)')
+    expect(reduceStart, 'FilterChip.module.css must carry a reduce twin').toBeGreaterThan(-1)
+    const reduceBlock = filterChipCss.slice(reduceStart)
+    for (const selector of selectors) {
+      const start = reduceBlock.indexOf(selector)
+      expect(start, `the reduce block must re-contain "${selector}"`).toBeGreaterThan(-1)
+      const rule = reduceBlock.slice(reduceBlock.indexOf('{', start) + 1, reduceBlock.indexOf('}', start))
+      expect(rule).toContain('transparent')
+    }
+  })
+
+  it('every :global(:root[data-backdrop]) chip rule in Chip/FilterChip has a reduce twin — none are left vanishing again under the OS preference', () => {
+    for (const [name, css] of [['Chip', chipCss], ['FilterChip', filterChipCss]] as const) {
+      const stripped = css.replace(/\/\*[\s\S]*?\*\//g, '')
+      const reduceStart = stripped.indexOf('@media (prefers-reduced-transparency: reduce)')
+      expect(reduceStart, `${name}.module.css must carry a reduce media query`).toBeGreaterThan(-1)
+      const beforeReduce = stripped.slice(0, reduceStart)
+      const reduceBlock = stripped.slice(reduceStart)
+      const backdropSelectors = [...beforeReduce.matchAll(/:global\(:root\[data-backdrop\]\)[^{]+/g)].map((match) =>
+        match[0].trim(),
+      )
+      expect(backdropSelectors.length, `${name}.module.css must declare backdrop-conditional rules`).toBeGreaterThan(0)
+      for (const selector of backdropSelectors) {
+        expect(reduceBlock, `${name}.module.css: "${selector}" has no reduce twin`).toContain(selector)
+      }
+    }
   })
 })
 

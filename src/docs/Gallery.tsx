@@ -534,6 +534,20 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
             --bg and the whole layer stands down with it; &quot;Colorful interface: off&quot; stands the
             layer down too, on top of whichever preset is selected.
           </p>
+          <div className={styles.row}>
+            <span className={styles.tag}>chips</span>
+            {CHIP_TONES.map((tone) => (
+              <Chip key={tone} tone={tone}>{tone}</Chip>
+            ))}
+            <FilterChip label="Active filter" active onClick={() => {}} />
+            <FilterChip label="Inactive filter" active={false} onClick={() => {}} />
+          </div>
+          <p className={styles.note}>
+            Chip and FilterChip tint with color-mix(..., transparent) — over a busy preset that
+            dissolves into the image. Under [data-backdrop] each tone mixes into --surface instead,
+            with a Reduce Transparency twin back to the stock transparent mix once the backdrop
+            itself has flattened away.
+          </p>
           <p className={styles.note}>
             Per app, not per package: the wallpaper image assets and their --backdrop-image declarations,
             the settings key and its picker UI (feed it BACKDROP_PRESET_OPTIONS), the pre-paint boot

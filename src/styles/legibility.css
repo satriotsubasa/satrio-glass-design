@@ -19,7 +19,8 @@
 
    text-shadow INHERITS, so one declaration on the region covers every heading, caption and
    floating label painted straight on the backdrop — bounded back to `none` inside the four
-   global material classes so card-borne text stays stock. `Panel material="none"` carries no
+   global material classes plus input/textarea (the two native form elements this same reset also
+   covers) so card-borne text and bare form fields stay stock. `Panel material="none"` carries no
    material class and deliberately KEEPS the glow: it has no surface of its own and is
    on-backdrop by construction. The reset is written AFTER both text-shadow rules on purpose —
    all three share (0,4,0) specificity, so this is a SOURCE-ORDER bound, not a specificity one;
@@ -57,8 +58,16 @@
 }
 
 /* Material owns legibility INSIDE a card/panel — the glow is for naked-on-backdrop text only.
-   Inheritance does the rest: descendants of a material surface inherit the `none`. */
-:root[data-backdrop] :is(main, .backdrop-scope) :is(.glass, .glass-strong, .panel-material, .dash-card) {
+   Inheritance does the rest: descendants of a material surface inherit the `none`. input/textarea
+   are native elements, not classes, so this shared selector reaches TextInput/Textarea/
+   SearchField's opaque surfaces directly. Two other opaque kit surfaces carry ONLY a hashed
+   CSS-module class this selector can never reach by name — Panel material="solid" and Select's
+   trigger — and get their own :global(:root[data-backdrop]) reset in Panel.module.css /
+   Select.module.css instead. `button` is deliberately absent from this list: an unstamped ghost
+   Button label on the backdrop legitimately KEEPS the glow (`.backdrop-chrome` is the opt-in for
+   a floating control that does not want it), so a blanket button reset would be wrong, not just
+   redundant. */
+:root[data-backdrop] :is(main, .backdrop-scope) :is(.glass, .glass-strong, .panel-material, .dash-card, input, textarea) {
   text-shadow: none;
 }
 

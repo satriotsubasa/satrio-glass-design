@@ -46,3 +46,22 @@
   border-radius: 999px;
   flex-shrink: 0;
 }
+
+/* On-backdrop legibility: same vanishing-tint fix as Chip.module.css — mix into --surface instead
+   of transparent so the pill stays visible over a photo/saturated preset. Reduce Transparency
+   flattens the backdrop away first, so the twin below returns to the stock transparent mixes.
+   Inert without [data-backdrop]. */
+:global(:root[data-backdrop]) .chip { background: color-mix(in srgb, var(--label) 10%, var(--surface)); }
+:global(:root[data-backdrop]) .chipActive { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); }
+@media (hover: hover) {
+  :global(:root[data-backdrop]) .chip:not(.chipActive):hover { background: color-mix(in srgb, var(--label) 16%, var(--surface)); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :global(:root[data-backdrop]) .chip { background: color-mix(in srgb, var(--label) 10%, transparent); }
+  :global(:root[data-backdrop]) .chipActive { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+}
+/* The hover twin needs its OWN (hover: hover) guard even under reduce — an ungated :hover sticks on
+   touch after the finger lifts, reduce or not. */
+@media (hover: hover) and (prefers-reduced-transparency: reduce) {
+  :global(:root[data-backdrop]) .chip:not(.chipActive):hover { background: color-mix(in srgb, var(--label) 16%, transparent); }
+}

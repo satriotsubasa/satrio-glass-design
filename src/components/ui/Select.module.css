@@ -10,6 +10,12 @@
 /* Disabled state (matches Toggle.module.css). Radix sets the native disabled attribute. */
 .trigger:disabled { opacity: 0.5; cursor: not-allowed; }
 .trigger:disabled:active { transform: none; }
+/* On-backdrop legibility: the trigger is an opaque surface (background: var(--surface) above)
+   reachable only through this HASHED module class, so legibility.css's shared reset cannot target
+   it by name — reset it here instead. Radix's popover content (.content below) portals to
+   document.body via RSelect.Portal, so it sits outside main/.backdrop-scope and never inherits
+   the glow; it needs no reset of its own. */
+:global(:root[data-backdrop]) .trigger { text-shadow: none; }
 .invalid { border-color: var(--danger); }
 .chevron { color: var(--label-3); display: inline-flex; }
 .content { z-index: 340; min-width: var(--radix-select-trigger-width);

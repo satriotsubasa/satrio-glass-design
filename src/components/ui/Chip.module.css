@@ -7,3 +7,21 @@
 .income { background: color-mix(in srgb, var(--income) 16%, transparent); color: var(--income); }
 .expense { background: color-mix(in srgb, var(--expense) 16%, transparent); color: var(--expense); }
 .warning { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
+
+/* On-backdrop legibility: color-mix(..., transparent) vanishes over a photo or saturated preset —
+   swap the transparent term for --surface under [data-backdrop] so each tone stays a visible chip
+   instead of a wash. Reduce Transparency flattens the backdrop away first, so the twin below
+   returns every tone to its stock transparent mix. All five rules (and their twins) are inert
+   without [data-backdrop]. */
+:global(:root[data-backdrop]) .neutral { background: color-mix(in srgb, var(--label) 10%, var(--surface)); }
+:global(:root[data-backdrop]) .accent { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+:global(:root[data-backdrop]) .income { background: color-mix(in srgb, var(--income) 16%, var(--surface)); }
+:global(:root[data-backdrop]) .expense { background: color-mix(in srgb, var(--expense) 16%, var(--surface)); }
+:global(:root[data-backdrop]) .warning { background: color-mix(in srgb, var(--warning) 16%, var(--surface)); }
+@media (prefers-reduced-transparency: reduce) {
+  :global(:root[data-backdrop]) .neutral { background: color-mix(in srgb, var(--label) 10%, transparent); }
+  :global(:root[data-backdrop]) .accent { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  :global(:root[data-backdrop]) .income { background: color-mix(in srgb, var(--income) 16%, transparent); }
+  :global(:root[data-backdrop]) .expense { background: color-mix(in srgb, var(--expense) 16%, transparent); }
+  :global(:root[data-backdrop]) .warning { background: color-mix(in srgb, var(--warning) 16%, transparent); }
+}

@@ -1,5 +1,11 @@
 .panel { border-radius: var(--radius-card); color: var(--label); }
 .solid { background: var(--surface); border: 0.5px solid var(--separator); }
+/* On-backdrop legibility: .solid is opaque like .dash-card/.panel-material but carries only this
+   HASHED module class — legibility.css's shared reset selector can only match by class/element
+   name and can never reach it, so it is reset here instead. material="none" renders no background
+   of its own (children bring their own surface) and is on-backdrop by construction: it
+   deliberately KEEPS the inherited glow. */
+:global(:root[data-backdrop]) .solid { text-shadow: none; }
 .p_none { padding: 0; }
 .p_sm { padding: var(--space-1); }
 .p_md { padding: var(--space-2); }
