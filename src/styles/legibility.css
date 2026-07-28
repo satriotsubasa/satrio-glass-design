@@ -1,0 +1,165 @@
+/* On-backdrop LEGIBILITY layer — the half of the backdrop contract that protects text and
+   floating controls once styles/backdrops.css starts painting an image or a saturated wash
+   behind the page. Card/panel/sheet surfaces are fine on their own (their material tints
+   whatever sits behind them); text and controls painted DIRECTLY on the backdrop are not.
+
+   THE ONE-UNIT GUARANTEE: this file is @import-ed by backdrops.css's first line and carries no
+   package.json "exports" entry of its own — there is no supported way to take the presets
+   without this layer. That is provable only because the two files are PROPERTY-DISJOINT:
+   backdrops.css declares nothing but `--backdrop`; this file never declares it. Never add a
+   `--backdrop` declaration here — it is what makes the @import's cascade position provably
+   irrelevant instead of an accident of ordering.
+
+   SCOPE CONTRACT: every selector below is gated on the VALUE-LESS `[data-backdrop]` — 'minimal'
+   stamps NO attribute (see backdrops.css), so a build that never leaves it is byte-identical to
+   one that never loaded this file. Text rules are bounded to `:is(main, .backdrop-scope)`:
+   sheets, modals and toasts portal outside that region and must never inherit the glow;
+   `.backdrop-scope` is the opt-in for an on-backdrop page root that renders outside a semantic
+   <main> (the package ships no <main> of its own).
+
+   text-shadow INHERITS, so one declaration on the region covers every heading, caption and
+   floating label painted straight on the backdrop — bounded back to `none` inside the four
+   global material classes so card-borne text stays stock. `Panel material="none"` carries no
+   material class and deliberately KEEPS the glow: it has no surface of its own and is
+   on-backdrop by construction. The reset is written AFTER both text-shadow rules on purpose —
+   all three share (0,4,0) specificity, so this is a SOURCE-ORDER bound, not a specificity one;
+   moving the reset earlier silently reopens the halo on dark-theme card text.
+
+   No black-theme twin for the text-shadow: the black theme paints BOTH data-theme='dark' and
+   data-theme-mode='black', so the dark rule already covers it.
+
+   The calm-gate block re-asserts every stand-down at `:root[data-colorful-interface='off']
+   [data-backdrop]` (0,4,0/0,5,x) — one attribute more specific than every rule above it, so it
+   wins the moment the setting is off, in every theme, regardless of which preset is active.
+   `--backdrop` itself is NOT re-flattened here (that half lives in backdrops.css, the only file
+   allowed to declare the token) — only the legibility half stands down.
+
+   MEDIA ORDER IS REDUCE-THEN-CONTRAST, matching tokens.css and global.css's own ordering gate.
+   The reduce block's chrome fallback deliberately OMITS a border-color override: the base
+   `border: 0.5px solid var(--glass-border)` is left to resolve on its own so it can still
+   promote to --label-3 if Increase Contrast is ALSO on — a translucent border over an opaque
+   fill leaks nothing, so pinning it here only costs the promotion for no benefit. The contrast
+   block is the file's TERMINAL block — nothing may follow it. */
+
+/* ---- text on the backdrop: theme-aware protection ----
+   Light theme = dark labels over a light preset -> soft LIGHT glow lifts the text off the image.
+   Dark/black = light labels over a dark preset -> dark shadow. */
+:root[data-backdrop] :is(main, .backdrop-scope) {
+  text-shadow:
+    0 1px 3px rgba(255, 250, 246, 0.65),
+    0 1px 12px rgba(255, 250, 246, 0.55);
+}
+
+:root[data-theme='dark'][data-backdrop] :is(main, .backdrop-scope) {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.6),
+    0 1px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Material owns legibility INSIDE a card/panel — the glow is for naked-on-backdrop text only.
+   Inheritance does the rest: descendants of a material surface inherit the `none`. */
+:root[data-backdrop] :is(main, .backdrop-scope) :is(.glass, .glass-strong, .panel-material, .dash-card) {
+  text-shadow: none;
+}
+
+/* On-backdrop descriptions (SectionHeader's subheading is exactly this `h2 + p` shape):
+   --label-2 was tuned for the flat gradient — over a preset it needs a step toward --label. The
+   :not() keeps card-borne SectionHeaders (widgets, panel sections) at stock strength. */
+:root[data-backdrop] :is(main, .backdrop-scope) :is(h1, h2, h3) + p:not(.glass *, .glass-strong *, .panel-material *, .dash-card *) {
+  color: color-mix(in srgb, var(--label) 45%, var(--label-2));
+}
+
+/* Settings-group captions (SectionLabel renders a `p` immediately before its .dash-card):
+   --label-3 is the faintest ramp step and vanishes over a busy preset; promote one step. */
+:root[data-backdrop] :is(main, .backdrop-scope) p:has(+ .dash-card) {
+  color: var(--label-2);
+}
+
+/* ---- .backdrop-chrome: floating on-backdrop controls get chrome-tier material ----
+   Stamped by the CONSUMER at the call sites of tonal/ghost icon-only buttons that sit straight
+   on the page background — the kit Button's hashed variant classes cannot be targeted from here,
+   and a translucent accent tint / a fully transparent ghost is exactly what disappears over a
+   busy preset. The recipe is the nav pill's own: --nav-bg + chrome blur + glass hairline. The
+   :not([aria-pressed='true']) guard: a toggle that flips to an opaque primary fill needs no
+   chrome and must not have it clobbered — pair aria-pressed with any such toggle. */
+:root[data-backdrop] .backdrop-chrome:not([aria-pressed='true']) {
+  background: var(--nav-bg);
+  border: 0.5px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(150%);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(150%);
+}
+
+/* The chrome fill outranks a variant's own hover tint on specificity, so re-supply hover
+   feedback at the same tier the kit Button uses. */
+@media (hover: hover) {
+  :root[data-backdrop] .backdrop-chrome:not([aria-pressed='true']):hover {
+    filter: brightness(1.05);
+  }
+}
+
+/* ---- calm gate: colorfulInterface OFF stands the WHOLE legibility layer down ----
+   backdrops.css flattens --backdrop to a plain wash under this same attribute — but a flattened
+   wash still lets the shadow/promotion/chrome rules above match, since none of them mention
+   colorfulInterface. Left unfixed, a calm-preference user with a preset selected still gets a
+   halo over flat colour, ramp promotions with nothing left to compensate for, and a nav-tier
+   chrome pill that no longer earns its keep. Every selector here is one attribute MORE specific
+   than its unconditional counterpart above, so it wins outright — no tie, no ordering
+   dependency — the instant the setting is off. */
+:root[data-colorful-interface='off'][data-backdrop] :is(main, .backdrop-scope) {
+  text-shadow: none;
+}
+
+:root[data-colorful-interface='off'][data-backdrop] :is(main, .backdrop-scope) :is(h1, h2, h3) + p:not(.glass *, .glass-strong *, .panel-material *, .dash-card *) {
+  color: var(--label-2);
+}
+
+:root[data-colorful-interface='off'][data-backdrop] :is(main, .backdrop-scope) p:has(+ .dash-card) {
+  color: var(--label-3);
+}
+
+:root[data-colorful-interface='off'][data-backdrop] .backdrop-chrome:not([aria-pressed='true']) {
+  background: var(--surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* ---- OS Reduce Transparency: backdrops.css flattens the preset to the plain --bg wash ----
+   The image/wash is gone, so the legibility layer stands down: shadows off, description/caption
+   colours back to stock. The control chrome cannot restore a per-variant fill (the utility is
+   variant-agnostic), so it collapses to the opaque --surface fallback shape instead — the same
+   shape every other chrome surface takes under this signal. No border-color override (see the
+   file header) — the base border is left to resolve so Increase Contrast can still promote it. */
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-backdrop] :is(main, .backdrop-scope),
+  :root[data-theme='dark'][data-backdrop] :is(main, .backdrop-scope) {
+    text-shadow: none;
+  }
+  :root[data-backdrop] :is(main, .backdrop-scope) :is(h1, h2, h3) + p:not(.glass *, .glass-strong *, .panel-material *, .dash-card *) {
+    color: var(--label-2);
+  }
+  :root[data-backdrop] :is(main, .backdrop-scope) p:has(+ .dash-card) {
+    color: var(--label-3);
+  }
+  :root[data-backdrop] .backdrop-chrome:not([aria-pressed='true']) {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ---- OS Increase Contrast: the preset still paints — chrome goes OPAQUE, shadows stay ----
+   Same fallback shape as every other chrome surface: solid --surface, no blur. --glass-border is
+   already pinned to --label-3 by tokens.css under this signal, so the hairline promotes itself.
+   The shadows on main/.backdrop-scope are left untouched — they only ADD contrast, and the image
+   is still there to protect against. .backdrop-chrome's OWN label text gets an explicit
+   text-shadow: none: it inherited the ambient glow from the region rule above, and once this
+   block makes its fill opaque a glow on the glyph edges is a contrast REGRESSION, not a gain.
+   TERMINAL BLOCK — nothing may follow it. */
+@media (prefers-contrast: more) {
+  :root[data-backdrop] .backdrop-chrome:not([aria-pressed='true']) {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    text-shadow: none;
+  }
+}

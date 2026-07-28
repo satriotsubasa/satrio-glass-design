@@ -259,3 +259,21 @@
 .fabDemo button {
   position: static;
 }
+
+/* ---- Backdrops catalogue ----
+   .backdropBare carries NO material class on purpose: it is the control sample the legibility
+   text-shadow must actually reach. .backdropCard sits inside a .dash-card, where the material
+   reset takes the shadow back to none — the pair is the whole demonstration. */
+.backdropBare, .backdropCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2);
+}
+
+.backdropBare p, .backdropCard p {
+  margin: 0;
+  color: var(--label-2);
+  font-size: var(--fs-callout);
+  line-height: var(--lh-callout);
+}

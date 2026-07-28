@@ -1,0 +1,155 @@
+/* Backdrop PRESETS (Settings-level `<html data-backdrop>`) — the opt-in half of the backdrop
+   contract. `body::before { background: var(--backdrop) }` (styles/global.css) is the single
+   consumer; nothing in this file paints anything directly.
+
+   THE ONE-UNIT GUARANTEE: line 1 below imports styles/legibility.css. That file ships on disk
+   (package.json "files" includes src) but is deliberately ABSENT from package.json "exports" —
+   there is no supported subpath a consumer can import to get the presets without the legibility
+   layer. The two files are PROPERTY-DISJOINT (this file declares only `--backdrop`; legibility.css
+   never declares it), which is what makes the @import's cascade position provably irrelevant
+   rather than an accident of ordering.
+
+   `<html data-backdrop='mesh'|'aurora'|'wallpaper'>` selects a preset; 'minimal' stamps NO
+   attribute and must never gain a rule here — attribute absence IS the stock package backdrop
+   (tokens.css's accent-tinted default), so a build that never leaves minimal is byte-identical
+   to one that never imported this stylesheet.
+
+   Theme scoping mirrors tokens.css: the black theme paints BOTH data-theme='dark' and
+   data-theme-mode='black' (an app's theme-apply routine), so black scopes sit after dark scopes
+   and a preset with no black scope inherits its dark tuning.
+
+   RULE ORDER IS LOAD-BEARING (pinned by the structural tests in appearanceConsumers.test.ts):
+     1. preset scopes (light, then dark, then black) —
+     2. the data-colorful-interface='off' calm gate LAST among unconditional rules: it ties the
+        theme-scoped preset rules at 0-3-0, so source order is what makes calm win —
+     3. the prefers-reduced-transparency media block at the very end (same tie-break) — nothing
+        may follow it. */
+
+@import './legibility.css';
+
+/* ---- mesh — soft wallpaper-style blobs from the live palette tokens ----
+   5 oversized radials (accent x2, income, expense, accent-fill) over a gently tinted base. Every
+   colour comes from color-mix over the CURRENT theme's tokens, so a brand's own accent/income/
+   expense retunes the mesh for free — nothing here is a hardcoded colour. */
+:root[data-backdrop='mesh'] {
+  --backdrop:
+    radial-gradient(ellipse 75% 60% at 15% 5%, color-mix(in srgb, var(--accent) 28%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 90% 10%, color-mix(in srgb, var(--income) 20%, transparent) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 60% at 88% 90%, color-mix(in srgb, var(--accent-fill) 24%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 8% 92%, color-mix(in srgb, var(--expense) 15%, transparent) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 55% 50%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--bg)) 0%, var(--bg) 70%);
+}
+
+/* dark: same geometry, lower alphas — dark-theme tokens run near-white/pastel, so the light-theme
+   mix percentages would bleach the canvas and fight text contrast on the glass above. */
+:root[data-theme='dark'][data-backdrop='mesh'] {
+  --backdrop:
+    radial-gradient(ellipse 75% 60% at 15% 5%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 90% 10%, color-mix(in srgb, var(--income) 12%, transparent) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 60% at 88% 90%, color-mix(in srgb, var(--accent-fill) 14%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 8% 92%, color-mix(in srgb, var(--expense) 9%, transparent) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 55% 50%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 5%, var(--bg)) 0%, var(--bg) 70%);
+}
+
+/* black: lowest alphas — a faint glow that keeps the OLED canvas reading near-black. Deliberately
+   FOUR radials, not five: the fifth (a centred accent wash) reads as visible haze against #050505
+   at any of this ladder's alphas, so it is dropped rather than tuned to near-zero. */
+:root[data-theme-mode='black'][data-backdrop='mesh'] {
+  --backdrop:
+    radial-gradient(ellipse 75% 60% at 15% 5%, color-mix(in srgb, var(--accent) 11%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 90% 10%, color-mix(in srgb, var(--income) 8%, transparent) 0%, transparent 58%),
+    radial-gradient(ellipse 70% 60% at 88% 90%, color-mix(in srgb, var(--accent-fill) 10%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 8% 92%, color-mix(in srgb, var(--expense) 6%, transparent) 0%, transparent 55%),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 3%, var(--bg)) 0%, var(--bg) 70%);
+}
+
+/* ---- aurora — richer diagonal sweep: conic band + 2 radial glows + diagonal base ----
+   More saturated than mesh (higher mix percentages) with a top-edge conic sweeping
+   accent -> income -> accent-fill, flowing toward the bottom-left income glow. */
+:root[data-backdrop='aurora'] {
+  --backdrop:
+    conic-gradient(from 210deg at 85% -10%,
+      transparent 0deg,
+      color-mix(in srgb, var(--accent) 32%, transparent) 55deg,
+      color-mix(in srgb, var(--income) 26%, transparent) 110deg,
+      transparent 170deg,
+      color-mix(in srgb, var(--accent-fill) 30%, transparent) 240deg,
+      transparent 320deg),
+    radial-gradient(ellipse 90% 70% at 5% 100%, color-mix(in srgb, var(--income) 22%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 55% at 100% 45%, color-mix(in srgb, var(--expense) 16%, transparent) 0%, transparent 55%),
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 14%, var(--bg)) 0%, var(--bg) 45%, color-mix(in srgb, var(--income) 10%, var(--bg)) 100%);
+}
+
+:root[data-theme='dark'][data-backdrop='aurora'] {
+  --backdrop:
+    conic-gradient(from 210deg at 85% -10%,
+      transparent 0deg,
+      color-mix(in srgb, var(--accent) 20%, transparent) 55deg,
+      color-mix(in srgb, var(--income) 16%, transparent) 110deg,
+      transparent 170deg,
+      color-mix(in srgb, var(--accent-fill) 18%, transparent) 240deg,
+      transparent 320deg),
+    radial-gradient(ellipse 90% 70% at 5% 100%, color-mix(in srgb, var(--income) 13%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 55% at 100% 45%, color-mix(in srgb, var(--expense) 10%, transparent) 0%, transparent 55%),
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 8%, var(--bg)) 0%, var(--bg) 45%, color-mix(in srgb, var(--income) 6%, var(--bg)) 100%);
+}
+
+/* black: THREE layers, not four — the --expense radial is dropped entirely (not just dimmed):
+   it sits bottom-right, farthest from the eye, and at any alpha low enough to stay honest on
+   #050505 it read as a stray smudge rather than a glow. */
+:root[data-theme-mode='black'][data-backdrop='aurora'] {
+  --backdrop:
+    conic-gradient(from 210deg at 85% -10%,
+      transparent 0deg,
+      color-mix(in srgb, var(--accent) 13%, transparent) 55deg,
+      color-mix(in srgb, var(--income) 10%, transparent) 110deg,
+      transparent 170deg,
+      color-mix(in srgb, var(--accent-fill) 12%, transparent) 240deg,
+      transparent 320deg),
+    radial-gradient(ellipse 90% 70% at 5% 100%, color-mix(in srgb, var(--income) 8%, transparent) 0%, transparent 60%),
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 5%, var(--bg)) 0%, var(--bg) 55%, color-mix(in srgb, var(--income) 4%, var(--bg)) 100%);
+}
+
+/* ---- wallpaper — the consumer-supplied photo, via the single --backdrop-image token ----
+   ONE rule, theme-agnostic: --backdrop-image is a single token (tokens.css) that a brand
+   redeclares per theme in its own :root[data-theme='dark'] block, exactly like every other
+   themed token in the system — so this preset never needs its own theme scopes, and the black
+   theme inherits whatever the brand set for dark with no extra rule. The `<image>` slot rides
+   inside the `background` SHORTHAND here, so an app supplies a bare CSS image value — a url
+   reference, an image-set, or none — and never bakes position/size/repeat into the token itself.
+   The trailing --bg wash is the SAME layer every other preset resolves to when its inputs are
+   neutral — with --backdrop-image at its `none` default this preset paints identically to
+   leaving data-backdrop unset. */
+:root[data-backdrop='wallpaper'] {
+  --backdrop: var(--backdrop-image) center center / cover no-repeat, linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+}
+
+/* ---- calm gate: colorfulInterface OFF beats every preset ----
+   tokens.css's `:root[data-colorful-interface='off']` (0-2-0) would lose to the preset scopes
+   above (this file loads later, all of them >= 0-2-0), silently breaking the existing a11y/calm
+   setting the moment a preset is active. Re-assert it here at 0-3-0 with the SAME flat value,
+   and keep this rule BELOW every preset scope: it ties the theme-scoped ones at 0-3-0, so
+   source order — not specificity — is what makes calm win. The paired legibility stand-down
+   (shadows, colour promotions, chrome) lives in legibility.css, not here: this file may declare
+   nothing but `--backdrop`. */
+:root[data-colorful-interface='off'][data-backdrop] {
+  --backdrop: linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+}
+
+/* ---- OS Reduce Transparency: flatten every preset ----
+   tokens.css's collapse turns the glass stack opaque but leaves --backdrop painting between the
+   now-opaque surfaces — a busy photo or saturated sweep under un-blurred glass is hostile to the
+   preference, so every preset flattens to the same plain --bg wash (kept as a gradient so
+   body::before keeps resolving to an image, matching the colorful-off gate). Theme-scoped
+   selectors are REQUIRED, mirroring tokens.css's own collapse blocks: the preset scopes above
+   match at 0-3-0, so a bare 0-2-0 pin here would lose to them. THIS MUST STAY THE LAST RULE IN
+   THE FILE — nothing may follow it (the same source-order tie-break the preset scopes rely on). */
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-backdrop],
+  :root[data-theme='dark'][data-backdrop],
+  :root[data-theme-mode='black'][data-backdrop] {
+    --backdrop: linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+  }
+}

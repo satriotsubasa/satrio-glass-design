@@ -1,0 +1,13 @@
+/* Docs-only stand-in for a consumer's brand.css — playing the `wallpaper` preset's ONE required
+   obligation: supplying --backdrop-image per theme. Never shipped (src/docs is excluded from
+   package.json "files"); the two referenced files are authored placeholder SVGs under public/
+   wallpapers/, also docs-only. A real consumer points these at its own photos with root-absolute,
+   absolute, or data: URLs — never a relative url() inside the custom property (it resolves
+   against the stylesheet that SUBSTITUTES it, not the one that declares it). */
+:root {
+  --backdrop-image: url('/wallpapers/light.svg');
+}
+
+:root[data-theme='dark'] {
+  --backdrop-image: url('/wallpapers/dark.svg');
+}

@@ -3,6 +3,7 @@ import { toast as toastViaSubpath } from '@satrio/glass-design/toast'
 import * as pkg from './index'
 import type {
   AppAnimations,
+  BackdropPreset,
   ChipGroupOption,
   IconShape,
   ProgressBarStyle,
@@ -33,12 +34,15 @@ const VALUE_EXPORTS = [
   'toast', 'ErrorBoundary', 'AppMotionConfig', 'motionConfigReducedMotion', 'IconProvider', 'IconShapeDefs',
   // icon-shape system + hook
   'ICON_SHAPE_OPTIONS', 'ICON_SHAPE_CLASSES', 'ICON_SHAPE_CLIP_PATHS', 'LOBED_ICON_SHAPES', 'useHorizontalRail',
+  // backdrop system
+  'BACKDROP_PRESET_OPTIONS', 'BACKDROP_PRESETS_WITH_RULES',
 ] as const
 
 /** Compile-time proof each public type is exported from the root (referenced, so noUnusedLocals is
  *  satisfied and tsc fails to build if any is missing). */
 export type RootTypeContract =
   | SelectOption | ChipGroupOption | RadioListOption | ProgressBarStyle | SheetProps | AppAnimations | IconShape
+  | BackdropPreset
 
 describe('package root export contract', () => {
   it.each(VALUE_EXPORTS)('exports %s', (name) => {

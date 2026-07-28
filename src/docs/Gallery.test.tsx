@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import App from './App'
 
 // The gallery mounts kit Sheets (framer-motion drag internals) and Radix Selects; jsdom
@@ -10,6 +11,12 @@ beforeEach(() => {
   window.HTMLElement.prototype.setPointerCapture = vi.fn()
   window.HTMLElement.prototype.releasePointerCapture = vi.fn()
   window.HTMLElement.prototype.scrollIntoView = vi.fn()
+})
+
+// The Backdrop section stamps the REAL <html data-backdrop> — a failed assertion or a missing
+// cleanup would otherwise leak the attribute into sibling tests in this same file.
+afterEach(() => {
+  delete document.documentElement.dataset.backdrop
 })
 
 describe('Gallery', () => {
@@ -51,5 +58,45 @@ describe('Gallery', () => {
     for (const id of hintAndErrorIds) {
       expect(describedTokens.has(id), `#${id} is rendered but nothing in the section points aria-describedby at it`).toBe(true)
     }
+  })
+
+  it('carries backdrop-scope on the page root — the gallery renders outside any <main>, so without it the legibility layer never reaches this page', () => {
+    render(<App />)
+    expect(screen.getByRole('heading', { name: 'Component Gallery' }).closest('.backdrop-scope')).not.toBeNull()
+  })
+
+  it('stamps <html data-backdrop> live from the Backdrop switcher, with Minimal REMOVING the attribute', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Mesh' }))
+    expect(document.documentElement.dataset.backdrop).toBe('mesh')
+
+    await user.click(screen.getByRole('button', { name: 'Wallpaper' }))
+    expect(document.documentElement.dataset.backdrop).toBe('wallpaper')
+
+    await user.click(screen.getByRole('button', { name: 'Minimal' }))
+    expect(document.documentElement.hasAttribute('data-backdrop')).toBe(false)
+  })
+
+  it('restores the mount-time data-backdrop on unmount — leaving the gallery leaves no trace on the document', async () => {
+    const user = userEvent.setup()
+    const { unmount } = render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Aurora' }))
+    expect(document.documentElement.dataset.backdrop).toBe('aurora')
+
+    unmount()
+    expect(document.documentElement.hasAttribute('data-backdrop')).toBe(false)
+  })
+
+  it('renders the Backdrop section on material="none" so the legibility text-shadow can actually reach it', () => {
+    render(<App />)
+    const section = screen.getByRole('heading', { name: 'Backdrops' }).closest('section')
+    if (!section) throw new Error('Backdrop section not found')
+    // material="none" means no .panel-material wrapper — the control sample beside it is a real
+    // .dash-card, proving the section still demonstrates the material-reset half of the contract.
+    expect(section.querySelector('.panel-material')).toBeNull()
+    expect(section.querySelector('.dash-card')).not.toBeNull()
   })
 })

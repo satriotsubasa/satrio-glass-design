@@ -13,6 +13,7 @@ import {
   Wallet,
 } from '@phosphor-icons/react'
 import {
+  BACKDROP_PRESET_OPTIONS,
   Button,
   Chip,
   ChipGroup,
@@ -47,6 +48,7 @@ import {
   Toggle,
   toast,
   type AppAnimations,
+  type BackdropPreset,
   type ProgressBarStyle,
   type SelectOption,
 } from '@satrio/glass-design'
@@ -245,14 +247,18 @@ interface SectionProps {
   title: string
   subheading?: string
   action?: ReactNode
+  /** 'content' (default) wraps children in the translucent .panel-material surface. 'none' skips
+   *  it — REQUIRED for the Backdrop section: .panel-material resets the legibility text-shadow to
+   *  none, so a section built on the default would demonstrate nothing. */
+  material?: 'content' | 'none'
   children: ReactNode
 }
 
-function Section({ eyebrow, title, subheading, action, children }: SectionProps) {
+function Section({ eyebrow, title, subheading, action, material = 'content', children }: SectionProps) {
   return (
     <section className={styles.section}>
       <SectionHeader eyebrow={eyebrow} title={title} subheading={subheading} action={action} />
-      <Panel material="content" padding="lg">
+      <Panel material={material} padding="lg">
         {children}
       </Panel>
     </section>
@@ -348,8 +354,30 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
     document.documentElement.dataset.motion = next
   }
 
+  // Backdrop-preset demo (Settings: the Appearance backdrop picker): stamps the REAL
+  // <html data-backdrop> directly, exactly the motion-tier idiom above — 'minimal' REMOVES the
+  // attribute rather than writing a value (attribute absence is the stock package backdrop). The
+  // mount-time attribute is restored on unmount so leaving the gallery leaves no trace on the
+  // document.
+  const [backdropDemo, setBackdropDemo] = useState<BackdropPreset>('minimal')
+  const [chromeToggleDemo, setChromeToggleDemo] = useState(false)
+
+  useEffect(() => {
+    const initial = document.documentElement.dataset.backdrop
+    return () => {
+      if (initial === undefined) delete document.documentElement.dataset.backdrop
+      else document.documentElement.dataset.backdrop = initial
+    }
+  }, [])
+
+  function handleBackdropDemo(next: BackdropPreset) {
+    setBackdropDemo(next)
+    if (next === 'minimal') delete document.documentElement.dataset.backdrop
+    else document.documentElement.dataset.backdrop = next
+  }
+
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} backdrop-scope`}>
       <header className={styles.pageHead}>
         <h1 className={styles.pageTitle}>Component Gallery</h1>
         <p className={styles.intro}>
@@ -441,6 +469,77 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
               </div>
             </div>
           ))}
+        </div>
+      </Section>
+
+      <Section
+        eyebrow="Design tokens"
+        title="Backdrops"
+        material="none"
+        subheading="The four-way backdrop system (<html data-backdrop>, styles/backdrops.css + styles/legibility.css). Mesh and aurora are TOKEN-DERIVED recipes — every layer is a color-mix over --accent/--accent-fill/--income/--expense/--bg, so they re-skin with your brand.css automatically and retune per theme. Wallpaper points --backdrop at your --backdrop-image (this docs app supplies two authored placeholder SVGs via docs-brand.css). Minimal stamps NO attribute: absence IS the stock accent-tinted --backdrop, so a build that never leaves minimal renders byte-identically to one that never imported the stylesheet. This section renders on material=&quot;none&quot; on purpose — the four global material classes reset the legibility shadow to none, so a content panel would hide the very thing being demonstrated."
+      >
+        <div className={styles.col}>
+          <div className={styles.row}>
+            <span className={styles.tag}>data-backdrop</span>
+            <SegmentedControl
+              options={BACKDROP_PRESET_OPTIONS}
+              value={backdropDemo}
+              onChange={handleBackdropDemo}
+              ariaLabel="Backdrop preset (data-backdrop)"
+            />
+          </div>
+          <div className={styles.grid}>
+            <div className={styles.backdropBare}>
+              <span className={styles.tag}>on backdrop</span>
+              <p>
+                Text painted straight on the backdrop inherits the layer&apos;s text-shadow — a light glow
+                behind dark text, a dark shadow behind light text. One declaration on the region covers
+                every heading, caption and empty state, including hashed-class components this
+                stylesheet could never target directly.
+              </p>
+            </div>
+            <div className="dash-card">
+              <div className={styles.backdropCard}>
+                <span className={styles.tag}>on material</span>
+                <p>
+                  The same text inside a .dash-card. The material classes reset text-shadow to none, so
+                  card-borne text stays stock. That bounding is the whole trick: broad enough to cover
+                  anything, narrow enough not to smear card text.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className={styles.row}>
+            <span className={styles.tag}>backdrop-chrome</span>
+            <Button className="backdrop-chrome" iconOnly variant="ghost" aria-label="Search (on backdrop)">
+              <MagnifyingGlass size={18} />
+            </Button>
+            <Button
+              className="backdrop-chrome"
+              iconOnly
+              variant={chromeToggleDemo ? 'primary' : 'ghost'}
+              aria-pressed={chromeToggleDemo}
+              aria-label="Filters (pressed stands the chrome down)"
+              onClick={() => setChromeToggleDemo((v) => !v)}
+            >
+              <Gear size={18} />
+            </Button>
+          </div>
+          <p className={styles.note}>
+            .backdrop-chrome gives a floating on-backdrop control the nav pill&apos;s material (--nav-bg +
+            the chrome blur tier + the glass hairline) so a ghost button cannot dissolve into the image.
+            It stands down for a pressed toggle — tap the second button: an opaque primary fill needs no
+            chrome and must not have it clobbered. Under Increase Contrast the chrome goes opaque and the
+            shadows STAY (the image still paints); under Reduce Transparency the backdrop flattens to
+            --bg and the whole layer stands down with it; &quot;Colorful interface: off&quot; stands the
+            layer down too, on top of whichever preset is selected.
+          </p>
+          <p className={styles.note}>
+            Per app, not per package: the wallpaper image assets and their --backdrop-image declarations,
+            the settings key and its picker UI (feed it BACKDROP_PRESET_OPTIONS), the pre-paint boot
+            stamp in index.html, and any app-specific at-rest material exceptions. See the README&apos;s
+            Backdrops section.
+          </p>
         </div>
       </Section>
 

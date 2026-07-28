@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <!-- Docs-only placeholder for the `wallpaper` backdrop preset. Obviously synthetic — never a
+       stand-in for a real photo, and never shipped to a consumer (see package.json "files"). -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#14100e"/>
+      <stop offset="100%" stop-color="#241a16"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="400" fill="url(#g)"/>
+  <circle cx="120" cy="90" r="150" fill="#ffb4a5" opacity="0.14"/>
+  <circle cx="520" cy="320" r="180" fill="#4ade80" opacity="0.10"/>
+  <circle cx="470" cy="70" r="110" fill="#d95b43" opacity="0.12"/>
+</svg>
