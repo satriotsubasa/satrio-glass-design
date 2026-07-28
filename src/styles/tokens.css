@@ -114,6 +114,16 @@
     radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--accent-fill) 17%, transparent) 0%, transparent 46%),
     linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)) 0%, var(--bg) 60%);
 
+  /* ---- wallpaper image (a backdrop preset's only image input) ----
+     Must be a bare <image> — url(), image-set(), or none — because a preset substitutes it
+     into the `background` SHORTHAND; positional syntax here (position/size/repeat) makes
+     that declaration invalid at computed-value time and the whole layer falls back to the
+     flat --bg canvas instead. URLs must be root-absolute, absolute, or data: — the package
+     ships no images and never guesses an asset path. Base-scope only, on purpose: never
+     redeclared inside either a11y @media block below, so it carries no collapse-tail
+     obligation of its own — the flatten for a wallpaper belongs to --backdrop itself. */
+  --backdrop-image: none;
+
   /* ---- motion (purpose-split easings — emil §3: one curve per job, never one for all) ---- */
   --ease-glass:  cubic-bezier(0.22, 1, 0.36, 1);   /* enter/exit — KEEP, do not touch */
   --ease-move:   cubic-bezier(0.77, 0, 0.175, 1);  /* on-screen movement/morph */

@@ -371,6 +371,19 @@ describe('tokens.css', () => {
     }
   })
 
+  it('declares no --backdrop* token inside either a11y @media block (satrio.io brand.css:31 already pins --backdrop at base :root with no a11y tail — collapsing a --backdrop* token here would demand one and break that consumer\'s brand policy suite)', () => {
+    const reduceStart = css.indexOf('@media (prefers-reduced-transparency: reduce)')
+    const contrastStart = css.indexOf('@media (prefers-contrast: more)')
+    expect(reduceStart, 'missing the reduced-transparency block').toBeGreaterThan(-1)
+    expect(contrastStart, 'missing the contrast block').toBeGreaterThan(-1)
+    const reduceBlock = css.slice(reduceStart, contrastStart)
+    const contrastBlock = css.slice(contrastStart)
+    for (const block of [reduceBlock, contrastBlock]) {
+      expect(block, 'a --backdrop* token must never be declared inside an a11y @media block')
+        .not.toMatch(/--backdrop[a-z0-9-]*\s*:/i)
+    }
+  })
+
   it('overrides card-bg and card-shadow in the dark and black scopes', () => {
     const darkBlock = css.slice(
       css.indexOf(':root[data-theme="dark"]'),

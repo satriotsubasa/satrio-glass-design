@@ -7,6 +7,7 @@ import {
   BRAND_TOKENS,
   findDisallowedTokens,
   findMissingCollapseTails,
+  findUnthemedBackdropImage,
   parseDeclaredTokens,
   runBrandPolicy,
 } from './brandPolicy'
@@ -104,6 +105,34 @@ const brandDarkGlassDarkTail = `
 }
 `
 
+/** 7. wallpaper set at base :root only — no dark scope. The unthemed guard must flag this. */
+const brandWallpaperLightOnly = `
+:root {
+  --backdrop-image: url('/wallpapers/light.jpg');
+}
+`
+
+/** 8. wallpaper set at :root AND the dark scope — themed, guard must pass. */
+const brandWallpaperThemed = `
+:root {
+  --backdrop-image: url('/wallpapers/light.jpg');
+}
+:root[data-theme='dark'] {
+  --backdrop-image: url('/wallpapers/dark.jpg');
+}
+`
+
+/** 9. wallpaper set at :root and a BLACK scope only — black is a strict subset of dark, so this
+ * must NOT satisfy the guard: an ordinary (non-black) dark-theme user still gets the light photo. */
+const brandWallpaperBlackOnly = `
+:root {
+  --backdrop-image: url('/wallpapers/light.jpg');
+}
+:root[data-theme-mode='black'] {
+  --backdrop-image: url('/wallpapers/dark.jpg');
+}
+`
+
 describe('BRAND_TOKENS allowlist', () => {
   it('locks the structural token families out (type ramp, spacing, blur tiers, easings)', () => {
     for (const locked of [
@@ -118,7 +147,7 @@ describe('BRAND_TOKENS allowlist', () => {
   it('admits the brandable colour, geometry, and material-alias tokens', () => {
     for (const brandable of [
       '--bg', '--surface', '--label', '--accent', '--danger',
-      '--glass-bg', '--card-bg', '--nav-bg', '--backdrop',
+      '--glass-bg', '--card-bg', '--nav-bg', '--backdrop', '--backdrop-image',
       '--radius-card', '--glass-blur', '--panel-blur', '--card-blur',
     ]) {
       expect(BRAND_TOKENS.has(brandable), `${brandable} must be brand-overridable`).toBe(true)
@@ -222,6 +251,24 @@ describe('findMissingCollapseTails (collapse-coverage check)', () => {
 
   it('passes a theme-scoped override whose tail carries the matching theme selector', () => {
     expect(findMissingCollapseTails(brandDarkGlassDarkTail, tokensCss)).toEqual([])
+  })
+})
+
+describe('findUnthemedBackdropImage (wallpaper theme-coverage check)', () => {
+  it('is false when the file never declares --backdrop-image', () => {
+    expect(findUnthemedBackdropImage(brandApprovedOnly)).toBe(false)
+  })
+
+  it('flags a base :root wallpaper with no dark scope', () => {
+    expect(findUnthemedBackdropImage(brandWallpaperLightOnly)).toBe(true)
+  })
+
+  it('passes once the dark scope repeats the token', () => {
+    expect(findUnthemedBackdropImage(brandWallpaperThemed)).toBe(false)
+  })
+
+  it('does not accept a black-only scope as satisfying the dark requirement (black is a strict subset of dark — an ordinary dark-theme user would still get the light photo)', () => {
+    expect(findUnthemedBackdropImage(brandWallpaperBlackOnly)).toBe(true)
   })
 })
 

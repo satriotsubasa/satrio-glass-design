@@ -19,7 +19,7 @@ export const BRAND_TOKENS: ReadonlySet<string> = new Set([
   '--shadow-sheet', '--sheet-bg', '--menu-bg', '--nav-bg',
   '--panel-bg', '--panel-border',
   '--card-bg', '--card-border', '--card-highlight', '--card-shadow',
-  '--backdrop',
+  '--backdrop', '--backdrop-image',
   // geometry
   '--radius-card', '--radius-tile', '--radius-control',
   // material thickness ALIASES (retargetable; ladder tiers --blur-* are locked)
@@ -266,10 +266,29 @@ export function findMissingCollapseTails(
 }
 
 /**
- * Register the brand-policy suite for a consumer's brand.css. Two guarantees:
- * the file overrides only brand-approved tokens, and every collapse-managed token
+ * Whether the brand file gives the light theme a wallpaper and leaves dark/black without
+ * one. `--backdrop-image` has no per-theme package default to fall back on (it is `none`),
+ * so a light-only override hands every dark and black user the light photo under
+ * light-on-dark text — the one regression the legibility layer cannot fix. A `black` scope
+ * does NOT satisfy this: black is a strict subset of dark, so a black-only override still
+ * leaves ordinary dark-theme users on the light photo. Inert unless the file declares the
+ * token, so an app that ships no wallpaper is unaffected; a deliberately theme-agnostic
+ * wallpaper satisfies it by repeating the value under the dark scope.
+ */
+export function findUnthemedBackdropImage(brandCss: string): boolean {
+  const scopeKeys = parseDeclaredTokens(brandCss).get('--backdrop-image')
+  if (scopeKeys === undefined) return false
+  const base = scopeKeys.map(parseScopeKey).filter((scope) => scope.media === 'base')
+  if (!base.some((scope) => scope.selector === 'root')) return false
+  return !base.some((scope) => scope.selector === 'dark')
+}
+
+/**
+ * Register the brand-policy suite for a consumer's brand.css. Three guarantees:
+ * the file overrides only brand-approved tokens, every collapse-managed token
  * it touches re-asserts the a11y collapse so a later-cascade override cannot
- * silently defeat Reduce Transparency / Increase Contrast.
+ * silently defeat Reduce Transparency / Increase Contrast, and a `--backdrop-image`
+ * override is themed for dark as well as light.
  *
  * Paths are plain strings, resolved against `process.cwd()` when relative. Never wrap one in
  * `fileURLToPath(new URL(<string literal>, import.meta.url))` (Vite and vitest rewrite that
@@ -316,6 +335,17 @@ export function runBrandPolicy({
             'brand.css under a selector that covers the override\'s scope (a plain :root tail does ' +
             'not cover a :root[data-theme=…] override).',
       ).toEqual([])
+    })
+
+    it('themes --backdrop-image whenever it sets one', () => {
+      const brandCss = readFileSync(resolve(process.cwd(), brandCssPath), 'utf8')
+      expect(
+        findUnthemedBackdropImage(brandCss),
+        "brand.css sets --backdrop-image on :root but not under :root[data-theme='dark'] — every " +
+          'dark and black user would get the light wallpaper under light-on-dark text. Add a dark ' +
+          'scope (repeat the same url if the image really is theme-agnostic; a black-only scope ' +
+          'does not count — black is a strict subset of dark).',
+      ).toBe(false)
     })
   })
 }

@@ -59,6 +59,7 @@ system default lives in `tokens.css` and a copy-ready, pre-filled list lives in
 | `--card-highlight` | Card top highlight. |
 | `--card-shadow` | Card drop shadow. |
 | `--backdrop` | The full-viewport background image/gradient behind all glass. |
+| `--backdrop-image` | A bare `<image>` (`url()`, `image-set()`, or `none` — the default) that a backdrop preset paints into `--backdrop`. Supplied by your app; the package ships no images and never guesses an asset path. |
 
 ### Geometry
 
@@ -151,6 +152,19 @@ you override at base. If you already keep the template tail verbatim, add the se
 to its reduced-transparency block; if you hand-rolled a tail, the failure message names the
 exact token and media.
 
+**`--backdrop-image` is exempt.** Unlike every token above, `--backdrop-image` is declared only
+at base `:root` in `tokens.css` — never inside either a11y `@media` block — so it carries no
+collapse-tail obligation and needs no line in the mandatory tail. A backdrop preset's own
+flatten under Reduce Transparency is scoped to the preset, not to this token, so overriding it
+never re-opens the collapse hole the tail exists to close.
+
+That doesn't make it consequence-free: if you set `--backdrop-image` on `:root`, `runBrandPolicy`
+requires you to also set it under `:root[data-theme='dark']` (repeat the same URL if the image
+really is theme-agnostic). Without a per-theme package default to fall back on, a light-only
+override would hand every dark and black user the light photo under light-on-dark text. A
+`:root[data-theme-mode='black']` scope does not satisfy this — black is a strict subset of dark,
+so an ordinary (non-black) dark-theme user would still get the light photo.
+
 ## Wiring `runBrandPolicy` into your app
 
 `runBrandPolicy` registers a `describe`/`it` suite, so call it at the top level of a vitest
@@ -172,8 +186,9 @@ it in `fileURLToPath(new URL(<string literal>, import.meta.url))`: under a `jsdo
 environment Vite and vitest rewrite that literal expression into an `http://` dev-server URL and
 `fileURLToPath` throws `The URL must be of scheme file`.
 
-It asserts two things: your file overrides **only** brand-approved tokens, and it re-asserts
-the a11y collapse for every collapse-managed token it touches.
+It asserts three things: your file overrides **only** brand-approved tokens, it re-asserts
+the a11y collapse for every collapse-managed token it touches, and — if it sets
+`--backdrop-image` — it themes the dark scope too.
 
 ## What is deliberately NOT overridable
 

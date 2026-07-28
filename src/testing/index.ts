@@ -1,5 +1,5 @@
 export { TOKENS_CSS_PATH } from './paths'
-export { BRAND_TOKENS, parseDeclaredTokens, runBrandPolicy } from './brandPolicy'
+export { BRAND_TOKENS, findUnthemedBackdropImage, parseDeclaredTokens, runBrandPolicy } from './brandPolicy'
 export { runPressStatePolicy } from './pressStatePolicy'
 export type { PressStatePolicyOptions } from './pressStatePolicy'
 export { runTokenUsagePolicy } from './tokenUsagePolicy'

@@ -57,6 +57,13 @@
        radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--accent-fill) 17%, transparent) 0%, transparent 46%),
        linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)) 0%, var(--bg) 60%); */
 
+  /* ---- wallpaper image (a backdrop preset's only image input) ----
+     A bare <image>: url(), image-set(), or `none` — the default, which paints a flat --bg
+     canvas, so leaving this alone is always safe. Framing is not this token's job; positional
+     syntax here invalidates the whole backdrop. If you set it, set the DARK scope too — the
+     policy test requires it. */
+  /* --backdrop-image: none; */
+
   /* ---- geometry (concentric radii: card > tile > control) ---- */
   /* --radius-card: 22px; */
   /* --radius-tile: 14px; */
@@ -106,6 +113,7 @@
   /* --card-border: rgba(255, 255, 255, 0.12); */
   /* --card-highlight: rgba(255, 255, 255, 0.18); */
   /* --card-shadow: 0 18px 50px -28px rgba(0, 0, 0, 0.5); */
+  /* --backdrop-image: none; */
 }
 
 /* ============================ worked example ============================
@@ -127,6 +135,24 @@
    }
 */
 
+/* ==================== worked example: a wallpaper backdrop ====================
+   example: the app supplies the photos — the package ships none and never guesses an
+   asset path. Keep them in the app's own public/ directory: Vite rewrites url() inside a
+   custom property exactly as it does anywhere else (a public path is base-prefixed, a
+   path relative to THIS file is bundled and content-hashed), but only the public path
+   keeps a stable URL across builds, which is what makes a preload link possible.
+   The black theme reads the dark scope; give it a block of its own only if OLED wants a
+   different photo. --backdrop-image is not collapse-managed — under Reduce Transparency
+   the backdrop layer flattens on its own — so this override needs no a11y tail.
+
+   :root {
+     --backdrop-image: url('/wallpapers/light.jpg');
+   }
+   :root[data-theme='dark'] {
+     --backdrop-image: url('/wallpapers/dark.jpg');
+   }
+*/
+
 /* ==================== MANDATORY ACCESSIBILITY COLLAPSE TAIL ====================
    KEEP THIS LAST. A brand override beats tokens.css's a11y @media blocks by source order
    (a :root[data-theme=…] override also beats them by specificity), so those blocks must
@@ -138,7 +164,9 @@
    no per-token bookkeeping. Trim a line only if you never override that token, and keep
    the tail's selector at least as specific as the override it covers — the policy test
    flags any override you forget to cover here. Both blocks pin the same seven translucent
-   fills; the border promotion to --label-3 is contrast-only. */
+   fills; the border promotion to --label-3 is contrast-only. The backdrop tokens
+   (--backdrop, --backdrop-image) are deliberately ABSENT from this tail: neither is
+   collapse-managed in tokens.css, so neither needs a line here — do not add one. */
 @media (prefers-reduced-transparency: reduce) {
   :root,
   :root[data-theme='dark'],
