@@ -42,7 +42,14 @@ overrides last so they win the cascade:
 import '@satrio/glass-design/fonts'
 import '@satrio/glass-design/styles/global.css' // pulls in tokens.css
 import './brand.css' // your palette — copy from '@satrio/glass-design/styles/brand-template.css'
+import '@satrio/glass-design/styles/backdrops.css' // optional: the 4-way backdrop system
 ```
+
+Import `backdrops.css` **last**, after your own `brand.css` — the same "system, then brand, then
+anything optional" order as the rest of this block. Skipping the import changes nothing: the
+whole backdrop system is opt-in, so an app that never adds this line, and never stamps
+`<html data-backdrop>`, behaves exactly as it did before this stylesheet existed. See
+[Backdrops](#backdrops) below for the contract.
 
 Mount the provider stack once, at the app root — this is exactly the stack this repo's own docs
 shell (`src/docs/App.tsx`) wraps itself in, composed only from package exports + `react-hot-toast`
@@ -151,6 +158,130 @@ small `brand.css` against a fixed token allowlist — without forking `tokens.cs
 [`docs/brand-layer.md`](./docs/brand-layer.md) before writing one: it covers the allowlist, the
 import-order mechanism, and the a11y "collapse-tail" rule that `runBrandPolicy` enforces. A
 copy-ready starting point ships at `@satrio/glass-design/styles/brand-template.css`.
+
+## Backdrops
+
+`@satrio/glass-design/styles/backdrops.css` is a new, optional subpath export: a four-way
+background system driven by `<html data-backdrop>`, shipped together with its own legibility
+layer so the two can never be taken apart. It changes nothing for an app that does not import it.
+
+### The contract
+
+`<html data-backdrop="mesh" | "aurora" | "wallpaper">` selects a preset. **Attribute absence is
+`minimal`** — the stock accent-tinted `--backdrop` every app already has. No rule in the
+stylesheet ever names `'minimal'`, so a build that never leaves it renders byte-identically to
+one that never imported `backdrops.css` at all.
+
+### The presets
+
+- **`mesh`** and **`aurora`** are token-derived recipes: every layer is a `color-mix()` over
+  `--accent`, `--accent-fill`, `--income`, `--expense` and `--bg`, tuned separately for light,
+  dark and black. Because they read your palette tokens rather than literal colours, they
+  re-skin with your `brand.css` for free — no preset-specific override needed.
+- **`wallpaper`** paints a single image you supply through `--backdrop-image` (declared in
+  `tokens.css`, defaulting to `none` — see [`docs/brand-layer.md`](./docs/brand-layer.md)). The
+  value must be a bare `<image>` — a `url()`, an `image-set()`, or `none` — because the preset
+  substitutes it straight into a `background` **shorthand**; anything carrying its own
+  position/size/repeat there makes the whole declaration invalid at computed-value time, and the
+  layer falls back to a flat `--bg` wash. URLs must be root-absolute, absolute, or `data:` — a
+  relative `url()` inside a custom property is not reliably rebased across browsers, so the
+  package never guesses (or ships) an asset path. `wallpaper` is a single, theme-agnostic rule:
+  redeclare `--backdrop-image` under your own `:root[data-theme='dark']` scope in `brand.css` to
+  swap the image per theme, the same way every other themed token in the system works.
+
+### Wiring a picker
+
+The package ships the **data** for a picker, not a DOM helper — you stamp the attribute
+yourself, the same way this repo's own gallery demo does:
+
+```tsx
+import { BACKDROP_PRESET_OPTIONS, SegmentedControl, type BackdropPreset } from '@satrio/glass-design'
+
+function BackdropPicker({ value, onChange }: { value: BackdropPreset; onChange: (v: BackdropPreset) => void }) {
+  return (
+    <SegmentedControl
+      options={BACKDROP_PRESET_OPTIONS}
+      value={value}
+      onChange={(next) => {
+        onChange(next)
+        if (next === 'minimal') delete document.documentElement.dataset.backdrop
+        else document.documentElement.dataset.backdrop = next
+      }}
+      ariaLabel="Backdrop preset"
+    />
+  )
+}
+```
+
+`'minimal'` must **remove** the attribute rather than write the literal value `'minimal'` — that
+is the one behavioural contract the data alone doesn't enforce for you.
+
+### The legibility layer ships with it, by design
+
+A busy backdrop without a legibility layer is a regression factory: every heading, caption and
+floating icon button that used to sit on a flat gradient now sits on a photo or a saturated
+sweep. So the first rule in `backdrops.css` is `@import './legibility.css'`, and the package
+exports only the one stylesheet — `./styles/legibility.css` is deliberately absent from `package.json`'s
+`exports`, so there is no supported way to take the presets without the protection. A test in
+this repo fails the build if the two are ever separated.
+
+The layer has three moving parts:
+
+- An inherited `text-shadow` on `main` / `.backdrop-scope` (a light glow behind dark text, a dark
+  shadow behind light text), **bounded** by a reset that zeroes it back to `none` on `.glass`,
+  `.glass-strong`, `.panel-material`, `.dash-card`, `input` and `textarea` — so card-borne text
+  and ordinary form fields stay stock.
+- **`.backdrop-chrome`** — stamp it on a floating tonal/ghost icon-only button that sits straight
+  on the page background, and it gets the nav pill's own material (`--nav-bg`, the chrome blur
+  tier, the glass hairline) so it cannot dissolve into the image. It stands down for
+  `[aria-pressed='true']`: if your toggle flips to an opaque filled variant, set `aria-pressed`
+  alongside it, or the chrome paints over the fill.
+- **`.backdrop-scope`** — the primary opt-in for an on-backdrop page root, not a fallback: the
+  package ships no `<main>` of its own (its gallery page root carries this class for exactly that
+  reason), so any app shell that doesn't wrap its whole page in a semantic `<main>` needs it too.
+
+### Accessibility
+
+- **Reduce Transparency** flattens every preset to a plain `--bg` wash *and* stands the whole
+  legibility layer down with it — there is no image left to protect against.
+- **Increase Contrast** is the opposite trade: the image keeps painting, so the shadows **stay**
+  (they only add contrast) while `.backdrop-chrome` and the other translucent fills go opaque.
+- **`data-colorful-interface="off"`** still beats every preset, and now stands the legibility
+  layer down too.
+
+### What stays in your app
+
+The package ships the CSS contract and the picker's data — nothing that touches the DOM. The
+following are deliberately not shipped:
+
+1. The wallpaper image files themselves, and the `--backdrop-image` declarations that point at
+   them per theme in your `brand.css`.
+2. The settings key, its persistence, and its normalization — an unknown stored value must fall
+   back to `minimal`.
+3. The picker UI — feed it `BACKDROP_PRESET_OPTIONS`.
+4. The pre-paint boot stamp in `index.html` — a module import runs too late for this, the same
+   constraint the pre-paint theme stamp above documents, including its CSP-hash caveat if your
+   app hashes inline scripts:
+
+   ```html
+   <script>
+     ;(function () {
+       try {
+         var backdrop = localStorage.getItem('YOUR-BACKDROP-KEY')
+         if (backdrop && backdrop !== 'minimal') document.documentElement.dataset.backdrop = backdrop
+       } catch (e) {}
+     })()
+   </script>
+   ```
+5. If your app precaches assets with a service worker (e.g. `vite-plugin-pwa`/Workbox), your own
+   precache manifest for the wallpaper images — a default Workbox glob typically covers only
+   `js`/`css`/`html` and silently skips image extensions, so an uncached wallpaper 404s offline
+   unless you add it explicitly (Workbox's `includeAssets`, or your tool's equivalent).
+6. Any app-specific at-rest material exception your own sticky chrome needs — a control that was
+   "transparent at rest" in the flat-gradient world may need a faint `--surface` backing once a
+   busy preset sits behind it. That is a named, per-app idiom the package deliberately does not
+   own, in the same shape `.backdrop-chrome` already uses: a base rule, an `@media (prefers-
+   reduced-transparency: reduce)` twin, and an `@media (prefers-contrast: more)` twin.
 
 ## Policy tests
 

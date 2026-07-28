@@ -152,11 +152,19 @@ you override at base. If you already keep the template tail verbatim, add the se
 to its reduced-transparency block; if you hand-rolled a tail, the failure message names the
 exact token and media.
 
-**`--backdrop-image` is exempt.** Unlike every token above, `--backdrop-image` is declared only
-at base `:root` in `tokens.css` — never inside either a11y `@media` block — so it carries no
-collapse-tail obligation and needs no line in the mandatory tail. A backdrop preset's own
-flatten under Reduce Transparency is scoped to the preset, not to this token, so overriding it
-never re-opens the collapse hole the tail exists to close.
+**Upgrading to 1.2:** one new brandable token, `--backdrop-image`, for the optional four-way
+backdrop system (`@satrio/glass-design/styles/backdrops.css`, a new opt-in subpath export — see
+the README's Backdrops section). It is not collapse-managed, so no tail change is required;
+`brand-template.css` ships it commented out in the base block, deliberately absent from both
+a11y tails. If you set it, `runBrandPolicy` requires a `:root[data-theme='dark']` scope too —
+see below.
+
+**Neither `--backdrop` nor `--backdrop-image` is collapse-managed.** Both are declared only at
+base `:root` in `tokens.css` — never inside either a11y `@media` block — so overriding either
+carries no collapse-tail obligation and needs no line in the mandatory tail. The Reduce-
+Transparency flatten of an *active* backdrop preset lives in `backdrops.css`, scoped to
+`[data-backdrop]`, not in `tokens.css`'s own media blocks — so overriding `--backdrop` or
+`--backdrop-image` at base `:root` never re-opens the collapse hole the tail exists to close.
 
 That doesn't make it consequence-free: if you set `--backdrop-image` on `:root`, `runBrandPolicy`
 requires you to also set it under `:root[data-theme='dark']` (repeat the same URL if the image
@@ -164,6 +172,20 @@ really is theme-agnostic). Without a per-theme package default to fall back on, 
 override would hand every dark and black user the light photo under light-on-dark text. A
 `:root[data-theme-mode='black']` scope does not satisfy this — black is a strict subset of dark,
 so an ordinary (non-black) dark-theme user would still get the light photo.
+
+**Retuning a preset itself** — as opposed to re-skinning `mesh`/`aurora` for free through the
+palette tokens above — is a different mechanism from anything else on this page, and a bare
+`:root { --backdrop: … }` override does not do it: that selector is specificity `(0,1,0)` and
+loses to every rule `backdrops.css` defines for an active preset (`:root[data-backdrop='…']` or
+a themed sibling, `(0,2,0)` or higher), so it has no effect at all once a preset is selected. To
+actually override a preset's own rule, mirror **every** theme scope the package defines for it —
+`light` + `dark` + `black` for `mesh`/`aurora`, `light` only for `wallpaper` (it is
+theme-agnostic) — a partial mirror leaves the scope you skipped on the package's own recipe,
+which reads as a broken rebrand rather than a themed one. And because `backdrops.css`'s own
+`@media (prefers-reduced-transparency: reduce)` block is what normally flattens every preset for
+that OS signal, your override must re-assert its own reduced-transparency flatten too, at the
+same scope — otherwise Reduce Transparency silently stops working for the one preset you
+retuned.
 
 ## Wiring `runBrandPolicy` into your app
 
