@@ -913,6 +913,31 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
         </div>
       </Section>
 
+      <Section
+        title="EmptyState — size"
+        subheading="'md' (default) is the original block; 'sm' shrinks padding and both type sizes for a tighter host, like an inline card slot."
+      >
+        <div className={styles.grid}>
+          <div className={styles.col}>
+            <span className={styles.tag}>size=&quot;md&quot; (default)</span>
+            <EmptyState
+              icon={<Tray size={32} />}
+              title="No matching transactions"
+              description="Try a different search term."
+            />
+          </div>
+          <div className={styles.col}>
+            <span className={styles.tag}>size=&quot;sm&quot;</span>
+            <EmptyState
+              icon={<Tray size={32} />}
+              title="No matching transactions"
+              description="Try a different search term."
+              size="sm"
+            />
+          </div>
+        </div>
+      </Section>
+
       <Section title="Skeleton" subheading="A few sizes — text line, avatar, and a content block">
         <div className={styles.col}>
           <div className={styles.row}><Skeleton width="60%" height="14px" /></div>

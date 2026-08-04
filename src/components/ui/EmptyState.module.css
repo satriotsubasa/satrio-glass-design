@@ -3,3 +3,6 @@
 .title { font-size: var(--fs-headline); line-height: var(--lh-headline); font-weight: 600; margin: 0; }
 .desc { font-size: var(--fs-callout); color: var(--label-2); margin: 0; max-width: 40ch; }
 .action { margin-top: 8px; }
+.compact { padding: var(--space-2); }
+.compact .title { font-size: var(--fs-body); }
+.compact .desc { font-size: var(--fs-caption); }

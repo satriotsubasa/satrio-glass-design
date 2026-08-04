@@ -9,11 +9,16 @@ One design system consumed by every app instead of forked per-app. It ships CSS 
 tokens (type ramp, spacing, a four-tier blur ladder, purpose-split easings/durations), the
 materials and motion built on top of them (`.glass`/`.glass-strong`/`.panel-material`, theme
 cross-fade, icon-shape clips), ~30 generic UI components (buttons, fields, sheets, chips, lists,
-settings furniture, toast), a small set of decoupled providers (motion config, icon weight, error
-boundary), and — the part that actually keeps apps from drifting apart again — a runnable policy
-test suite (`@satrio/glass-design/testing`) that each consumer wires into its own vitest run to
-enforce the same rules the package enforces on itself. The gallery in this repo (`src/docs`) is
-both the visual QA surface and this package's docs, deployed at `design.satrio.io`.
+settings furniture, toast, `KeyValue`'s labelled facts), a small set of decoupled providers (motion
+config, icon weight, error boundary), and — the part that actually keeps apps from drifting apart
+again — a runnable policy test suite (`@satrio/glass-design/testing`) that each consumer wires into
+its own vitest run to enforce the same rules the package enforces on itself. The gallery in this
+repo (`src/docs`) is both the visual QA surface and this package's docs, deployed at
+`design.satrio.io`.
+
+Headings come in two levels: `PageHeader` renders the page title as an `h1` (one per page), and
+`SectionHeader` renders an in-page section title as an `h2` (a page can have many). Same slot API
+(`eyebrow`/`title`/`subheading`/`action`), different heading level and type step.
 
 ## Install
 
