@@ -24,7 +24,7 @@ const VALUE_EXPORTS = [
   // buttons + surfaces
   'Button', 'Fab', 'Panel', 'Modal', 'ConfirmDialog', 'SaveButton',
   // settings furniture
-  'SectionLabel', 'SectionHeader', 'SettingsGroup', 'SettingRow', 'SettingRowControl',
+  'SectionLabel', 'SectionHeader', 'PageHeader', 'SettingsGroup', 'SettingRow', 'SettingRowControl',
   // chips + lists + indicators
   'Chip', 'ChipGroup', 'FilterChip', 'ListRow', 'RadioListRow', 'ReorderList', 'StatCard', 'KeyValue',
   'Skeleton', 'EmptyState', 'PillRail', 'ProgressBar',

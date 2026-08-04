@@ -28,6 +28,7 @@ import {
   ListRow,
   Modal,
   NumberStepper,
+  PageHeader,
   Panel,
   PillRail,
   ProgressBar,
@@ -628,13 +629,24 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
         </div>
       </Section>
 
-      <Section title="SectionHeader" subheading="eyebrow + title + subheading + action, live example below">
-        <SectionHeader
-          eyebrow="This Month"
-          title="Overview"
-          subheading="A live SectionHeader rendered inside the gallery"
-          action={<Button size="sm" variant="tonal">See all</Button>}
-        />
+      <Section
+        title="PageHeader vs. SectionHeader"
+        subheading="Same slot API (eyebrow/title/subheading/action) at two different levels of the hierarchy: PageHeader is the page title — one per page, an h1 at --fs-large-title. SectionHeader is an in-page section title — as many as a page needs, an h2 at --fs-title."
+      >
+        <div className={styles.col}>
+          <PageHeader
+            eyebrow="Health"
+            title="Vaccines"
+            subheading="A live PageHeader (h1) rendered inside the gallery"
+            action={<Button size="sm" variant="tonal">Add record</Button>}
+          />
+          <SectionHeader
+            eyebrow="This Month"
+            title="Overview"
+            subheading="A live SectionHeader (h2) rendered inside the gallery"
+            action={<Button size="sm" variant="tonal">See all</Button>}
+          />
+        </div>
       </Section>
 
       <Section title="Chip" subheading="Every tone × size">
