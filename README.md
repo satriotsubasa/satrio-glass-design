@@ -25,8 +25,17 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.2.0
+npm i github:satriotsubasa/satrio-glass-design#v1.3.0
 ```
+
+**Upgrading to 1.3:** additive only — `KeyValue` and `PageHeader` are new, and `ListRow`'s
+`titleWrap` and `EmptyState`'s `size` both default to today's behaviour, so a consumer that passes
+neither renders exactly as it did on 1.2. One caveat that is not a rendering change: appending a
+rule to a CSS module re-hashes every scoped class in that module, so the `class` attribute *string*
+on `ListRow`'s title and `EmptyState`'s root differs from 1.2 even though computed styles are
+identical. If your suite snapshots class attributes, regenerate those snapshots. Assert against the
+imported `styles.*` value instead of a literal hash — hashed module classes were never a stable
+public surface, which is why this kit's own tests do it that way.
 
 Peer dependencies you must already have (or add): `react@^19`, `react-dom@^19`,
 `framer-motion@^12`, `@phosphor-icons/react@^2.1.0`. `vitest@>=3.0.0` is an optional peer — add it
