@@ -872,6 +872,29 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
       </Section>
 
       <Section
+        title="ListRow — titleWrap"
+        subheading="'truncate' (default) keeps a long title to one line with an ellipsis; 'clamp2' wraps it onto up to two lines instead of cutting it off."
+      >
+        <div className={styles.grid}>
+          <div className={styles.col}>
+            <span className={styles.tag}>titleWrap=&quot;truncate&quot; (default)</span>
+            <ListRow
+              title="Reimbursement for the team offsite venue deposit and catering"
+              subtitle="Single line, ellipsized"
+            />
+          </div>
+          <div className={styles.col}>
+            <span className={styles.tag}>titleWrap=&quot;clamp2&quot;</span>
+            <ListRow
+              title="Reimbursement for the team offsite venue deposit and catering"
+              subtitle="Wraps onto up to two lines"
+              titleWrap="clamp2"
+            />
+          </div>
+        </div>
+      </Section>
+
+      <Section
         title="EmptyState"
         subheading="Icon, title, description — with the optional action (a creation dead-end must offer a way forward; a search miss needs none, the user edits the query)"
       >
