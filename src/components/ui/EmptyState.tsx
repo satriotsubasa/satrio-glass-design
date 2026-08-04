@@ -7,7 +7,10 @@ export interface EmptyStateProps {
   size?: 'md' | 'sm'
 }
 export function EmptyState({ icon, title, description, action, size = 'md' }: EmptyStateProps) {
-  const rootCls = size === 'sm' ? `${styles.empty} ${styles.compact}` : styles.empty
+  // Ternary, not `styles[size]`: '.md' is deliberately never declared in EmptyState.module.css, so
+  // indexing by size would emit an `undefined` class token on the default path and break the
+  // byte-identical (`toBe(styles.empty)`) guarantee for a consumer that never passes `size`.
+  const rootCls = size === 'sm' ? `${styles.empty} ${styles.sm}` : styles.empty
   return (
     <div className={rootCls}>
       {icon && <div className={styles.icon}>{icon}</div>}

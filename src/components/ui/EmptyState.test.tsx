@@ -31,8 +31,8 @@ describe('EmptyState', () => {
 
   describe('size', () => {
     it("defaults to 'md' — the root element's className is EXACTLY what v1.2.0 produced, byte-identical, not just still containing .empty", () => {
-      // The invisibility proof for this commit: a consumer that never passes `size` must get the
-      // identical className string EmptyState emitted before this prop existed. `.toBe(styles.empty)`
+      // Byte-identical to v1.2.0 is the standing constraint: a consumer that never passes `size` must
+      // get the identical className string EmptyState emitted before this prop existed. `.toBe(styles.empty)`
       // (not `.toHaveClass`) is what catches a regression where a modifier class gets appended on
       // the default path even though `.empty` is still present.
       const { container } = render(<EmptyState title="No transactions yet" />)
@@ -40,17 +40,17 @@ describe('EmptyState', () => {
       expect(root.className).toBe(styles.empty)
     })
 
-    it('the base .empty rule still carries the original padding, unmodified by this commit', () => {
+    it('the base .empty rule must keep the original padding — the default size stays byte-identical to v1.2.0', () => {
       const rule = ruleOf(moduleCss, '.empty')
       expect(rule).toContain('padding: var(--space-4) var(--space-2)')
     })
 
-    it('the base .title rule still sizes at --fs-headline, unmodified by this commit', () => {
+    it('the base .title rule must keep sizing at --fs-headline — the default size stays byte-identical to v1.2.0', () => {
       const rule = ruleOf(moduleCss, '.title')
       expect(rule).toContain('font-size: var(--fs-headline)')
     })
 
-    it('the base .desc rule still sizes at --fs-callout, unmodified by this commit', () => {
+    it('the base .desc rule must keep sizing at --fs-callout — the default size stays byte-identical to v1.2.0', () => {
       const rule = ruleOf(moduleCss, '.desc')
       expect(rule).toContain('font-size: var(--fs-callout)')
     })
@@ -59,19 +59,23 @@ describe('EmptyState', () => {
       const { container } = render(<EmptyState title="No transactions yet" size="sm" />)
       const root = container.firstElementChild as HTMLElement
       expect(root).toHaveClass(styles.empty)
-      expect(root).toHaveClass(styles.compact)
+      expect(root).toHaveClass(styles.sm)
       // And it must NOT be the exact default string — the modifier really did get appended.
       expect(root.className).not.toBe(styles.empty)
     })
 
-    it('the compact modifier applies the three specified overrides: padding, title size, description size', () => {
-      const padding = ruleOf(moduleCss, '.compact')
+    it('the sm modifier applies the specified overrides: padding, title size paired with its leading, description size', () => {
+      const padding = ruleOf(moduleCss, '.sm')
       expect(padding).toContain('padding: var(--space-2)')
 
-      const title = ruleOf(moduleCss, '.compact .title')
+      // A size step on a wrapping element must pair its own leading (tokens.css documents this bug
+      // class as why the leading ramp is unitless) — otherwise a smaller font renders inside the
+      // taller line box its old, bigger size left behind.
+      const title = ruleOf(moduleCss, '.sm .title')
       expect(title).toContain('font-size: var(--fs-body)')
+      expect(title).toContain('line-height: var(--lh-body)')
 
-      const desc = ruleOf(moduleCss, '.compact .desc')
+      const desc = ruleOf(moduleCss, '.sm .desc')
       expect(desc).toContain('font-size: var(--fs-caption)')
     })
   })

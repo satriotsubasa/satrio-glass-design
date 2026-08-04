@@ -6,6 +6,8 @@ import type {
   BackdropPreset,
   ChipGroupOption,
   IconShape,
+  KeyValueProps,
+  PageHeaderProps,
   ProgressBarStyle,
   RadioListOption,
   SelectOption,
@@ -42,11 +44,17 @@ const VALUE_EXPORTS = [
  *  satisfied and tsc fails to build if any is missing). */
 export type RootTypeContract =
   | SelectOption | ChipGroupOption | RadioListOption | ProgressBarStyle | SheetProps | AppAnimations | IconShape
-  | BackdropPreset
+  | BackdropPreset | KeyValueProps | PageHeaderProps
 
 describe('package root export contract', () => {
   it.each(VALUE_EXPORTS)('exports %s', (name) => {
     expect((pkg as Record<string, unknown>)[name], `@satrio/glass-design must export "${name}" from its root`).toBeDefined()
+  })
+
+  it('lists every runtime export in VALUE_EXPORTS', () => {
+    const listed = new Set<string>(VALUE_EXPORTS)
+    for (const name of Object.keys(pkg))
+      expect(listed, `${name} is exported from the root but missing from VALUE_EXPORTS`).toContain(name)
   })
 })
 

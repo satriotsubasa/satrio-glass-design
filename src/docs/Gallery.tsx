@@ -631,7 +631,7 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
 
       <Section
         title="PageHeader vs. SectionHeader"
-        subheading="Same slot API (eyebrow/title/subheading/action) at two different levels of the hierarchy: PageHeader is the page title — one per page, an h1 at --fs-large-title. SectionHeader is an in-page section title — as many as a page needs, an h2 at --fs-title."
+        subheading="Same slot API (eyebrow/title/subheading/action) at two different levels of the hierarchy: PageHeader is the page title — one per page, an h1 at --fs-large-title. SectionHeader is an in-page section title — as many as a page needs, an h2 at --fs-title. This catalogue deliberately renders a second h1 below (the live PageHeader specimen) to show the real element in place; an actual consumer page renders exactly one."
       >
         <div className={styles.col}>
           <PageHeader

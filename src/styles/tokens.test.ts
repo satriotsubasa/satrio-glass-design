@@ -122,7 +122,7 @@ describe('tokens.css', () => {
     expect(files.length).toBeGreaterThan(0)
     for (const relative of files) {
       const content = readFileSync(join(srcDir, relative), 'utf8')
-      for (const match of content.matchAll(/letter-spacing:\s*([^;]+);/g)) {
+      for (const match of content.matchAll(/letter-spacing:\s*([^;}]+)[;}]/g)) {
         const value = match[1].trim()
         if (allowlist.includes(`${relative.replace(/\\/g, '/')}: ${value}`)) continue
         expect(value, `raw letter-spacing "${value}" in src/${relative.replace(/\\/g, '/')} — use the var(--tracking-*) step that matches the rule's font size`)
@@ -153,7 +153,7 @@ describe('tokens.css', () => {
     const seen: string[] = []
     for (const relative of files) {
       const content = readFileSync(join(srcDir, relative), 'utf8')
-      for (const match of content.matchAll(/font-size:\s*([^;]+);/g)) {
+      for (const match of content.matchAll(/font-size:\s*([^;}]+)[;}]/g)) {
         const value = match[1].trim()
         if (/var\(--fs-|var\(--app-font-scale/.test(value)) continue
         const key = `${relative.replace(/\\/g, '/')}: ${value}`

@@ -20,8 +20,8 @@ function ruleOf(css: string, selector: string): string {
 describe('ListRow', () => {
   describe('titleWrap', () => {
     it("defaults to 'truncate' — the title element's className is EXACTLY what v1.2.0 produced, byte-identical, not just still containing .title", () => {
-      // This is the invisibility proof for this commit: a consumer that never passes titleWrap must
-      // get the identical className string ListRow emitted before this prop existed. Asserting
+      // Byte-identical to v1.2.0 is the standing constraint: a consumer that never passes titleWrap
+      // must get the identical className string ListRow emitted before this prop existed. Asserting
       // `.toBe(styles.title)` (not `.toHaveClass`) is what catches a regression where a modifier
       // class gets appended on the default path even though `.title` is still present — `toHaveClass`
       // would pass right through that bug, `.toBe` cannot.
@@ -30,7 +30,7 @@ describe('ListRow', () => {
       expect(title.className).toBe(styles.title)
     })
 
-    it("the base .title rule still carries the single-line ellipsis declarations (white-space: nowrap + text-overflow: ellipsis) — unmodified by this commit", () => {
+    it("the base .title rule must keep the single-line ellipsis declarations (white-space: nowrap + text-overflow: ellipsis) — the default titleWrap stays byte-identical to v1.2.0", () => {
       const rule = ruleOf(moduleCss, '.title')
       expect(rule).toContain('white-space: nowrap')
       expect(rule).toContain('text-overflow: ellipsis')
