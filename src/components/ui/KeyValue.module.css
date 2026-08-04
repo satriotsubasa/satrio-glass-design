@@ -1,0 +1,4 @@
+.keyValue { display: flex; flex-direction: column; gap: 2px; }
+.label { font-size: var(--fs-caption); color: var(--label-2); }
+.value { font-family: var(--font-sans); font-size: var(--fs-body); font-weight: 600; }
+.detail { font-size: var(--fs-caption); color: var(--label-3); }

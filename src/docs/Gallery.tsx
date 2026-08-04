@@ -24,6 +24,7 @@ import {
   FilterChip,
   ICON_SHAPE_CLASSES,
   ICON_SHAPE_OPTIONS,
+  KeyValue,
   ListRow,
   Modal,
   NumberStepper,
@@ -777,6 +778,14 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
             <StatCard surface="bare" label="Net" value="S$2,099.45" />
           </div>
         </Panel>
+      </Section>
+
+      <Section title="KeyValue" subheading="A calm labelled fact — stacked label/value/detail, no grid logic (consumers own packing). Deliberately NOT the StatCard treatment: sans body-size value, no mono, no tabular-nums.">
+        <div className={styles.grid}>
+          <KeyValue label="Status" value="Active" />
+          <KeyValue label="Dose" value="2 of 3" detail="Next due Sep 12" />
+          <KeyValue label="Provider" value="Raffles Medical" detail="Last visit Jul 3" />
+        </div>
       </Section>
 
       <Section

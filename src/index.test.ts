@@ -26,8 +26,8 @@ const VALUE_EXPORTS = [
   // settings furniture
   'SectionLabel', 'SectionHeader', 'SettingsGroup', 'SettingRow', 'SettingRowControl',
   // chips + lists + indicators
-  'Chip', 'ChipGroup', 'FilterChip', 'ListRow', 'RadioListRow', 'ReorderList', 'StatCard', 'Skeleton',
-  'EmptyState', 'PillRail', 'ProgressBar',
+  'Chip', 'ChipGroup', 'FilterChip', 'ListRow', 'RadioListRow', 'ReorderList', 'StatCard', 'KeyValue',
+  'Skeleton', 'EmptyState', 'PillRail', 'ProgressBar',
   // sheet + its helpers
   'Sheet', 'makeSheetVariants', 'shouldDismiss',
   // common / providers
