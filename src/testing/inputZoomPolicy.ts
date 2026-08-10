@@ -21,7 +21,7 @@ import { describe, expect, it } from 'vitest'
 
 const toPosix = (p: string): string => p.replace(/\\/g, '/')
 
-const FONT_SIZE_RE = /font-size:\s*([^;]+);/g
+const FONT_SIZE_RE = /font-size:\s*([^;}]+)[;}]/g
 /** The sanctioned floor: `max(16px, var(--fs-*))` (whitespace-tolerant, whole-value). */
 const FLOOR_RE = /^max\(\s*16px\s*,\s*var\(--fs-[a-z0-9-]+\)\s*\)$/
 

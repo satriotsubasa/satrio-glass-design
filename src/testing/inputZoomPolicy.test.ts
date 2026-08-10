@@ -28,6 +28,20 @@ const rawInput: ScannedFile = {
   `,
 }
 
+/** A sub-16px font-size with no trailing semicolon — it is the LAST declaration in its rule, which
+ *  is valid CSS (`.x { font-size: 14px }`), but has no terminating `;` before the closing `}`. */
+const unterminatedRawInput: ScannedFile = {
+  path: 'src/Unterminated.module.css',
+  content: '.x { color: red; font-size: 14px }',
+}
+
+/** The floor idiom with no trailing semicolon — same unterminated-declaration shape, but already
+ *  compliant, so it must still count/pass. */
+const unterminatedFlooredInput: ScannedFile = {
+  path: 'src/UnterminatedFloor.module.css',
+  content: '.x { font-size: max(16px, var(--fs-body)) }',
+}
+
 describe('findUnflooredFontSizes', () => {
   it('passes a file whose every font-size is the max(16px, var(--fs-*)) floor', () => {
     expect(findUnflooredFontSizes([flooredInput])).toEqual([])
@@ -51,11 +65,21 @@ describe('findUnflooredFontSizes', () => {
       { path: 'src/Login.module.css', value: '12px' },
     ])
   })
+
+  it('flags a sub-16px font-size with no trailing semicolon (last declaration in its rule)', () => {
+    expect(findUnflooredFontSizes([unterminatedRawInput])).toEqual([
+      { path: 'src/Unterminated.module.css', value: '14px' },
+    ])
+  })
 })
 
 describe('countFlooredFontSizes', () => {
   it('counts the floor idiom, whitespace variants included', () => {
     expect(countFlooredFontSizes([flooredInput])).toBe(2)
+  })
+
+  it('counts a floor idiom with no trailing semicolon (last declaration in its rule)', () => {
+    expect(countFlooredFontSizes([unterminatedFlooredInput])).toBe(1)
   })
 })
 
@@ -76,6 +100,10 @@ describe('findFloorlessFiles', () => {
     expect(countFlooredFontSizes([deleted, rawInput])).toBeGreaterThan(0)
     expect(findFloorlessFiles([deleted, rawInput])).toEqual(['src/control.module.css'])
   })
+
+  it('names a file whose only font-size is an unterminated raw value (no floor, no semicolon)', () => {
+    expect(findFloorlessFiles([unterminatedRawInput])).toEqual(['src/Unterminated.module.css'])
+  })
 })
 
 describe('findStaleAllowlist', () => {
@@ -85,5 +113,9 @@ describe('findStaleAllowlist', () => {
 
   it('keeps a live allowlist entry', () => {
     expect(findStaleAllowlist([rawInput], ['src/Login.module.css: 12px'])).toEqual([])
+  })
+
+  it('keeps a live allowlist entry whose site has no trailing semicolon', () => {
+    expect(findStaleAllowlist([unterminatedRawInput], ['src/Unterminated.module.css: 14px'])).toEqual([])
   })
 })
