@@ -1,7 +1,7 @@
 .trigger { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
   width: 100%; height: 44px; padding: 0 12px 0 14px; font: inherit; color: var(--label); cursor: pointer;
   background: var(--surface); border: 0.5px solid var(--separator); border-radius: var(--radius-control);
-  transition: border-color var(--dur-press) var(--ease-glass), box-shadow var(--dur-press) var(--ease-glass),
+  transition: border-color var(--dur-hover) var(--ease-hover), box-shadow var(--dur-hover) var(--ease-hover),
     transform var(--dur-press) var(--ease-glass); }
 .trigger[data-placeholder] { color: var(--label-3); }
 .trigger:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }

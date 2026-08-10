@@ -17,7 +17,7 @@
   padding: 6px 14px;
   background: color-mix(in srgb, var(--label) 10%, transparent);
   color: var(--label-2);
-  transition: background var(--dur-press) var(--ease-glass), color var(--dur-press) var(--ease-glass),
+  transition: background var(--dur-hover) var(--ease-hover), color var(--dur-hover) var(--ease-hover),
     transform var(--dur-press) var(--ease-glass);
 }
 .chip:active {

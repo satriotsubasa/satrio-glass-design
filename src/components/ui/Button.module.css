@@ -3,7 +3,7 @@
   border: none; cursor: pointer; font: inherit; font-weight: 600; white-space: nowrap;
   border-radius: var(--radius-control); color: var(--label);
   transition: transform var(--dur-press) var(--ease-glass),
-    background var(--dur-press) var(--ease-glass), filter var(--dur-press) var(--ease-glass);
+    background var(--dur-hover) var(--ease-hover), filter var(--dur-hover) var(--ease-hover);
 }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn:active:not(:disabled) { transform: scale(0.97); }

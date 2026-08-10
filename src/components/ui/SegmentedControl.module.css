@@ -19,7 +19,7 @@
 }
 .seg { border: none; background: transparent; cursor: pointer; font: inherit; font-weight: 600; color: var(--label-2);
   font-size: var(--fs-callout); padding: 6px 14px; border-radius: 999px;
-  transition: background var(--dur-press) var(--ease-glass), color var(--dur-press) var(--ease-glass),
+  transition: background var(--dur-hover) var(--ease-hover), color var(--dur-hover) var(--ease-hover),
     transform var(--dur-press) var(--ease-glass); }
 .seg:active { transform: scale(0.97); }
 /* Theme-robust active cue (ported from MonthTabs.module.css): accent-tinted fill + accent

@@ -18,7 +18,7 @@
   cursor: pointer;
   color: var(--label);
   background: color-mix(in srgb, var(--label) 8%, transparent);
-  transition: background var(--dur-press) var(--ease-glass), opacity var(--dur-press) var(--ease-glass),
+  transition: background var(--dur-hover) var(--ease-hover), opacity var(--dur-press) var(--ease-glass),
     transform var(--dur-press) var(--ease-glass);
 }
 

@@ -40,7 +40,7 @@
   color: var(--label-2);
   cursor: pointer;
   border-radius: 6px;
-  transition: background var(--dur-press) var(--ease-glass), color var(--dur-press) var(--ease-glass),
+  transition: background var(--dur-hover) var(--ease-hover), color var(--dur-hover) var(--ease-hover),
     transform var(--dur-press) var(--ease-glass);
 }
 /* 0.97 (compact tier): the pressed surface is the 44×32 move BUTTON, not the full-width row. */

@@ -18,7 +18,7 @@
   cursor: pointer;
   border-radius: var(--radius-tile);
   /* Named properties so the press scale eases back on release (ListRow's exact pairing). */
-  transition: background var(--dur-press) var(--ease-glass), transform var(--dur-press) var(--ease-glass);
+  transition: background var(--dur-hover) var(--ease-hover), transform var(--dur-press) var(--ease-glass);
 }
 .row + .row {
   border-top: 0.5px solid var(--separator);
@@ -41,7 +41,7 @@
   height: 20px;
   border-radius: 999px;
   border: 1.5px solid var(--label-3);
-  transition: border-color var(--dur-press) var(--ease-glass);
+  transition: border-color var(--dur-hover) var(--ease-hover);
 }
 .dotSelected {
   border-color: var(--accent-fill);

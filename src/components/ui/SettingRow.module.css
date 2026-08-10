@@ -14,7 +14,7 @@
 }
 button.row {
   cursor: pointer;
-  transition: background var(--dur-press) var(--ease-glass), transform var(--dur-press) var(--ease-glass);
+  transition: background var(--dur-hover) var(--ease-hover), transform var(--dur-press) var(--ease-glass);
 }
 button.row:active {
   transform: scale(0.98);

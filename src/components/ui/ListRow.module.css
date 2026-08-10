@@ -1,6 +1,6 @@
 .row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px;
   border: none; background: transparent; font: inherit; color: var(--label); border-radius: var(--radius-tile); }
-.interactive { cursor: pointer; transition: background var(--dur-press) var(--ease-glass), transform var(--dur-press) var(--ease-glass); }
+.interactive { cursor: pointer; transition: background var(--dur-hover) var(--ease-hover), transform var(--dur-press) var(--ease-glass); }
 .interactive:active { transform: scale(0.98); }
 @media (hover: hover) { .interactive:hover { background: color-mix(in srgb, var(--label) 6%, transparent); } }
 .leading { flex-shrink: 0; display: inline-flex; }

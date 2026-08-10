@@ -7,7 +7,7 @@
      (TextInput, Textarea, MoneyField, TitleSuggestInput) inherits this one .control declaration. */
   font-size: max(16px, var(--fs-body));
   background: var(--surface); border: 0.5px solid var(--separator); border-radius: var(--radius-control);
-  transition: border-color var(--dur-press) var(--ease-glass), box-shadow var(--dur-press) var(--ease-glass);
+  transition: border-color var(--dur-hover) var(--ease-hover), box-shadow var(--dur-hover) var(--ease-hover);
 }
 .control::placeholder { color: var(--label-3); }
 .control:focus-visible { outline: none; border-color: var(--accent);
