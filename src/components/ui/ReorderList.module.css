@@ -57,3 +57,19 @@
     color: var(--label);
   }
 }
+
+/* Pointer-only drag affordance (draggable mode). `touch-action: none` is required for a pointer
+   drag on touch — without it the browser claims the gesture for scrolling and the row never
+   moves. Cursor tells a mouse user it is grabbable; the chevrons beside it remain the accessible
+   path, so this handle is intentionally absent from the tab order. */
+.dragHandle {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 0 2px;
+  margin-right: 2px;
+  color: var(--label-3);
+  cursor: grab;
+  touch-action: none;
+}
+.dragHandle:active { cursor: grabbing; }

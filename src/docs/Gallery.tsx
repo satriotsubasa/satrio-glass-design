@@ -320,6 +320,17 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
     })
   }
 
+  /** Drag settles with the full key order; re-index rather than swap (a drag can move a row past
+   *  several others, which a pairwise swap cannot express). */
+  function handleReorderDrag(keys: string[]) {
+    setReorderItems((prev) =>
+      prev.map((item) => {
+        const next = keys.indexOf(item.id)
+        return next === -1 ? item : { ...item, order: next }
+      }),
+    )
+  }
+
   function handleReorderToggle(id: string) {
     setReorderItems((prev) => prev.map((item) => (item.id === id ? { ...item, enabled: !item.enabled } : item)))
   }
@@ -1206,14 +1217,17 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
 
       <Section
         title="ReorderList"
-        subheading="sorts by order ascending; up/down chevrons swap order (disabled at the ends); renderRow supplies its own content — here, a SettingRow with an enable Toggle"
+        subheading="sorts by order ascending; up/down chevrons swap order (disabled at the ends); renderRow supplies its own content — here, a SettingRow with an enable Toggle. draggable adds a grip handle for pointer reordering WITHOUT removing the chevrons: dragging is invisible to keyboard and to most assistive tech, so it can only ever be an addition."
       >
         <SettingsGroup>
           <ReorderList
             items={reorderItems}
             getKey={(item) => item.id}
             getOrder={(item) => item.order}
+            getLabel={(item) => item.label}
             onMove={handleReorderMove}
+            draggable
+            onReorder={handleReorderDrag}
             renderRow={(item) => (
               <SettingRow
                 label={item.label}

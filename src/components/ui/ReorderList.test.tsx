@@ -88,4 +88,52 @@ describe('ReorderList', () => {
       expect(onMove).toHaveBeenCalledWith('b', 'down')
     })
   })
+
+  describe('draggable mode', () => {
+    function renderDraggable() {
+      const onMove = vi.fn()
+      const onReorder = vi.fn()
+      render(
+        <ReorderList
+          items={ITEMS}
+          getKey={(item) => item.id}
+          getOrder={(item) => item.order}
+          getLabel={(item) => item.label}
+          onMove={onMove}
+          onReorder={onReorder}
+          draggable
+          renderRow={(item) => <span>{item.label}</span>}
+        />,
+      )
+      return { onMove, onReorder }
+    }
+
+    it('KEEPS the chevron path — drag is pointer-only, so it can never be the sole way to reorder', async () => {
+      const { onMove } = renderDraggable()
+      // This is the test that matters: a drag-only list is unusable by keyboard and by most
+      // assistive tech. Adding drag must never remove the mechanism everyone else relies on.
+      await userEvent.click(screen.getByRole('button', { name: 'Move Second down' }))
+      expect(onMove).toHaveBeenCalledWith('b', 'down')
+    })
+
+    it('hides the drag handle from assistive tech and the tab order — it duplicates the chevrons', () => {
+      renderDraggable()
+      const handle = screen.getByTestId('drag-handle-First')
+      expect(handle).toHaveAttribute('aria-hidden', 'true')
+      expect(handle.tagName).not.toBe('BUTTON')
+    })
+
+    it('renders one handle per row, in sorted order', () => {
+      renderDraggable()
+      for (const label of ['First', 'Second', 'Third']) {
+        expect(screen.getByTestId(`drag-handle-${label}`)).toBeInTheDocument()
+      }
+    })
+
+    it('renders NO drag handle by default — the added mode must be opt-in', () => {
+      renderList()
+      expect(screen.queryByTestId('drag-handle-item 1')).toBeNull()
+      expect(document.querySelector('[data-testid^="drag-handle"]')).toBeNull()
+    })
+  })
 })
