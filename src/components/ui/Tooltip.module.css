@@ -1,0 +1,35 @@
+/* Chrome-tier material: a tooltip is small floating chrome, so it takes the chrome blur rather
+   than the sheet blur the modal layer uses (Apple §12 — bigger surfaces read as thicker). */
+.tip {
+  z-index: 340;
+  max-width: 28ch;
+  padding: 6px 10px;
+  border-radius: var(--radius-control);
+  background: var(--menu-bg);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(150%);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--glass-shadow) 0 8px 24px -8px;
+  color: var(--label);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+}
+
+/* Origin-awareness: Radix resolves this to the point the tip is anchored to, so it grows OUT OF
+   its trigger instead of out of its own centre. Centre-origin is correct only for a modal, which
+   is anchored to the viewport rather than to a control. */
+.tip[data-state='delayed-open'],
+.tip[data-state='instant-open'] {
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+  animation: tipIn var(--dur-hover) var(--ease-glass);
+}
+
+/* Never from scale(0) — nothing in the real world appears from nothing. 0.97 is enough to read as
+   arriving while staying close enough to skip the "grew from a dot" look. */
+@keyframes tipIn {
+  from { opacity: 0; transform: scale(0.97); }
+}
+
+/* No local reduced-motion rule: global.css's tiers already cap one-shot animations (OS reduce and
+   data-motion='reduced' → 60ms; 'none' → a single frame), and the tip still fades rather than
+   snapping — gentler, not gone. */

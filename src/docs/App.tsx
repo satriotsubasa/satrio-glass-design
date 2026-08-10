@@ -4,6 +4,7 @@ import {
   ErrorBoundary,
   IconProvider,
   IconShapeDefs,
+  TooltipProvider,
   type AppAnimations,
 } from '@satrio/glass-design'
 import { Toaster } from 'react-hot-toast'
@@ -21,9 +22,11 @@ export default function App() {
     <ErrorBoundary>
       <AppMotionConfig animations={animations}>
         <IconProvider>
-          <IconShapeDefs />
-          <Gallery animations={animations} onAnimationsChange={setAnimations} />
-          <Toaster position="bottom-center" />
+          <TooltipProvider>
+            <IconShapeDefs />
+            <Gallery animations={animations} onAnimationsChange={setAnimations} />
+            <Toaster position="bottom-center" />
+          </TooltipProvider>
         </IconProvider>
       </AppMotionConfig>
     </ErrorBoundary>

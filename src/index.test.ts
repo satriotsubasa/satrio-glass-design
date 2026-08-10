@@ -12,6 +12,8 @@ import type {
   RadioListOption,
   SelectOption,
   SheetProps,
+  TooltipProps,
+  TooltipProviderProps,
 } from './index'
 
 /** The package's API contract, asserted literally. Every public component/helper is exported from
@@ -27,6 +29,7 @@ const VALUE_EXPORTS = [
   'Button', 'Fab', 'Panel', 'Modal', 'ConfirmDialog', 'SaveButton',
   // settings furniture
   'SectionLabel', 'SectionHeader', 'PageHeader', 'SettingsGroup', 'SettingRow', 'SettingRowControl',
+  'Tooltip', 'TooltipProvider',
   // chips + lists + indicators
   'Chip', 'ChipGroup', 'FilterChip', 'ListRow', 'RadioListRow', 'ReorderList', 'StatCard', 'KeyValue',
   'Skeleton', 'EmptyState', 'PillRail', 'ProgressBar',
@@ -44,7 +47,7 @@ const VALUE_EXPORTS = [
  *  satisfied and tsc fails to build if any is missing). */
 export type RootTypeContract =
   | SelectOption | ChipGroupOption | RadioListOption | ProgressBarStyle | SheetProps | AppAnimations | IconShape
-  | BackdropPreset | KeyValueProps | PageHeaderProps
+  | BackdropPreset | KeyValueProps | PageHeaderProps | TooltipProps | TooltipProviderProps
 
 describe('package root export contract', () => {
   it.each(VALUE_EXPORTS)('exports %s', (name) => {

@@ -76,6 +76,7 @@ import {
   IconProvider,
   IconShapeDefs,
   ErrorBoundary,
+  TooltipProvider,
 } from '@satrio/glass-design'
 import { Toaster } from 'react-hot-toast'
 
@@ -84,9 +85,11 @@ export default function App() {
     <ErrorBoundary>
       <AppMotionConfig animations={appAnimations}> {/* 'all' | 'reduced' | 'none', from your settings store */}
         <IconProvider weight={iconWeight}> {/* your app's Phosphor icon weight */}
-          <IconShapeDefs />
-          {/* your app */}
-          <Toaster position="bottom-center" />
+          <TooltipProvider> {/* required by Tooltip — see below */}
+            <IconShapeDefs />
+            {/* your app */}
+            <Toaster position="bottom-center" />
+          </TooltipProvider>
         </IconProvider>
       </AppMotionConfig>
     </ErrorBoundary>
@@ -164,6 +167,31 @@ section for every combination wired this way.
 Also move focus to the first invalid control on submit. Safari/VoiceOver do not reliably announce
 a `role="alert"` node that is inserted already containing its text — moving focus there makes the
 message audible via the `aria-describedby` description regardless, and is good form-UX besides.
+
+## Tooltips
+
+`TooltipProvider` is mounted once (above) and is **not optional** — it is what makes a *second*
+tooltip open instantly. The first tip in a group waits out a delay so that brushing past a control
+never flashes one; once a tip has been shown, moving along a toolbar opens the neighbours with no
+delay at all. Per-tooltip providers would each keep their own timer and re-pay that delay at every
+icon, which is exactly the sluggishness the component exists to avoid.
+
+```tsx
+<Tooltip content="Copy link">
+  <Button variant="ghost" iconOnly aria-label="Copy link"><LinkIcon /></Button>
+</Tooltip>
+```
+
+Two rules the component cannot enforce for you:
+
+- **A tooltip may only repeat or name what is reachable another way.** It never appears for touch
+  users and never for someone who does not hover, so anything that exists *only* in a tooltip is
+  hidden from them.
+- **An icon-only control still needs its own accessible name.** The tip becomes the control's
+  *description*, not its label — as in the snippet above, keep the `aria-label`.
+
+The tip opens on keyboard focus as well as hover, scales out of its trigger rather than its own
+centre, and follows both reduced-motion tiers.
 
 ## Brand layer
 

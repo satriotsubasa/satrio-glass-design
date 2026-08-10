@@ -48,6 +48,7 @@ import {
   Textarea,
   TextInput,
   Toggle,
+  Tooltip,
   toast,
   type AppAnimations,
   type BackdropPreset,
@@ -571,6 +572,26 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
             stamp in index.html, and any app-specific at-rest material exceptions. See the README&apos;s
             Backdrops section.
           </p>
+        </div>
+      </Section>
+
+      <Section
+        title="Tooltip"
+        subheading="Hover or TAB to the first button and the tip waits; move straight to the next and it opens instantly — the delay exists to stop a tip flashing as you cross a control, not to tax you once you are reading them. Each tip scales out of its own trigger."
+      >
+        <div className={styles.row}>
+          <Tooltip content="Copy link">
+            <Button variant="ghost">Copy</Button>
+          </Tooltip>
+          <Tooltip content="Duplicate this item">
+            <Button variant="ghost">Duplicate</Button>
+          </Tooltip>
+          <Tooltip content="Move to archive" side="bottom">
+            <Button variant="ghost">Archive</Button>
+          </Tooltip>
+          <Tooltip content="Opens in a new tab" side="right">
+            <Button variant="ghost">Docs</Button>
+          </Tooltip>
         </div>
       </Section>
 
