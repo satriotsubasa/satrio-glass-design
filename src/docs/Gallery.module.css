@@ -10,26 +10,13 @@
   margin-bottom: var(--space-3);
 }
 
-.pageTitle {
-  font-size: var(--fs-large-title);
-  line-height: var(--lh-large-title);
-  font-weight: 700;
-  margin: 0 0 var(--space-1);
-}
-
-.intro {
-  color: var(--label-2);
-  font-size: var(--fs-callout);
-  margin: 0;
-  max-width: 60ch;
-}
-
+/* Sits in PageHeader's action slot (top-right, flex-shrink: 0) — no stacking margin needed, it's
+   beside the title/subheading text, not below it. */
 .themeSwitcher {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-2);
 }
 
 .tag {

@@ -28,6 +28,13 @@ describe('Gallery', () => {
     expect(screen.getByRole('button', { name: 'Subscriptions' })).toBeInTheDocument()
   })
 
+  it('renders exactly one h1 — the page title dogfoods a live PageHeader instead of the catalogue rendering a second h1 for its own specimen', () => {
+    render(<App />)
+    const h1s = screen.getAllByRole('heading', { level: 1 })
+    expect(h1s).toHaveLength(1)
+    expect(h1s[0]).toHaveTextContent('Component Gallery')
+  })
+
   it('wires the Field demo section exactly as its subheading claims: every rendered hint/error id is targeted by some control\'s aria-describedby, and every aria-describedby token resolves to a real element', () => {
     render(<App />)
 

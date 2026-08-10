@@ -3,7 +3,7 @@ import styles from './PageHeader.module.css'
 export interface PageHeaderProps {
   eyebrow?: string
   title: string
-  subheading?: string
+  subheading?: React.ReactNode
   action?: React.ReactNode
   className?: string
 }

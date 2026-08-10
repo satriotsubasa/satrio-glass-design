@@ -381,15 +381,23 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
   return (
     <div className={`${styles.page} backdrop-scope`}>
       <header className={styles.pageHead}>
-        <h1 className={styles.pageTitle}>Component Gallery</h1>
-        <p className={styles.intro}>
-          Every component the package ships, in every variant and state, for visual QA. This page is the
-          reference consumer — it imports only from <code>@satrio/glass-design</code>.
-        </p>
-        <div className={styles.themeSwitcher}>
-          <span className={styles.tag}>theme</span>
-          <ThemeControl />
-        </div>
+        <PageHeader
+          title="Component Gallery"
+          subheading={
+            <>
+              Every component the package ships, in every variant and state, for visual QA. This
+              page is the reference consumer — it imports only from{' '}
+              <code>@satrio/glass-design</code>, including this page title itself, which is a live{' '}
+              <code>PageHeader</code> specimen.
+            </>
+          }
+          action={
+            <div className={styles.themeSwitcher}>
+              <span className={styles.tag}>theme</span>
+              <ThemeControl />
+            </div>
+          }
+        />
       </header>
 
       <Section
@@ -631,15 +639,13 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
 
       <Section
         title="PageHeader vs. SectionHeader"
-        subheading="Same slot API (eyebrow/title/subheading/action) at two different levels of the hierarchy: PageHeader is the page title — one per page, an h1 at --fs-large-title. SectionHeader is an in-page section title — as many as a page needs, an h2 at --fs-title. This catalogue deliberately renders a second h1 below (the live PageHeader specimen) to show the real element in place; an actual consumer page renders exactly one."
+        subheading="Same slot API (eyebrow/title/subheading/action) at two different levels of the hierarchy: PageHeader is the page title — one per page, an h1 at --fs-large-title. SectionHeader is an in-page section title — as many as a page needs, an h2 at --fs-title. This catalogue's own page title (top of this page) IS the live PageHeader specimen, so this section does not render a second h1 — a page documenting the 'one per page' rule should not itself break it. The SectionHeader specimen below shows the eyebrow + action variant, live at h2."
       >
         <div className={styles.col}>
-          <PageHeader
-            eyebrow="Health"
-            title="Vaccines"
-            subheading="A live PageHeader (h1) rendered inside the gallery"
-            action={<Button size="sm" variant="tonal">Add record</Button>}
-          />
+          <p className={styles.note}>
+            The live <code>PageHeader</code> specimen is this page&apos;s own title, at the very top —
+            see it there rather than a second copy here.
+          </p>
           <SectionHeader
             eyebrow="This Month"
             title="Overview"

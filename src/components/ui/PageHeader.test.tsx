@@ -43,6 +43,18 @@ describe('PageHeader', () => {
     expect(root.classList.length).toBeGreaterThan(0)
   })
 
+  it('accepts a subheading carrying inline markup, not just a plain string (subheading is React.ReactNode)', () => {
+    render(
+      <PageHeader
+        title="Overview"
+        subheading={<>Uses <code>--fs-large-title</code> under the hood</>}
+      />,
+    )
+    const code = screen.getByText('--fs-large-title')
+    expect(code.tagName).toBe('CODE')
+    expect(screen.getByText(/Uses/)).toBeInTheDocument()
+  })
+
   it('uses all three large-title tokens on its h1 — size, leading, and tracking (design-intent pin: PageHeader is --fs-large-title\'s first component consumer)', () => {
     const css = readFileSync('src/components/ui/PageHeader.module.css', 'utf8')
     expect(css).toContain('var(--fs-large-title)')
