@@ -75,12 +75,20 @@ describe('ConfirmDialog', () => {
       expect(backdropClosed).toContain('fadeOut')
     })
 
-    it('exits faster than it enters (asymmetric by design: 160ms out vs 220ms in, emil §4)', () => {
-      const enter = css.match(/\.modal\[data-state="open"\]\s*\{[^}]*animation:[^;]*?([\d.]+)s/)
-      const exit = css.match(/\.modal\[data-state="closed"\]\s*\{[^}]*animation:[^;]*?([\d.]+)s/)
-      expect(enter).not.toBeNull()
-      expect(exit).not.toBeNull()
-      expect(Number(exit![1])).toBeLessThan(Number(enter![1]))
+    it('exits faster than it enters (asymmetric by design, emil §4)', () => {
+      // The pair used to be hand-typed (160ms out / 220ms in) and this asserted the two literals
+      // against each other. They are tokens now, so the asymmetry lives one level up: the file
+      // must reach for the exit token on the way out and the enter token on the way in, and
+      // tokens.css must keep exit shorter than enter. Asserting the relationship where it is
+      // actually decided is stronger than asserting two numbers that no longer appear here.
+      const enter = css.match(/\.modal\[data-state="open"\]\s*\{[^}]*animation:[^;]*?var\(--dur-([a-z]+)\)/)
+      const exit = css.match(/\.modal\[data-state="closed"\]\s*\{[^}]*animation:[^;]*?var\(--dur-([a-z]+)\)/)
+      expect(enter?.[1], 'the modal enter must use the enter duration token').toBe('enter')
+      expect(exit?.[1], 'the modal exit must use the exit duration token').toBe('exit')
+
+      const tokens = readFileSync('src/styles/tokens.css', 'utf8')
+      const ms = (name: string) => Number(tokens.match(new RegExp(`--dur-${name}:\\s*(\\d+)ms`))![1])
+      expect(ms('exit'), 'the exit token must stay shorter than the enter token').toBeLessThan(ms('enter'))
     })
 
     it('carries no local reduced-motion override — the global tiers cap the one-shot pair', () => {

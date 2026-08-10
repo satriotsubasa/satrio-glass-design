@@ -276,6 +276,11 @@ describe('tokens.css', () => {
     // exactly the ones the reduced-transparency collapse could never reach. Every blur must
     // resolve through a var() so the a11y media blocks above govern ALL of them. (This scan is
     // also why no comment in src/ may spell out a literal px blur inside the function form.)
+    // ONE literal is exempt: a zero-px blur, the ABSENCE of blur, used as the start of a
+    // materialise-in ramp. Zero is what the a11y collapse itself resolves to, so exempting it
+    // governs nothing away — while every non-zero literal, sub-pixel values included, still
+    // fails. (Per the note above, this comment must not spell the exempt value in the function
+    // form either, or the scan matches its own prose.)
     const srcDir = fileURLToPath(new URL('../', import.meta.url))
     const files = readdirSync(srcDir, { recursive: true })
       .map(String)
@@ -285,7 +290,7 @@ describe('tokens.css', () => {
     for (const relative of files) {
       const content = readFileSync(join(srcDir, relative), 'utf8')
       expect(content, `literal blur(<px>) in src/${relative.replace(/\\/g, '/')} — route it through a --blur-* tier`)
-        .not.toMatch(/blur\(\s*\d/)
+        .not.toMatch(/blur\(\s*(?!0px\))\d/)
     }
   })
 

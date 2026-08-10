@@ -61,6 +61,25 @@ describe('purpose-split easing contract', () => {
     ).toEqual([])
   })
 
+  it('materialises the modal glass instead of cross-fading it, and skips the ramp when blur is off', () => {
+    // Apple §12: a glass surface should arrive as a material — blur ramping in with opacity and
+    // scale — not as a picture of one being faded up. Enter only: a second ramp on exit buys
+    // nothing and backdrop-filter is expensive to animate.
+    const modal = files.find((f) => f.path.endsWith('ui/Modal.module.css'))!
+    const pop = modal.css.slice(modal.css.indexOf('@keyframes pop {'))
+    expect(pop, 'the modal enter must ramp its blur').toMatch(/backdrop-filter:\s*blur\(0px\)/)
+    expect(modal.css, 'the exit must NOT ramp blur').toMatch(
+      /@keyframes popOut \{[^}]*\}[^}]*\}/,
+    )
+    expect(
+      modal.css.slice(modal.css.indexOf('@keyframes popOut')),
+      'the exit keyframe must stay opacity + transform only',
+    ).not.toMatch(/@keyframes popOut[\s\S]{0,200}?backdrop-filter/)
+    expect(modal.css, 'Reduce Transparency must skip the ramp rather than animate 0 to 0').toMatch(
+      /prefers-reduced-transparency: reduce[\s\S]*?animation-name:\s*popFlat/,
+    )
+  })
+
   it('keeps press feedback on the enter/exit curve at the press duration', () => {
     // The converse guard: a well-meaning sweep that moved `transform` onto the hover curve too
     // would make every press mushy. Press is a scale, and it stays where it is.
