@@ -1,12 +1,45 @@
-.skeleton { display: block; background: linear-gradient(90deg,
-  color-mix(in srgb, var(--label) 8%, transparent) 25%,
-  color-mix(in srgb, var(--label) 14%, transparent) 37%,
-  color-mix(in srgb, var(--label) 8%, transparent) 63%);
-  background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
-@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
-@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
-/* Settings appAnimations ('reduced'/'none' via <html data-motion>, see global.css): the shimmer
-   is a purely decorative loop — kill it at the source; the static gradient base still reads as
-   a placeholder. ('none' would freeze it globally anyway; 'reduced' needs this opt-out.) */
-:global(:root[data-motion='reduced']) .skeleton,
-:global(:root[data-motion='none']) .skeleton { animation: none; }
+/* The base tint is a STATIC fill, not the animation: a skeleton with its sheen switched off (either
+   reduced-motion tier, or a browser that never paints the pseudo-element) must still read as a
+   placeholder rather than an empty box. */
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--label) 8%, transparent);
+}
+
+/* The sheen travels on `transform` only. It used to be a 400%-wide gradient driven by
+   `background-position`, which repaints the element on EVERY frame — and skeletons render in bulk
+   during load, the one moment the main thread is already contended. A translated pseudo-element is
+   compositor-only, so the sheen costs nothing while the page is doing real work.
+   The layer is 200% wide and travels exactly its own half-width, so the highlight crosses the full
+   element once per iteration regardless of the skeleton's pixel size. */
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    color-mix(in srgb, var(--label) 6%, transparent) 37%,
+    transparent 63%
+  );
+  transform: translateX(-50%);
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
+
+/* Settings appAnimations ('reduced'/'none' via <html data-motion>, see global.css): the sheen is a
+   purely decorative loop — kill it at the source; the static base tint above still reads as a
+   placeholder. ('none' would freeze it globally anyway; 'reduced' needs this opt-out.) */
+:global(:root[data-motion='reduced']) .skeleton::after,
+:global(:root[data-motion='none']) .skeleton::after { animation: none; }

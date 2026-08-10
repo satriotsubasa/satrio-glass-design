@@ -86,6 +86,18 @@ describe('global.css data-motion gating (Settings: appAnimations)', () => {
     expect(skeletonCss).toContain(":global(:root[data-motion='reduced']) .skeleton")
     expect(skeletonCss).toContain(":global(:root[data-motion='none']) .skeleton")
   })
+
+  it('travels the Skeleton sheen on transform only — skeletons render in bulk during load, when the main thread is already contended', () => {
+    // A `background-position` (or any paint-property) loop repaints every frame, multiplied by
+    // however many placeholders a loading route mounts. The sheen must stay compositor-only.
+    // Comments are stripped first: prose may legitimately NAME the banned property to explain why
+    // it is banned, and a scan that cannot tell a rule from a comment forces the docs to go vague.
+    const rules = skeletonCss.replace(/\/\*[\s\S]*?\*\//g, '')
+    expect(rules, 'the shimmer keyframe must animate transform').toMatch(
+      /@keyframes shimmer[\s\S]*?transform:\s*translateX/,
+    )
+    expect(rules, 'no paint-property may drive the sheen loop').not.toMatch(/background-position/)
+  })
 })
 
 describe('global.css OS prefers-reduced-motion tier (Apple §14: reduced means gentler, not none)', () => {
