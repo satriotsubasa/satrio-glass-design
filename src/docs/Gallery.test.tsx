@@ -35,6 +35,33 @@ describe('Gallery', () => {
     expect(h1s[0]).toHaveTextContent('Component Gallery')
   })
 
+  it('exercises PageHeader\'s eyebrow slot on the page title — the sole surviving <PageHeader> in the catalogue must still cover the full eyebrow/title/subheading/action slot API', () => {
+    render(<App />)
+    const h1 = screen.getByRole('heading', { level: 1, name: 'Component Gallery' })
+    const eyebrow = h1.previousElementSibling
+    expect(eyebrow?.tagName).toBe('P')
+    expect(eyebrow).toHaveTextContent('@satrio/glass-design')
+  })
+
+  it('keeps the page-title action narrow and keeps the multi-option theme switcher OUT of PageHeader\'s action slot — that exact pairing (an unshrinkable action holding a min-width tag plus a 4-option control) is what overflowed a 375px viewport', () => {
+    render(<App />)
+    const h1 = screen.getByRole('heading', { level: 1, name: 'Component Gallery' })
+    const pageHeaderRoot = h1.closest('[class*="_header_"]')
+    if (!pageHeaderRoot) throw new Error('PageHeader root not found')
+
+    // The theme switcher is an accessible group named "Theme" (SegmentedControl's role="group"
+    // aria-label) — assert it renders nowhere inside PageHeader's own root, not just outside the
+    // action slot specifically.
+    const themeSwitcher = screen.getByRole('group', { name: 'Theme' })
+    expect(pageHeaderRoot.contains(themeSwitcher)).toBe(false)
+
+    // The action slot (PageHeader's second child, after .text) holds a single short-label control.
+    const actionSlot = pageHeaderRoot.lastElementChild
+    expect(actionSlot).not.toBeNull()
+    expect(actionSlot).not.toBe(pageHeaderRoot.firstElementChild)
+    expect(actionSlot?.textContent).toBe('GitHub')
+  })
+
   it('wires the Field demo section exactly as its subheading claims: every rendered hint/error id is targeted by some control\'s aria-describedby, and every aria-describedby token resolves to a real element', () => {
     render(<App />)
 

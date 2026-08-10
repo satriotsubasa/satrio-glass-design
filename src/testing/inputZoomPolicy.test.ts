@@ -42,6 +42,14 @@ const unterminatedFlooredInput: ScannedFile = {
   content: '.x { font-size: max(16px, var(--fs-body)) }',
 }
 
+/** A commented-out (or annotating) font-size in the LAST rule of a file — the `[;}]` terminator can
+ *  otherwise scan straight into the comment body and stop at the rule's real closing `}`,
+ *  misreading the comment text itself as the declared value. */
+const commentedOutInput: ScannedFile = {
+  path: 'src/Commented.module.css',
+  content: '.a {\n  color: red;\n  /* font-size: 12px was here, now floored */\n}',
+}
+
 describe('findUnflooredFontSizes', () => {
   it('passes a file whose every font-size is the max(16px, var(--fs-*)) floor', () => {
     expect(findUnflooredFontSizes([flooredInput])).toEqual([])
@@ -70,6 +78,10 @@ describe('findUnflooredFontSizes', () => {
     expect(findUnflooredFontSizes([unterminatedRawInput])).toEqual([
       { path: 'src/Unterminated.module.css', value: '14px' },
     ])
+  })
+
+  it('ignores a commented-out font-size in the last rule of a file (comments are stripped before the widened terminator can scan into one)', () => {
+    expect(findUnflooredFontSizes([commentedOutInput])).toEqual([])
   })
 })
 
@@ -101,8 +113,12 @@ describe('findFloorlessFiles', () => {
     expect(findFloorlessFiles([deleted, rawInput])).toEqual(['src/control.module.css'])
   })
 
-  it('names a file whose only font-size is an unterminated raw value (no floor, no semicolon)', () => {
+  it('names a file whose only font-size is an unterminated raw value (no floor, no semicolon) — characterization only: a file with no floor is reported floorless under any terminator pattern, so this alone does not exercise the terminator regex', () => {
     expect(findFloorlessFiles([unterminatedRawInput])).toEqual(['src/Unterminated.module.css'])
+  })
+
+  it('does NOT name a file whose only font-size is an unterminated FLOOR as floorless — the discriminating case: a terminator requiring a trailing ";" misses this floor entirely and would wrongly report the file floorless; a terminator that also accepts a bare "}" finds and counts it', () => {
+    expect(findFloorlessFiles([unterminatedFlooredInput])).toEqual([])
   })
 })
 

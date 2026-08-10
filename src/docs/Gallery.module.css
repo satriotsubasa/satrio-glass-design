@@ -10,13 +10,24 @@
   margin-bottom: var(--space-3);
 }
 
-/* Sits in PageHeader's action slot (top-right, flex-shrink: 0) — no stacking margin needed, it's
-   beside the title/subheading text, not below it. */
+/* Caps the page-title subheading's measure — a content-width opinion this docs page owns, not
+   PageHeader (whose .sub renders arbitrary consumer subheadings with no measure of its own). */
+.introMeasure {
+  display: block;
+  max-width: 60ch;
+}
+
+/* A full block below PageHeader, deliberately OUTSIDE its action slot: PageHeader's action never
+   shrinks (by design), and this control's own content — a min-width: 96px tag plus a 4-option
+   SegmentedControl — is wider than a 375px viewport's content box on its own, so it needs a
+   width to actually shrink-to-fit against (the full page column) rather than an unshrinkable
+   flex item. Its own flex-wrap still drops the control to a second line when even that's tight. */
 .themeSwitcher {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .tag {

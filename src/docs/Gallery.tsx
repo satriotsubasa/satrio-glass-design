@@ -382,22 +382,30 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
     <div className={`${styles.page} backdrop-scope`}>
       <header className={styles.pageHead}>
         <PageHeader
+          eyebrow="@satrio/glass-design"
           title="Component Gallery"
           subheading={
-            <>
+            <span className={styles.introMeasure}>
               Every component the package ships, in every variant and state, for visual QA. This
               page is the reference consumer — it imports only from{' '}
               <code>@satrio/glass-design</code>, including this page title itself, which is a live{' '}
               <code>PageHeader</code> specimen.
-            </>
+            </span>
           }
           action={
-            <div className={styles.themeSwitcher}>
-              <span className={styles.tag}>theme</span>
-              <ThemeControl />
-            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => window.open('https://github.com/satriotsubasa/satrio-glass-design', '_blank', 'noopener,noreferrer')}
+            >
+              GitHub
+            </Button>
           }
         />
+        <div className={styles.themeSwitcher}>
+          <span className={styles.tag}>theme</span>
+          <ThemeControl />
+        </div>
       </header>
 
       <Section

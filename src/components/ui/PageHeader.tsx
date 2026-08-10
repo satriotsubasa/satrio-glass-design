@@ -18,7 +18,7 @@ export function PageHeader({ eyebrow, title, subheading, action, className }: Pa
       <div className={styles.text}>
         {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
         <h1 className={styles.title}>{title}</h1>
-        {subheading && <p className={styles.sub}>{subheading}</p>}
+        {subheading != null && <p className={styles.sub}>{subheading}</p>}
       </div>
       {action && <div className={styles.action}>{action}</div>}
     </div>

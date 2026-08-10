@@ -21,6 +21,11 @@ import { describe, expect, it } from 'vitest'
 
 const toPosix = (p: string): string => p.replace(/\\/g, '/')
 
+/** Strips CSS comments before scanning, so a commented-out or annotating `font-size:` declaration
+ *  can never surface as real — without this, the scan can read into a comment body and treat its
+ *  text as the declared value. Mirrors brandPolicy.ts's own comment strip. */
+const stripComments = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, '')
+
 const FONT_SIZE_RE = /font-size:\s*([^;}]+)[;}]/g
 /** The sanctioned floor: `max(16px, var(--fs-*))` (whitespace-tolerant, whole-value). */
 const FLOOR_RE = /^max\(\s*16px\s*,\s*var\(--fs-[a-z0-9-]+\)\s*\)$/
@@ -39,7 +44,7 @@ export function findUnflooredFontSizes(
 ): { path: string; value: string }[] {
   const out: { path: string; value: string }[] = []
   for (const { path, content } of files) {
-    for (const match of content.matchAll(FONT_SIZE_RE)) {
+    for (const match of stripComments(content).matchAll(FONT_SIZE_RE)) {
       const value = match[1].trim()
       if (FLOOR_RE.test(value)) continue
       if (allowlist.includes(`${path}: ${value}`)) continue
@@ -54,7 +59,7 @@ export function findUnflooredFontSizes(
 export function countFlooredFontSizes(files: ScannedFile[]): number {
   let n = 0
   for (const { content } of files) {
-    for (const match of content.matchAll(FONT_SIZE_RE)) {
+    for (const match of stripComments(content).matchAll(FONT_SIZE_RE)) {
       if (FLOOR_RE.test(match[1].trim())) n += 1
     }
   }
@@ -74,7 +79,7 @@ export function findFloorlessFiles(files: ScannedFile[]): string[] {
 export function findStaleAllowlist(files: ScannedFile[], allowlist: string[]): string[] {
   const present = new Set<string>()
   for (const { path, content } of files) {
-    for (const match of content.matchAll(FONT_SIZE_RE)) present.add(`${path}: ${match[1].trim()}`)
+    for (const match of stripComments(content).matchAll(FONT_SIZE_RE)) present.add(`${path}: ${match[1].trim()}`)
   }
   return allowlist.filter((entry) => !present.has(entry))
 }

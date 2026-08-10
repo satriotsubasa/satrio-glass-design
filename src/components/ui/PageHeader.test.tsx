@@ -61,4 +61,17 @@ describe('PageHeader', () => {
     expect(css).toContain('var(--lh-large-title)')
     expect(css).toContain('var(--tracking-large-title)')
   })
+
+  it('wraps .header instead of overflowing when the text and an action both need room (a wide action — e.g. a tag plus a multi-option control — has nowhere to go on a narrow viewport otherwise)', () => {
+    const css = readFileSync('src/components/ui/PageHeader.module.css', 'utf8')
+    const headerRule = css.match(/\.header\s*\{[^}]*\}/)?.[0] ?? ''
+    expect(headerRule).toContain('flex-wrap: wrap')
+  })
+
+  it('renders a numeric subheading (0) inside the .sub paragraph instead of leaking a bare "0" text node — the classic `0 && <element>` gotcha a plain truthy guard opens once subheading is React.ReactNode', () => {
+    const { container } = render(<PageHeader title="Overview" subheading={0} />)
+    const paragraphs = container.querySelectorAll('p')
+    expect(paragraphs).toHaveLength(1)
+    expect(paragraphs[0]).toHaveTextContent('0')
+  })
 })
