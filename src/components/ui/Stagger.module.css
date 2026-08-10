@@ -1,0 +1,27 @@
+/* Layout-neutral: the group carries no display of its own so it can sit inside whatever the
+   caller already built. It exists only to scope the cascade. */
+.group { display: contents; }
+
+/* `backwards` fill is what makes the delay invisible: without it a child would paint at full
+   opacity for its delay and then jump to the start of the animation. */
+.item {
+  animation: staggerIn var(--dur-enter) var(--ease-glass) backwards;
+}
+
+/* Enters from a small offset and a partial opacity — never from nothing, and never from a
+   distance large enough to read as a slide. */
+@keyframes staggerIn {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+/* A cascade is decoration, so it goes away entirely rather than getting gentler: under either
+   reduced-motion signal the rows simply appear. The delay must go with it — a staggered set of
+   instant appearances is still a queue the user waits through. */
+@media (prefers-reduced-motion: reduce) {
+  .item { animation: none; animation-delay: 0ms !important; }
+}
+:global(:root[data-motion='reduced']) .item,
+:global(:root[data-motion='none']) .item {
+  animation: none;
+  animation-delay: 0ms !important;
+}

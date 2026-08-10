@@ -12,6 +12,7 @@ import type {
   RadioListOption,
   SelectOption,
   SheetProps,
+  StaggerProps,
   TooltipProps,
   TooltipProviderProps,
 } from './index'
@@ -29,7 +30,7 @@ const VALUE_EXPORTS = [
   'Button', 'Fab', 'Panel', 'Modal', 'ConfirmDialog', 'SaveButton',
   // settings furniture
   'SectionLabel', 'SectionHeader', 'PageHeader', 'SettingsGroup', 'SettingRow', 'SettingRowControl',
-  'Tooltip', 'TooltipProvider',
+  'Tooltip', 'TooltipProvider', 'Stagger',
   // chips + lists + indicators
   'Chip', 'ChipGroup', 'FilterChip', 'ListRow', 'RadioListRow', 'ReorderList', 'StatCard', 'KeyValue',
   'Skeleton', 'EmptyState', 'PillRail', 'ProgressBar',
@@ -47,7 +48,7 @@ const VALUE_EXPORTS = [
  *  satisfied and tsc fails to build if any is missing). */
 export type RootTypeContract =
   | SelectOption | ChipGroupOption | RadioListOption | ProgressBarStyle | SheetProps | AppAnimations | IconShape
-  | BackdropPreset | KeyValueProps | PageHeaderProps | TooltipProps | TooltipProviderProps
+  | BackdropPreset | KeyValueProps | PageHeaderProps | TooltipProps | TooltipProviderProps | StaggerProps
 
 describe('package root export contract', () => {
   it.each(VALUE_EXPORTS)('exports %s', (name) => {

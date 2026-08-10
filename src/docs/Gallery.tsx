@@ -47,6 +47,7 @@ import {
   StatCard,
   Textarea,
   TextInput,
+  Stagger,
   Toggle,
   Tooltip,
   toast,
@@ -584,6 +585,19 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
             Backdrops section.
           </p>
         </div>
+      </Section>
+
+      <Section
+        title="Stagger"
+        subheading="Cascades its children in on FIRST MOUNT ONLY — reload the page to see it again. Deliberately inert afterwards: a list that re-cascades on every filter keystroke is worse than no animation, so rows arriving later simply appear. For a route's first paint, never for search results."
+      >
+        <Stagger>
+          {['Groceries', 'Transport', 'Utilities', 'Subscriptions'].map((label) => (
+            <div key={label} className={styles.row}>
+              <span className={styles.tag}>{label}</span>
+            </div>
+          ))}
+        </Stagger>
       </Section>
 
       <Section
