@@ -96,8 +96,7 @@ const WALLET_OPTIONS: SelectOption[] = [
 // ---------------------------------------------------------------------------------------------
 const EASE_TOKEN_SWATCHES = [
   { token: '--ease-glass', role: 'enter/exit — easeOutQuint' },
-  { token: '--ease-move', role: 'on-screen movement/morph' },
-  { token: '--ease-drawer', role: 'sheet/drawer travel' },
+  { token: '--ease-move', role: 'on-screen movement/morph — Toggle’s knob' },
   { token: '--ease-hover', role: 'hover + colour only' },
 ] as const
 

@@ -359,7 +359,10 @@ describe('tokens.css', () => {
     // --chrome-bg (real chrome fill: --nav-bg), --card-scrim and --panel-scrim (fully-transparent
     // no-op scrims) were deleted as verified-dead by the design/motion plan (Task 7). This scan
     // fails if anyone re-adds a definition OR a consumer under any of the three names.
-    const deadTokens = ['--chrome-bg', '--card-scrim', '--panel-scrim']
+    // --ease-drawer joins them: it named a job the Sheet already does with a velocity-carrying
+    // spring, so a CSS curve for it could only ever be the worse answer. It had zero consumers
+    // in this package and zero across every consuming app when it was removed.
+    const deadTokens = ['--chrome-bg', '--card-scrim', '--panel-scrim', '--ease-drawer']
     const srcDir = fileURLToPath(new URL('../', import.meta.url))
     const files = readdirSync(srcDir, { recursive: true })
       .map(String)

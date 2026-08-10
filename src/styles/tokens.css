@@ -126,8 +126,11 @@
 
   /* ---- motion (purpose-split easings — emil §3: one curve per job, never one for all) ---- */
   --ease-glass:  cubic-bezier(0.22, 1, 0.36, 1);   /* enter/exit — KEEP, do not touch */
-  --ease-move:   cubic-bezier(0.77, 0, 0.175, 1);  /* on-screen movement/morph */
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);   /* sheet/drawer travel */
+  --ease-move:   cubic-bezier(0.77, 0, 0.175, 1);  /* on-screen movement/morph (Toggle's knob) */
+  /* There is deliberately NO curve for drawer travel: that is the Sheet's job, and the Sheet does
+     it with a SPRING (Apple's drawer damping 0.8 / response 0.3, solved to stiffness 440 / damping
+     34) because the gesture hands it a release velocity a fixed curve cannot carry. The retired
+     token's name and the reason it stays retired are pinned in tokens.test.ts. */
   --ease-hover:  ease;                             /* hover + colour only */
   --dur-enter: 240ms;   /* was 320ms — emil §4 hard cap is 300ms */
   --dur-exit:  180ms;
