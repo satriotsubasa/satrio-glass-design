@@ -9,7 +9,7 @@ One design system consumed by every app instead of forked per-app. It ships CSS 
 tokens (type ramp, spacing, a four-tier blur ladder, purpose-split easings/durations), the
 materials and motion built on top of them (`.glass`/`.glass-strong`/`.panel-material`, theme
 cross-fade, icon-shape clips), ~30 generic UI components (buttons, fields, sheets, chips, lists,
-settings furniture, toast, `KeyValue`'s labelled facts), a small set of decoupled providers (motion
+settings furniture, toast, tooltips, `KeyValue`'s labelled facts), a small set of decoupled providers (motion
 config, icon weight, error boundary), and — the part that actually keeps apps from drifting apart
 again — a runnable policy test suite (`@satrio/glass-design/testing`) that each consumer wires into
 its own vitest run to enforce the same rules the package enforces on itself. The gallery in this
@@ -25,8 +25,24 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.3.0
+npm i github:satriotsubasa/satrio-glass-design#v1.4.0
 ```
+
+**Upgrading to 1.4:** mostly a motion pass, with two additions. New: `Tooltip` (+ the required
+`TooltipProvider`, see below), `Stagger`, and an opt-in `draggable` mode on `ReorderList`. Three
+changes are visible without you doing anything:
+
+- **Hover and colour transitions are now on their own curve** (`--ease-hover` at `--dur-hover`,
+  150ms) instead of the enter/exit curve at the press duration. Hovers read very slightly softer;
+  press feedback is untouched.
+- **The modal now materialises** — its blur ramps up with opacity and scale instead of the glass
+  appearing fully-formed. Enter only, and skipped entirely under Reduce Transparency.
+- **The skeleton sheen moved to a transform.** It looked the same and now costs nothing to
+  animate; it used to repaint every frame, in bulk, during load.
+
+`--ease-drawer` was **removed**. It had no users here or in any consuming app, and drawer travel is
+the Sheet's job — which does it with a velocity-carrying spring a fixed curve cannot match. If you
+somehow referenced it, use `--ease-move` or a spring.
 
 **Upgrading to 1.3:** additive only — `KeyValue` and `PageHeader` are new, and `ListRow`'s
 `titleWrap` and `EmptyState`'s `size` both default to today's behaviour, so a consumer that passes
