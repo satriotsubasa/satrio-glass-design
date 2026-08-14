@@ -2,3 +2,10 @@
 .label { font-size: var(--fs-caption); color: var(--label-2); }
 .value { font-family: var(--font-sans); font-size: var(--fs-body); font-weight: 600; }
 .detail { font-size: var(--fs-caption); color: var(--label-3); }
+
+/* Mirrors StatCard's `.card` inset so the two align when mixed in one grid or row. It must stay
+   the SAME token StatCard uses — a hardcoded equivalent would drift the moment the card's inset
+   is retuned, and the misalignment it causes is a few pixels, i.e. exactly the kind nobody spots
+   in review. Padding only: no radius, no fill, no type change — an inset KeyValue is still a bare
+   fact, not a card. */
+.inset { padding: var(--space-2); }

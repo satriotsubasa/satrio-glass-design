@@ -857,6 +857,21 @@ export function Gallery({ animations, onAnimationsChange }: GalleryProps) {
           <KeyValue label="Dose" value="2 of 3" detail="Next due Sep 12" />
           <KeyValue label="Provider" value="Raffles Medical" detail="Last visit Jul 3" />
         </div>
+        <p className={styles.note}>
+          <strong>inset</strong> — a bare KeyValue has no padding, so mixing one into a row of
+          StatCards offsets its text by exactly the card’s inset. The first row below shows that
+          misalignment; the second passes <code>inset</code>, which borrows StatCard’s own padding
+          token so the two share a left edge and a top line. Padding only: the value stays sans and
+          untabulated either way.
+        </p>
+        <div className={styles.grid}>
+          <StatCard label="Resting HR" value="58 bpm" delta="-3" deltaTone="income" />
+          <KeyValue label="Programme" value="Marathon base" detail="Week 4 of 16" />
+        </div>
+        <div className={styles.grid}>
+          <StatCard label="Resting HR" value="58 bpm" delta="-3" deltaTone="income" />
+          <KeyValue label="Programme" value="Marathon base" detail="Week 4 of 16" inset />
+        </div>
       </Section>
 
       <Section
