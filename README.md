@@ -25,8 +25,13 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.4.0
+npm i github:satriotsubasa/satrio-glass-design#v1.4.1
 ```
+
+**1.4.1:** additive only — `KeyValue` gains `inset?: boolean` (default `false`, unchanged). With
+`inset`, it takes the same padding token `StatCard` uses, so a bare fact and a carded metric placed
+in one grid or row share a left edge and a top line instead of being offset by the card's inset.
+Padding only: the value stays sans and untabulated.
 
 **Upgrading to 1.4:** mostly a motion pass, with two additions. New: `Tooltip` (+ the required
 `TooltipProvider`, see below), `Stagger`, and an opt-in `draggable` mode on `ReorderList`. Three
