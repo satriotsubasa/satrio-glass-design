@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence, useDragControls, useReducedMotion, type PanInfo, type Variants } from 'framer-motion'
+import { motion, AnimatePresence, useDragControls, useIsPresent, useReducedMotion, type PanInfo, type Variants } from 'framer-motion'
+import { X } from '@phosphor-icons/react'
 import { RemoveScroll } from 'react-remove-scroll'
 import styles from './Sheet.module.css'
 
@@ -87,7 +88,11 @@ export function makeSheetVariants(reduce: boolean | null): Variants {
              scoped per-value so it never routes through the spring. */
           transition: {
             opacity: { duration: 0.2, ease: EASE_GLASS },
-            y: { type: 'spring' as const, stiffness: 305, damping: 35, velocity: exitVelocity },
+            /* restDelta/restSpeed: the default thresholds (0.5px, 10px/s) let the spring creep
+               through its last pixels for ~180ms after the sheet is already off screen and
+               transparent, and the backdrop, scroll lock and AnimatePresence unmount all wait on
+               it (about 516ms in total). 2px / 40px/s ends the exit at about 336ms. */
+            y: { type: 'spring' as const, stiffness: 305, damping: 35, velocity: exitVelocity, restDelta: 2, restSpeed: 40 },
           },
         }
       }
@@ -173,8 +178,34 @@ export interface SheetProps {
    *  host that manages its own internal scroll region + fixed dock (e.g. the transaction
    *  editor's single-scroll layout, which needs `height: 100%` from its container to work). */
   variant?: 'default' | 'full'
+  /** A 44x44 Close button in the top corner that calls `onClose` (a REQUEST, so a discard guard
+   *  still runs). Escape, the backdrop and the swipe are not targets inside the dialog, so without
+   *  it switch and voice-control users have nothing to activate. Default: shown when the Sheet
+   *  draws its own `title` on the 'default' variant; off for untitled sheets and the 'full'
+   *  variant, whose hosts lay out their own header and would have it land on their content. Pass
+   *  `true` or `false` to override either way. */
+  closeButton?: boolean
 }
-export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, variant = 'default' }: SheetProps) {
+
+/**
+ * The scrim. Its own component only so it can read `useIsPresent`: the moment the exit starts it
+ * stops taking pointer events. The sheet is invisible about 170ms into its exit, but this
+ * full-screen layer stays mounted until the exit spring settles, and it used to keep catching
+ * taps for that whole time: the first tap after closing a sheet did nothing.
+ */
+function SheetBackdrop({ reduce, onClick, children }: { reduce: boolean | null; onClick: () => void; children: React.ReactNode }) {
+  const isPresent = useIsPresent()
+  return (
+    <motion.div className={styles.backdrop} onClick={onClick}
+      style={{ pointerEvents: isPresent ? undefined : 'none' }}
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0.2 : 0.25 }}>
+      {children}
+    </motion.div>
+  )
+}
+
+export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, variant = 'default', closeButton }: SheetProps) {
+  const showClose = closeButton ?? (title !== undefined && variant !== 'full')
   const reduce = useReducedMotion()
   const contentRef = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
@@ -207,6 +238,19 @@ export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, 
   const dragCloseRequestedRef = useRef(false)
   const depth = useContext(SheetDepthContext)
   const stackEntryRef = useRef<SheetStackEntry | null>(null)
+  /** The element that had focus when `open` flipped true, captured DURING RENDER. The open effect
+   *  below is too late to read it: a child's effects run before its parent's, so content that
+   *  focuses itself on mount (a wizard panel) was already `document.activeElement` by then and
+   *  was saved as the "opener"; closing then tried to restore a node that was unmounting and
+   *  focus fell to <body>. Render of the opening commit is the last moment the real opener still
+   *  has focus. Reading the DOM here is safe to repeat: every render before the commit sees the
+   *  same element, and `wasOpenRef` only advances in an effect. */
+  const openerRef = useRef<HTMLElement | null>(null)
+  const wasOpenRef = useRef(false)
+  if (open && !wasOpenRef.current && typeof document !== 'undefined') {
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  }
+  useEffect(() => { wasOpenRef.current = open })
   // Re-render whenever ANY sheet joins/leaves the module stack — the return value itself is not
   // needed; the subscription is what keeps `pushedBack` below fresh. The entry ref is written by
   // the open effect one commit after `open` flips true, but that same effect bumps the version,
@@ -234,9 +278,11 @@ export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, 
     sheetStack.push(entry)
     stackEntryRef.current = entry
     bumpSheetStack() // an ANCESTOR sheet below may have just stopped being top-most → push-back
-    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const opener = openerRef.current // captured during render, before any child could move focus
     const tookFocus = isTopSheet(entry)
-    if (tookFocus) contentRef.current?.focus()
+    // Content that already focused itself on mount keeps that focus: the container is only the
+    // fallback landing spot, never a reason to pull focus off a control the content chose.
+    if (tookFocus && !contentRef.current?.contains(document.activeElement)) contentRef.current?.focus()
     return () => {
       const index = sheetStack.indexOf(entry)
       if (index !== -1) sheetStack.splice(index, 1)
@@ -411,8 +457,11 @@ export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, 
              scroller (IconPickerSheet's grid et al) keeps working; no noIsolation/shards
              needed since backdrop + sheet both live inside. Mounted INSIDE AnimatePresence's
              conditional so the lock holds through the exit animation and releases on unmount. */
-          <RemoveScroll>
-            <motion.div className={styles.backdrop}
+          /* allowPinchZoom: without it the lock cancels every two-finger move document-wide, so
+             nobody can zoom in while a sheet is open (WCAG 1.4.4), which is exactly where amounts
+             are typed. Pinch is not a scroll, so the page behind still cannot pan. */
+          <RemoveScroll allowPinchZoom>
+            <SheetBackdrop reduce={reduce}
             onClick={() => {
               // A grabber drag that RELEASES over the backdrop synthesizes a click that targets
               // the backdrop itself (see dragSessionRef) — that click is the drag's tail, never
@@ -420,8 +469,7 @@ export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, 
               if (dragSessionRef.current) return
               exitVelocityRef.current = 0
               onClose()
-            }}
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0.2 : 0.25 }}>
+            }}>
             <motion.div ref={contentRef} className={`${styles.sheet} ${variant === 'full' ? styles.sheetFull : ''}`} role="dialog" aria-modal="true" aria-label={ariaLabelledby ? undefined : title} aria-labelledby={ariaLabelledby}
               tabIndex={-1} onKeyDown={containTab}
               onClick={(e) => e.stopPropagation()}
@@ -465,8 +513,18 @@ export function Sheet({ open, onClose, title, ariaLabelledby, children, footer, 
               {title && <h2 className={styles.title}>{title}</h2>}
               <div className={`${styles.body} ${variant === 'full' ? styles.bodyFull : ''}`}>{children}</div>
               {footer && <div className={styles.footer}>{footer}</div>}
+              {/* LAST in the DOM (it is positioned into the top corner in CSS) so it is the last tab
+                  stop: the first Tab from the container still lands on the content. */}
+              {showClose && (
+                <button type="button" className={styles.close} aria-label="Close"
+                  /* Not a drag handle: keep the whole-surface starter from arming on it. */
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => { exitVelocityRef.current = 0; onClose() }}>
+                  <X size={18} weight="bold" aria-hidden />
+                </button>
+              )}
             </motion.div>
-            </motion.div>
+            </SheetBackdrop>
           </RemoveScroll>
         )}
       </AnimatePresence>

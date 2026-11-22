@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, it, expect, vi } from 'vitest'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Sheet, makeSheetVariants, shouldDismiss } from './Sheet'
@@ -218,7 +218,10 @@ describe('Sheet — focus management (initial focus / trap / restore)', () => {
     expect(() => rerender(ui(false, false))).not.toThrow()
   })
 
-  it('contains Tab at the boundaries: Tab on the last focusable wraps to the first, Shift+Tab on the first wraps to the last; middle elements keep native tabbing', () => {
+  // Re-derived when the Close button was added: a titled sheet's LAST focusable is now Close (it
+  // is last in the DOM on purpose), so the wrap runs first <-> Close and the footer button became
+  // a middle element.
+  it('contains Tab at the boundaries: Tab on the last focusable (Close) wraps to the first, Shift+Tab on the first wraps to the last; middle elements keep native tabbing', () => {
     render(
       <Sheet open onClose={vi.fn()} title="Trap" footer={<button type="button">last</button>}>
         <button type="button">first</button>
@@ -227,14 +230,19 @@ describe('Sheet — focus management (initial focus / trap / restore)', () => {
     )
     const first = screen.getByRole('button', { name: 'first' })
     const middle = screen.getByRole('button', { name: 'middle' })
-    const last = screen.getByRole('button', { name: 'last' })
+    const footerButton = screen.getByRole('button', { name: 'last' })
+    const close = screen.getByRole('button', { name: 'Close' })
 
-    last.focus()
-    fireEvent.keyDown(last, { key: 'Tab' })
+    close.focus()
+    fireEvent.keyDown(close, { key: 'Tab' })
     expect(document.activeElement).toBe(first)
 
     fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })
-    expect(document.activeElement).toBe(last)
+    expect(document.activeElement).toBe(close)
+
+    // The footer button is no longer the boundary: its Tab moves natively on to Close.
+    footerButton.focus()
+    expect(fireEvent.keyDown(footerButton, { key: 'Tab' })).toBe(true)
 
     // A middle element's Tab is NOT intercepted — native focus traversal handles it (the portal
     // sits at the end of <body>, so in-dialog document order is already correct).
@@ -256,14 +264,17 @@ describe('Sheet — focus management (initial focus / trap / restore)', () => {
     fireEvent.keyDown(dialog, { key: 'Tab' })
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'first' }))
 
+    // Re-derived: the last focusable of a titled sheet is its Close button.
     dialog.focus()
     fireEvent.keyDown(dialog, { key: 'Tab', shiftKey: true })
-    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'last' }))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }))
   })
 
+  // A titled sheet always has its Close button now, so "nothing focusable" is the case of a
+  // sheet that opted out of it (or an untitled one).
   it('a sheet with no focusable descendants keeps focus parked on the container (Tab is swallowed)', () => {
     render(
-      <Sheet open onClose={vi.fn()} title="Empty">
+      <Sheet open onClose={vi.fn()} title="Empty" closeButton={false}>
         <p>Text only</p>
       </Sheet>,
     )
@@ -809,9 +820,11 @@ describe('Sheet — REFUSED drag-dismiss (discard-guard consumers)', () => {
 describe('Sheet.module.css — scroll containment declarations', () => {
   // Belt-and-braces with the RemoveScroll lock: the sheet's own scroller must never CHAIN a
   // boundary scroll to the page behind it, and a pan that starts on the backdrop must be inert.
-  it('.sheet declares overscroll-behavior: contain (base AND ≤640px block); .backdrop declares touch-action: none', () => {
+  it('.sheet declares overscroll-behavior: contain (base AND ≤640px block); .backdrop allows no pan (touch-action: pinch-zoom only)', () => {
     const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'Sheet.module.css'), 'utf8')
-    expect(css).toMatch(/\.backdrop\s*\{[^}]*touch-action:\s*none/)
+    // Was `none`. `pinch-zoom` still permits no panning, which is what this guards; it only
+    // stops forbidding a two-finger zoom (WCAG 1.4.4).
+    expect(css).toMatch(/\.backdrop\s*\{[^}]*touch-action:\s*pinch-zoom;/)
     expect(css).toMatch(/\.sheet\s*\{[^}]*overscroll-behavior:\s*contain/)
     const mobileBlocks = [...css.matchAll(/@media \(max-width: 640px\) \{([\s\S]*?)\n\}/g)]
       .map((m) => m[1])
@@ -835,5 +848,128 @@ describe('Sheet.module.css — mobile grabber drags must not paint text selectio
     // Desktop keeps text selection inside sheets: no user-select outside the mobile blocks.
     const outsideMobile = css.replace(/@media \(max-width: 640px\) \{[\s\S]*?\n\}/g, '')
     expect(outsideMobile).not.toMatch(/user-select/)
+  })
+})
+
+describe('Sheet — close button', () => {
+  it('a text-only titled sheet is no longer a keyboard dead end: Tab from the container reaches Close', () => {
+    render(<Sheet open onClose={vi.fn()} title="Notice"><p>Text only</p></Sheet>)
+    const dialog = screen.getByRole('dialog', { name: 'Notice' })
+
+    fireEvent.keyDown(dialog, { key: 'Tab' })
+
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }))
+  })
+
+  // The only exits were Escape, a backdrop tap and a swipe: none of them a target inside the
+  // dialog, so switch and voice-control users had nothing to activate (WCAG 2.1.1 / 2.5.1).
+  it('a titled sheet shows a Close button that requests close once', async () => {
+    const onClose = vi.fn()
+    render(<Sheet open onClose={onClose} title="New budget"><p>Body</p></Sheet>)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('is the last stop in the tab order, so the first Tab still lands on the content', () => {
+    render(
+      <Sheet open onClose={vi.fn()} title="New budget">
+        <button type="button">first field</button>
+      </Sheet>,
+    )
+    const dialog = screen.getByRole('dialog', { name: 'New budget' })
+    const buttons = Array.from(dialog.querySelectorAll('button'))
+
+    expect(buttons[buttons.length - 1]).toBe(screen.getByRole('button', { name: 'Close' }))
+  })
+
+  it('hosts that draw their own header get none by default: untitled sheets and the full variant', () => {
+    const { rerender } = render(<Sheet open onClose={vi.fn()} ariaLabelledby="own-title"><h2 id="own-title">Own</h2></Sheet>)
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
+
+    rerender(<Sheet open onClose={vi.fn()} title="Editor" variant="full"><p>Body</p></Sheet>)
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
+  })
+
+  it('closeButton overrides the default either way', () => {
+    const { rerender } = render(<Sheet open onClose={vi.fn()} title="Pick" closeButton={false}><p>Body</p></Sheet>)
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
+
+    rerender(<Sheet open onClose={vi.fn()} title="Editor" variant="full" closeButton><p>Body</p></Sheet>)
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
+  })
+})
+
+describe('Sheet — a closing sheet lets taps through', () => {
+  // The sheet is invisible about 170ms into its exit, but its full-screen backdrop stayed in the
+  // DOM (and kept catching taps) until the exit spring settled at about 516ms: the first tap
+  // after closing a sheet did nothing.
+  it('the backdrop stops taking pointer events as soon as the exit starts', async () => {
+    const ui = (open: boolean) => <Sheet open={open} onClose={vi.fn()} title="Closing"><p>Body</p></Sheet>
+    const { rerender } = render(ui(true))
+    const backdrop = screen.getByRole('dialog', { name: 'Closing' }).parentElement as HTMLElement
+    expect(backdrop.style.pointerEvents).not.toBe('none')
+
+    rerender(ui(false))
+
+    expect(backdrop.isConnected).toBe(true) // still exit-animating: this is the window that swallowed taps
+    expect(backdrop.style.pointerEvents).toBe('none')
+  })
+
+  it('the exit spring settles early instead of creeping through its last 2px', () => {
+    const restore = stubMatchMedia(true)
+    try {
+      const exit = makeSheetVariants(false).exit as unknown as (v: number) => { transition: Record<string, Record<string, unknown>> }
+      expect(exit(0).transition.y).toMatchObject({ restDelta: 2, restSpeed: 40 })
+    } finally {
+      restore()
+    }
+  })
+})
+
+describe('Sheet — focus when the content focuses itself on mount', () => {
+  // A child's effects run before the Sheet's own. A wizard panel that focused itself on mount was
+  // therefore recorded as the "opener", and the container then stole the focus back: closing the
+  // sheet dropped focus on <body> instead of the button that opened it.
+  function SelfFocusing() {
+    const ref = useRef<HTMLButtonElement>(null)
+    useEffect(() => { ref.current?.focus() }, [])
+    return <button ref={ref} type="button">panel</button>
+  }
+
+  it('keeps the focus the content took, and still restores the real opener on close', () => {
+    const ui = (open: boolean) => (
+      <>
+        <button type="button">opener</button>
+        <Sheet open={open} onClose={vi.fn()} title="Wizard">
+          <SelfFocusing />
+        </Sheet>
+      </>
+    )
+    const { rerender } = render(ui(false))
+    const opener = screen.getByRole('button', { name: 'opener' })
+    opener.focus()
+
+    rerender(ui(true))
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'panel' }))
+
+    rerender(ui(false))
+    expect(document.activeElement).toBe(opener)
+  })
+})
+
+describe('Sheet — pinch zoom stays available while a sheet is open', () => {
+  // WCAG 1.4.4: the scroll lock cancelled two-finger moves document-wide, so a low-vision user
+  // could not zoom in exactly where amounts are typed.
+  it('the scroll lock allows pinch zoom, and the sheet and backdrop do not forbid it in CSS', () => {
+    const dir = dirname(fileURLToPath(import.meta.url))
+    const source = readFileSync(join(dir, 'Sheet.tsx'), 'utf8')
+    const css = readFileSync(join(dir, 'Sheet.module.css'), 'utf8')
+
+    expect(source).toMatch(/<RemoveScroll allowPinchZoom>/)
+    expect(css).toMatch(/\.backdrop\s*\{[^}]*touch-action:\s*pinch-zoom/)
+    const mobileBlocks = [...css.matchAll(/@media \(max-width: 640px\) \{([\s\S]*?)\n\}/g)].map((m) => m[1]).join('\n')
+    expect(mobileBlocks).toMatch(/\.sheet\s*\{[^}]*touch-action:\s*pan-y pinch-zoom/)
   })
 })

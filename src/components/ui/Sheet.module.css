@@ -1,8 +1,9 @@
-/* touch-action: none — a pan that STARTS on the backdrop is inert (it neither scrolls the page
-   behind nor moves the sheet). Descendants are unaffected: the sheet is its own scroll container,
-   so its pan-y below is what governs touches on it, not this. */
+/* touch-action: pinch-zoom — a pan that STARTS on the backdrop is inert (it neither scrolls the
+   page behind nor moves the sheet), but a two-finger zoom is still allowed (WCAG 1.4.4).
+   Descendants are unaffected: the sheet is its own scroll container, so its pan-y below is what
+   governs touches on it, not this. */
 .backdrop { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.35);
-  display: flex; align-items: center; justify-content: center; padding: 24px; touch-action: none; }
+  display: flex; align-items: center; justify-content: center; padding: 24px; touch-action: pinch-zoom; }
 /* overscroll-behavior: contain — the sheet is the scroller; when its scroll hits an edge (or it
    has nothing to scroll) the gesture must die there, never chain to the page behind. Belt and
    braces with the react-remove-scroll body lock in Sheet.tsx (which also covers iOS Safari,
@@ -31,6 +32,19 @@
 .grabber::before { content: ''; display: block; width: 36px; height: 5px; border-radius: 3px;
   background: rgba(127,127,127,0.4); }
 .title { font-size: var(--fs-title); line-height: var(--lh-title); font-weight: 600; margin: 0 0 var(--space-2); }
+/* Close button: a 44x44 target (the platform minimum) in the top corner, drawn as a quiet 30px
+   disc so it does not compete with the title. It is the last element in the DOM and is placed
+   here by position, so it stays the last tab stop. The title keeps clear of it via the sibling
+   rule below. */
+.close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; padding: 0; border: 0;
+  background: none; color: var(--label-2); cursor: pointer; display: grid; place-items: center;
+  border-radius: 999px; touch-action: manipulation; }
+.close::before { content: ''; position: absolute; inset: 7px; border-radius: 999px;
+  background: color-mix(in srgb, var(--label) 8%, transparent); }
+.close > * { position: relative; }
+.close:active { transform: scale(0.94); }
+@media (hover: hover) { .close:hover::before { background: color-mix(in srgb, var(--label) 14%, transparent); } }
+.sheet:has(> .close) > .title { padding-right: 40px; }
 .footer { margin-top: var(--space-2); display: flex; gap: 10px; justify-content: flex-end; }
 .body { position: relative; }
 @media (max-width: 640px) {
@@ -41,7 +55,7 @@
      selection extends across sibling text — so the whole sheet opts out, scoped to the
      bottom-sheet presentation ONLY: >640px has no drag, and selecting text inside a desktop
      sheet (e.g. a note) must keep working. */
-  .sheet { width: 100%; max-height: 88vh; border-radius: var(--radius-card) var(--radius-card) 0 0; padding-top: 16px; touch-action: pan-y;
+  .sheet { width: 100%; max-height: 88vh; border-radius: var(--radius-card) var(--radius-card) 0 0; padding-top: 16px; touch-action: pan-y pinch-zoom;
     overscroll-behavior: contain; user-select: none; -webkit-user-select: none; }
   .grabber { display: block; }
 }
