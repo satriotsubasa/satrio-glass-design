@@ -222,6 +222,11 @@ body::before {
 :root[data-icon-shape='blossom'] .icon-shape { border-radius: 0; clip-path: url(#icon-shape-blossom); }
 :root[data-icon-shape='flower'] .icon-shape { border-radius: 0; clip-path: url(#icon-shape-flower); }
 
+/* The default shape. Rounded unless the tile sets its own radius: zero specificity, so a tile's
+   own border-radius and every root-driven rule above still win. Without it a tile that relied on
+   `.icon-shape` for its corners was square under the default selection. */
+:where(.icon-shape) { border-radius: 26%; }
+
 /* Standalone per-shape classes — render a SPECIFIC shape regardless of the root selection
    (the Appearance picker's swatches, /gallery). */
 .icon-shape--circle { border-radius: 50%; }
@@ -237,4 +242,10 @@ body::before {
 }
 
 button { -webkit-tap-highlight-color: transparent; }
+/* Form controls take the page typeface. Browsers give them their own family (Arial in Chrome on
+   Windows, the system font on Apple devices), so any control whose class names no family
+   rendered in a second typeface. Zero specificity (`:where`), so every class that does choose a
+   family still wins whatever order stylesheets load in. Family only, not the `font` shorthand:
+   no control changes size. */
+:where(button, input, select, textarea) { font-family: inherit; }
 a { color: inherit; text-decoration: none; }
