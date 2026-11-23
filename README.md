@@ -25,8 +25,27 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.4.1
+npm i github:satriotsubasa/satrio-glass-design#v1.5.0
 ```
+
+**Upgrading to 1.5:** an accessibility pass on `Sheet` and `Modal`, plus two stylesheet defaults.
+Four changes are visible without you doing anything:
+
+- **`Sheet` draws a Close button.** A sheet with a `title` on the default variant gets a 44x44
+  Close button in its top corner. It calls `onClose`, so a discard guard still runs. Untitled
+  sheets and `variant="full"` get none, because their hosts lay out their own header. Override
+  either way with the new `closeButton?: boolean`. If a titled sheet already has its own Close or
+  Cancel in the header, pass `closeButton={false}` or drop yours. It is the last tab stop.
+- **Closing gives the page back sooner.** The backdrop stops taking taps the moment the exit
+  starts, and the exit spring settles earlier, so the first tap after closing a sheet lands.
+- **Pinch zoom works while a sheet is open.** The backdrop and the sheet still cannot pan the page
+  behind.
+- **Focus goes back to the opener.** `Sheet` and `Modal` return focus to the element that had it
+  when they opened, and a sheet whose content focuses itself on mount keeps that focus.
+
+`global.css` also gains two zero-specificity defaults: form controls inherit `font-family`, and
+`.icon-shape` is rounded (26%) under the default shape. Any class that sets its own family or
+radius still wins. If your brand layer carried either rule as a workaround, delete it.
 
 **1.4.1:** additive only — `KeyValue` gains `inset?: boolean` (default `false`, unchanged). With
 `inset`, it takes the same padding token `StatCard` uses, so a bare fact and a carded metric placed
