@@ -22,6 +22,8 @@ export const BRAND_TOKENS: ReadonlySet<string> = new Set([
   '--panel-bg', '--panel-border',
   '--card-bg', '--card-border', '--card-highlight', '--card-shadow',
   '--backdrop', '--backdrop-image',
+  // font roles (which face figures and metadata use; the faces themselves are locked)
+  '--font-numeric', '--font-meta',
   // geometry
   '--radius-card', '--radius-tile', '--radius-control',
   // material thickness ALIASES (retargetable; ladder tiers --blur-* are locked)

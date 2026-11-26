@@ -13,5 +13,5 @@
 .control:focus-visible { outline: none; border-color: var(--accent);
   box-shadow: var(--ring); }
 .invalid { border-color: var(--danger); }
-.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; }
 .textarea { height: auto; min-height: 96px; padding: 12px 14px; resize: vertical; }

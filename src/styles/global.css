@@ -58,7 +58,7 @@ body::before {
 }
 
 /* metadata (amounts, dates, tags) render in mono — a satrio signature */
-.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; }
 
 /* Liquid Glass material — CHROME (floats over content) */
 .glass {

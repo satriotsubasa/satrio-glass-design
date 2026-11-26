@@ -1,5 +1,5 @@
 .header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-2); }
-.eyebrow { font-family: var(--font-mono); font-size: var(--fs-caption); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+.eyebrow { font-family: var(--font-meta); font-size: var(--fs-caption); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
   color: var(--accent); margin: 0 0 4px; }
 .title { font-size: var(--fs-title); line-height: var(--lh-title); font-weight: 600; margin: 0; }
 .text { min-width: 0; }

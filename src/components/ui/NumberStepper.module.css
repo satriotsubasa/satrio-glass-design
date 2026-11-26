@@ -52,7 +52,7 @@
 }
 
 .value {
-  font-family: var(--font-mono);
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: var(--fs-callout);

@@ -2,8 +2,8 @@
 .top { display: flex; align-items: center; justify-content: space-between; }
 .label { font-size: var(--fs-callout); color: var(--label-2); }
 .icon { color: var(--label-3); display: inline-flex; }
-.value { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--fs-title); line-height: var(--lh-title); font-weight: 700; }
-.delta { font-family: var(--font-mono); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+.value { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; font-size: var(--fs-title); line-height: var(--lh-title); font-weight: 700; }
+.delta { font-family: var(--font-numeric); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
 .income { color: var(--income); }
 .expense { color: var(--expense); }
 .neutral { color: var(--label-3); }

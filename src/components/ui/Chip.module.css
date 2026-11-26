@@ -1,5 +1,5 @@
 .chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; white-space: nowrap;
-  font-family: var(--font-mono); font-weight: 600; }
+  font-family: var(--font-meta); font-weight: 600; }
 .sm { font-size: var(--fs-caption); padding: 2px 9px; }
 .md { font-size: var(--fs-callout); padding: 3px 11px; }
 .neutral { background: color-mix(in srgb, var(--label) 10%, transparent); color: var(--label-2); }

@@ -8,4 +8,4 @@
 .title { font-size: var(--fs-body); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: normal; }
 .subtitle { font-size: var(--fs-caption); color: var(--label-2); }
-.trailing { flex-shrink: 0; margin-left: auto; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.trailing { flex-shrink: 0; margin-left: auto; font-family: var(--font-numeric); font-variant-numeric: tabular-nums; }

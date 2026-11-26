@@ -28,6 +28,8 @@
   /* ---- accent + status ---- */
   /* --accent: #cf5410; */       /* colored glyphs/text on glass */
   /* --accent-fill: #d95b43; */  /* solid accent behind white text (buttons/badges) */
+  /* --font-numeric: var(--font-sans); */  /* amounts and figures in the sans face */
+  /* --font-meta: var(--font-sans); */     /* chips and eyebrows in the sans face */
   /* --negative: #b4232a; */  /* --danger and --expense both follow it unless set */
   /* --danger: var(--negative); */
   /* --income: #0b6e2f; */

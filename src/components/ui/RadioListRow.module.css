@@ -69,7 +69,7 @@
 
 .example {
   flex-shrink: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
   font-size: var(--fs-caption);
   color: var(--label-3);

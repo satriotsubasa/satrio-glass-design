@@ -1,6 +1,6 @@
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  border: none; cursor: pointer; font: inherit; font-weight: 600; white-space: nowrap;
+  border: none; cursor: pointer; font: inherit; font-weight: 600; white-space: nowrap; text-decoration: none;
   border-radius: var(--radius-control); color: var(--label);
   transition: transform var(--dur-press) var(--ease-glass),
     background var(--dur-hover) var(--ease-hover), filter var(--dur-hover) var(--ease-hover);
@@ -11,8 +11,10 @@
 
 .sm { height: 34px; padding: 0 14px; font-size: var(--fs-callout); }
 .md { height: 42px; padding: 0 18px; font-size: var(--fs-body); }
+.tap { height: var(--control-md); padding: 0 18px; font-size: var(--fs-body); }
 .lg { height: 50px; padding: 0 22px; font-size: var(--fs-headline); line-height: var(--lh-headline); }
 .iconOnly { padding: 0; aspect-ratio: 1; }
+.round { border-radius: var(--radius-pill); }
 
 .primary { color: #fff;
   background: linear-gradient(160deg, color-mix(in srgb, var(--accent-fill) 82%, white), var(--accent-fill));
@@ -21,6 +23,11 @@
 .ghost { background: transparent; }
 @media (hover: hover) { .ghost:not(:disabled):hover { background: color-mix(in srgb, var(--label) 8%, transparent); } }
 .outline { background: transparent; border: 0.5px solid var(--separator); }
+/* link: text only. It keeps the size's font but drops the chassis, so it sits in a sentence or
+   under a form. The declarations repeat the selector to outrank the size classes above. */
+.link.link { height: auto; min-height: 0; padding: 0; background: none; color: var(--accent); border-radius: 4px; }
+.link:active:not(:disabled) { transform: scale(0.97); }
+@media (hover: hover) { .link:not(:disabled):hover { filter: none; text-decoration: underline; } }
 .danger { color: #fff;
   background: linear-gradient(160deg, color-mix(in srgb, var(--danger) 84%, white), var(--danger));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }

@@ -1,0 +1,14 @@
+/* The chassis (press scale, hover, variants, disabled) is Button's; this adds only the square
+   size and the tap area. */
+.icon { position: relative; flex-shrink: 0; padding: 0; width: var(--icon-button-size); height: var(--icon-button-size); }
+.s32 { --icon-button-size: 32px; }
+.s36 { --icon-button-size: var(--control-sm); }
+.s44 { --icon-button-size: var(--control-md); }
+/* A 32px circle is a comfortable thing to look at and a poor thing to hit. The pseudo-element
+   grows the tap area to --tap-min around the centre without moving anything: at 44px the inset
+   is 0, below it the inset is negative. */
+.icon::before {
+  content: '';
+  position: absolute;
+  inset: min(0px, calc((var(--icon-button-size) - var(--tap-min)) / 2));
+}

@@ -5,6 +5,12 @@
   /* ---- fonts (self-hosted variable fonts, see src/fonts.ts) ---- */
   --font-sans: 'IBM Plex Sans Variable', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
+  /* Font ROLES. The system sets figures and short metadata in mono; these two names are what
+     the components read, so a brand can move either role to the sans face without touching a
+     component. --font-numeric: amounts, counts, rates, stat values. --font-meta: words set as
+     metadata (chips, eyebrows). Both default to mono, which is what every component drew. */
+  --font-numeric: var(--font-mono);
+  --font-meta: var(--font-mono);
 
   /* ---- macOS type scale (size / line-height; weight per component) ----
      Every SIZE multiplies by --app-font-scale — the Settings fontScale consumer, set inline on
