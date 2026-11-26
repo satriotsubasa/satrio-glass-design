@@ -27,7 +27,7 @@ const VALUE_EXPORTS = [
   // form + control primitives
   'Field', 'TextInput', 'Textarea', 'Select', 'SearchField', 'NumberStepper', 'Toggle', 'SegmentedControl',
   // buttons + surfaces
-  'Button', 'ButtonLink', 'IconButton', 'Pressable', 'Fab', 'Panel', 'Modal', 'ConfirmDialog', 'SaveButton',
+  'Button', 'ButtonLink', 'IconButton', 'Pressable', 'Fab', 'Panel', 'Modal', 'ConfirmDialog', 'Menu', 'MenuItem', 'MenuRow', 'SaveButton',
   // settings furniture
   'SectionLabel', 'SectionHeader', 'PageHeader', 'SettingsGroup', 'SettingRow', 'SettingRowControl',
   'Tooltip', 'TooltipProvider', 'Stagger',

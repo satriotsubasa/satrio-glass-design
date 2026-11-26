@@ -1,0 +1,40 @@
+/* The action-sheet form: the rows sit in the Sheet's own body. */
+.list { display: flex; flex-direction: column; gap: var(--space-05); }
+
+/* The popover form: floating chrome, so the chrome tier of the material ladder. It dims nothing. */
+.popover {
+  position: fixed; z-index: var(--z-popover);
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 220px; max-width: min(320px, calc(100vw - 16px)); padding: 6px;
+  color: var(--label); border-radius: var(--radius-tile);
+  background: var(--menu-bg);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(150%); -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(150%);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--elev-menu);
+  animation: menu-in var(--dur-hover) var(--ease-glass);
+  transform-origin: top right;
+}
+@keyframes menu-in { from { opacity: 0; transform: scale(0.97); } }
+@media (prefers-reduced-motion: reduce) { .popover { animation: none; } }
+
+.item, .row {
+  display: flex; align-items: center; gap: var(--space-15);
+  width: 100%; min-height: var(--control-md); padding: 0 var(--space-15);
+  border-radius: var(--radius-control); font: inherit; font-size: var(--fs-body); color: var(--label);
+  text-align: start;
+}
+.item {
+  border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background var(--dur-hover) var(--ease-hover), transform var(--dur-press) var(--ease-glass);
+}
+.item:active:not(:disabled) { transform: scale(0.98); background: var(--fill-pressed); }
+@media (hover: hover) { .item:not(:disabled):hover { background: var(--fill-hover); } }
+.item:focus-visible { outline: none; background: var(--fill-hover); box-shadow: var(--ring); }
+.item:disabled { opacity: 0.5; cursor: not-allowed; }
+.danger { color: var(--negative); }
+
+.icon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--icon-md); color: var(--label-2); }
+.danger .icon { color: inherit; }
+.icon:empty { display: none; }
+.label { flex: 1 1 auto; min-width: 0; font-weight: 500; }
+.trailing { display: inline-flex; flex-shrink: 0; align-items: center; color: var(--label-2); font-size: var(--fs-callout); }
