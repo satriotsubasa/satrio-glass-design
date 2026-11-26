@@ -25,8 +25,18 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.7.0
+npm i github:satriotsubasa/satrio-glass-design#v1.8.0
 ```
+
+**Upgrading to 1.8:** additive only.
+
+- **`Menu`**, with **`MenuItem`** and **`MenuRow`**, is an overflow menu: a short list of actions
+  for the thing in front of you. On a phone it is an action sheet. From 640px, when you pass the
+  trigger as `anchorRef`, it is a popover under that trigger that dims nothing: Escape or a press
+  outside closes it, the arrow keys move through it, and focus returns to the trigger.
+  `MenuItem` (`label`, `icon`, `trailing`, `tone="danger"`, `loading`, `disabled`) runs
+  `onSelect` and closes the menu, unless `keepOpen`. `MenuRow` holds a label and a control such
+  as a `Toggle`, and never closes it. Use it in place of a `Modal` of stacked buttons.
 
 **Upgrading to 1.7:** additive only. Nothing changes until you use it.
 
