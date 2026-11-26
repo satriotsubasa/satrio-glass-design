@@ -75,3 +75,39 @@ describe('PageHeader', () => {
     expect(paragraphs[0]).toHaveTextContent('0')
   })
 })
+
+describe('PageHeader — back control', () => {
+  it('draws none by default, so an existing header is laid out as before', () => {
+    const { container } = render(<PageHeader title="Overview" />)
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect((container.firstElementChild as HTMLElement).className).not.toMatch(/withBack/)
+  })
+
+  it('with `back`, leads the title with a button named by its label that calls onClick', () => {
+    let pressed = 0
+    render(<PageHeader title="DBS" back={{ label: 'Back to accounts', onClick: () => { pressed += 1 } }} />)
+    const back = screen.getByRole('button', { name: 'Back to accounts' })
+    back.click()
+    expect(pressed).toBe(1)
+    // It comes before the heading in the document, so it is reached first.
+    const heading = screen.getByRole('heading', { level: 1, name: 'DBS' })
+    expect(back.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+})
+
+describe('SectionHeader — size', () => {
+  it('is the 22px title step by default and the 17px headline step on request, an h2 either way', async () => {
+    const { SectionHeader } = await import('./SectionHeader')
+    const { container, rerender } = render(<SectionHeader title="Recent" />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Recent' })).toBeInTheDocument()
+    expect((container.firstElementChild as HTMLElement).className).not.toMatch(/headline/)
+
+    rerender(<SectionHeader title="Recent" size="headline" />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Recent' })).toBeInTheDocument()
+    expect((container.firstElementChild as HTMLElement).className).toMatch(/headline/)
+
+    const css = readFileSync('src/components/ui/SectionHeader.module.css', 'utf8')
+    expect(css).toMatch(/\.title\s*\{\s*font-size:\s*var\(--fs-title\)/)
+    expect(css).toMatch(/\.headline \.title\s*\{\s*font-size:\s*var\(--fs-headline\)/)
+  })
+})

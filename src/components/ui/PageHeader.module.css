@@ -3,5 +3,10 @@
   color: var(--accent); margin: 0 0 4px; }
 .title { font-size: var(--fs-large-title); line-height: var(--lh-large-title); letter-spacing: var(--tracking-large-title); font-weight: 700; margin: 0; }
 .text { min-width: 0; }
+/* With a back control leading the row the text takes the space between it and the action, so the
+   action stays at the end. Without one the layout is exactly what it was. */
+.withBack { justify-content: flex-start; align-items: center; }
+.withBack .text { flex: 1 1 0; }
+.back { margin-inline-start: calc(var(--space-1) * -1); }
 .sub { font-size: var(--fs-callout); color: var(--label-2); margin: 4px 0 0; }
 .action { flex-shrink: 0; }
