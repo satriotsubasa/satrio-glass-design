@@ -25,8 +25,31 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.5.0
+npm i github:satriotsubasa/satrio-glass-design#v1.6.0
 ```
+
+**Upgrading to 1.6:** new tokens, and one colour change you will see.
+
+- **`--danger` and `--expense` are one colour now.** Both alias the new `--negative`
+  (`#b4232a` light, `#ff7a8a` dark), a cooler red that sits apart from the brand fill. The old
+  values were `#d0342c` / `#c0392b` (light) and `#ff6b6b` / `#ff8f7a` (dark). A brand file that
+  sets `--danger` or `--expense` itself is unaffected. To restyle both, set `--negative`.
+- **The scrim behind a `Sheet` is 0.40 black**, as it already was behind a `Modal` (was 0.35).
+
+Everything else is additive and changes nothing until you use it:
+
+- Type: `--fs-display` / `--lh-display` / `--tracking-display` (one hero figure per screen, 44px
+  down to 32px on a narrow phone), `--fw-regular` / `-medium` / `-semibold` / `-bold`.
+- Spacing and shape: `--space-05` (4px), `--space-15` (12px), `--space-6` (48px), `--radius-pill`.
+- Sizes: `--tap-min`, `--row-height`, `--nav-height`, `--content-max`, `--control-sm/md/lg`,
+  `--tile-sm/md/lg`, `--icon-sm/md/lg`.
+- Layers: `--z-sticky`, `--z-rail`, `--z-nav`, `--z-fab`, `--z-overlay`, `--z-sheet`,
+  `--z-dialog`, `--z-popover`, `--z-toast`. The components use them; so should your chrome.
+- Colour and state: `--data-1` to `--data-6` and `--data-other` (chart series, per theme),
+  `--fill-subtle` / `--fill-hover` / `--fill-pressed`, `--accent-tint`, `--ring`, `--scrim`,
+  `--elev-menu`, `--elev-fab`.
+
+`--negative` and the `--data-*` palette are brandable (`BRAND_TOKENS`); the rest are structure.
 
 **Upgrading to 1.5:** an accessibility pass on `Sheet` and `Modal`, plus two stylesheet defaults.
 Four changes are visible without you doing anything:
