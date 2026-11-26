@@ -2,7 +2,7 @@
    page behind nor moves the sheet), but a two-finger zoom is still allowed (WCAG 1.4.4).
    Descendants are unaffected: the sheet is its own scroll container, so its pan-y below is what
    governs touches on it, not this. */
-.backdrop { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.35);
+.backdrop { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--scrim);
   display: flex; align-items: center; justify-content: center; padding: 24px; touch-action: pinch-zoom; }
 /* overscroll-behavior: contain — the sheet is the scroller; when its scroll hits an edge (or it
    has nothing to scroll) the gesture must die there, never chain to the page behind. Belt and

@@ -1,10 +1,10 @@
-.backdrop { position: fixed; inset: 0; z-index: 320; background: rgba(0,0,0,0.4); }
+.backdrop { position: fixed; inset: 0; z-index: var(--z-dialog); background: var(--scrim); }
 /* Durations and curves come from the motion tokens, never hand-typed here: the enter/exit
    ASYMMETRY is the intent (exits are faster than enters), and tokens carry that intent globally
    instead of re-deciding it per surface. */
 .backdrop[data-state="open"] { animation: fadeIn var(--dur-enter) var(--ease-glass); }
 .backdrop[data-state="closed"] { animation: fadeOut var(--dur-exit) var(--ease-glass); }
-.modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 321;
+.modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: calc(var(--z-dialog) + 1);
   width: min(420px, calc(100vw - 32px)); max-height: 85vh; overflow-y: auto;
   border-radius: var(--radius-card); padding: var(--space-3); color: var(--label);
   /* sheet tier — the modal is the same modal-layer material as the Sheet (its >640px sibling) */

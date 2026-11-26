@@ -405,3 +405,114 @@ describe('tokens.css', () => {
     }
   })
 })
+
+// ---- 1.6: the tokens consumers were typing by hand ------------------------------------------
+describe('tokens.css — 1.6 additions', () => {
+  const light = css.slice(css.indexOf(':root {'), css.indexOf(':root[data-theme="dark"]'))
+  const dark = css.slice(css.indexOf(':root[data-theme="dark"]'), css.indexOf(':root[data-theme-mode="black"]'))
+  const value = (block: string, token: string) =>
+    new RegExp(`${token}:\\s*([^;]+);`).exec(block)?.[1].trim()
+
+  it('defines every new token on :root', () => {
+    for (const token of [
+      '--fs-display', '--lh-display', '--tracking-display',
+      '--fw-regular', '--fw-medium', '--fw-semibold', '--fw-bold',
+      '--space-05', '--space-15', '--space-6', '--radius-pill',
+      '--tap-min', '--row-height', '--nav-height', '--content-max',
+      '--control-sm', '--control-md', '--control-lg',
+      '--tile-sm', '--tile-md', '--tile-lg', '--icon-sm', '--icon-md', '--icon-lg',
+      '--z-sticky', '--z-rail', '--z-nav', '--z-fab', '--z-overlay', '--z-sheet', '--z-dialog', '--z-popover', '--z-toast',
+      '--negative', '--data-1', '--data-2', '--data-3', '--data-4', '--data-5', '--data-6', '--data-other',
+      '--fill-subtle', '--fill-hover', '--fill-pressed', '--accent-tint', '--ring', '--scrim',
+      '--elev-menu', '--elev-fab',
+    ]) {
+      expect(value(light, token), `missing ${token}`).toBeTruthy()
+    }
+  })
+
+  it('the new spacing steps scale with the text, and keep the four original steps where they were', () => {
+    for (const [token, px] of [['--space-05', 4], ['--space-15', 12], ['--space-6', 48]] as const) {
+      expect(value(light, token)).toBe(`calc(${px}px * var(--app-font-scale))`)
+    }
+    for (const [token, px] of [['--space-1', 8], ['--space-2', 16], ['--space-3', 24], ['--space-4', 32]] as const) {
+      expect(value(light, token)).toBe(`calc(${px}px * var(--app-font-scale))`)
+    }
+  })
+
+  it('the display size runs from 32px to 44px and every bound scales with the font setting', () => {
+    const display = value(light, '--fs-display') ?? ''
+    expect(display.startsWith('clamp(')).toBe(true)
+    expect(display).toContain('calc(32px * var(--app-font-scale))')
+    expect(display).toContain('calc(44px * var(--app-font-scale))')
+    expect(display.match(/var\(--app-font-scale\)/g)).toHaveLength(3)
+    expect(Number(value(light, '--lh-display'))).toBeGreaterThan(1)
+  })
+
+  it('--danger and --expense are ONE colour: both alias --negative, in every theme', () => {
+    expect(value(light, '--danger')).toBe('var(--negative)')
+    expect(value(light, '--expense')).toBe('var(--negative)')
+    // The dark block sets --negative only; redeclaring either alias there would split them again.
+    expect(value(dark, '--negative')).toMatch(/^#[0-9a-f]{6}/)
+    expect(dark).not.toMatch(/--danger:/)
+    expect(dark).not.toMatch(/--expense:/)
+  })
+
+  it('--negative is a different red from the brand fill, and readable on its surface', () => {
+    const hex = (raw: string) => /#([0-9a-f]{6})/i.exec(raw)![1]
+    const rgb = (h: string) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+    const hue = (h: string) => {
+      const [r, g, b] = rgb(h)
+      const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min
+      const raw = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4
+      return (raw * 60 + 360) % 360
+    }
+    const luminance = (h: string) => {
+      const [r, g, b] = rgb(h).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    }
+    const contrast = (a: string, b: string) => {
+      const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+      return (hi + 0.05) / (lo + 0.05)
+    }
+    const apart = (a: number, b: number) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b))
+
+    for (const block of [light, dark]) {
+      const negative = hex(value(block, '--negative')!)
+      // The old reds sat 4 and 7 degrees from the fill, which is why a healthy bar looked alarming.
+      expect(apart(hue(negative), hue(hex(value(block, '--accent-fill')!)))).toBeGreaterThanOrEqual(12)
+      expect(contrast(negative, hex(value(block, '--surface')!))).toBeGreaterThanOrEqual(4.5)
+      expect(contrast(negative, hex(value(block, '--bg')!))).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('layers are ordered: sticky < rail < nav < fab < overlay < sheet < dialog < popover < toast', () => {
+    const order = ['--z-sticky', '--z-rail', '--z-nav', '--z-fab', '--z-overlay', '--z-sheet', '--z-dialog', '--z-popover', '--z-toast']
+    const values = order.map((token) => Number(value(light, token)))
+    expect(values.every(Number.isFinite)).toBe(true)
+    expect([...values].sort((a, b) => a - b)).toEqual(values)
+    expect(new Set(values).size).toBe(values.length)
+  })
+
+  it('the data palette is redefined for dark, all seven of it', () => {
+    for (const token of ['--data-1', '--data-2', '--data-3', '--data-4', '--data-5', '--data-6', '--data-other']) {
+      expect(value(dark, token), token).toMatch(/^#[0-9a-f]{6}$/)
+      expect(value(dark, token)).not.toBe(value(light, token))
+    }
+  })
+
+  it('the components use the layer, scrim, ring and elevation tokens, not the literals they replaced', () => {
+    const component = (name: string) =>
+      readFileSync(fileURLToPath(new URL(`../components/ui/${name}.module.css`, import.meta.url)), 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+    for (const name of readdirSync(fileURLToPath(new URL('../components/ui', import.meta.url)))) {
+      if (!name.endsWith('.module.css')) continue
+      const source = component(name.replace('.module.css', ''))
+      expect(source, `${name}: literal z-index`).not.toMatch(/z-index:\s*\d/)
+      expect(source, `${name}: hand-typed focus ring`).not.toMatch(/0 0 0 3px color-mix/)
+    }
+    expect(component('Sheet')).toContain('background: var(--scrim)')
+    expect(component('Modal')).toContain('background: var(--scrim)')
+    expect(component('Select')).toContain('var(--elev-menu)')
+    expect(component('Fab')).toContain('var(--elev-fab)')
+  })
+})

@@ -14,6 +14,12 @@
      the old absolute px values froze inherited leading at body's 22px for every rule that set a
      --fs-* size without its own line-height (182 of 328). */
   --app-font-scale: 1;
+  /* display: the ONE hero figure on a screen, on its own full-width line. 44px on a 48px line,
+     following the viewport down to 32px on a narrow phone (10vw: 44px from 440px wide, 32px at
+     320px) so a six-figure amount still fits its line. Scales with --app-font-scale like the
+     rest of the ramp. */
+  --fs-display: clamp(calc(32px * var(--app-font-scale)), calc(10vw * var(--app-font-scale)), calc(44px * var(--app-font-scale)));
+  --lh-display: 1.09;
   --fs-large-title: calc(30px * var(--app-font-scale)); --lh-large-title: 1.1;
   --fs-title: calc(22px * var(--app-font-scale));       --lh-title: 1.25;
   --fs-headline: calc(17px * var(--app-font-scale));    --lh-headline: 1.3;
@@ -27,23 +33,49 @@
 
   /* ---- tracking ramp (Apple §15: tracking is size-specific — never one value for all sizes).
      em resolves against the already-scaled font-size, so no --app-font-scale multiply needed. */
+  --tracking-display: -0.025em;
   --tracking-large-title: -0.02em;  --tracking-title: -0.015em;
   --tracking-headline: -0.01em;     --tracking-body: 0em;
   --tracking-callout: 0.005em;      --tracking-caption: 0.01em;
   --tracking-eyebrow: 0.08em;       /* uppercase caption — the one exception to the ramp */
+
+  /* ---- weights: the four the system uses. 550 and 650 were typed by hand in consumers; they
+     round to medium and semibold. */
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700;
 
   /* ---- spacing + concentric radii ----
      Spacing joins Dynamic Type (Apple §15: scale layout WITH the text): every gap multiplies by
      the same --app-font-scale as the type ramp, so larger text gets proportionally more air
      instead of 20% more text crammed into frozen padding. Radii stay fixed — corner rounding is
      a surface property, not a density one. */
+  /* The half steps exist because 4px and 12px were each typed about 70 times in the first
+     consumer; --space-6 is section rhythm. Named by the multiple of --space-1 they are
+     (05 = 0.5, 15 = 1.5), so the four original names keep their values. */
+  --space-05: calc(4px * var(--app-font-scale));
   --space-1: calc(8px * var(--app-font-scale));
+  --space-15: calc(12px * var(--app-font-scale));
   --space-2: calc(16px * var(--app-font-scale));
   --space-3: calc(24px * var(--app-font-scale));
   --space-4: calc(32px * var(--app-font-scale));
+  --space-6: calc(48px * var(--app-font-scale));
   --radius-card: 22px;
   --radius-tile: 14px;
   --radius-control: 11px;
+  --radius-pill: 999px;
+
+  /* ---- sizes (fixed: a tap target is a property of the finger, not of the text) ---- */
+  --tap-min: 44px;        /* platform minimum for anything tappable */
+  --row-height: 56px;     /* one list row */
+  --nav-height: 64px;     /* the floating dock; Fab and toasts offset from it */
+  --content-max: 1200px;  /* widest a page column grows */
+  --control-sm: 36px; --control-md: 44px; --control-lg: 52px;
+  --tile-sm: 36px;    --tile-md: 44px;    --tile-lg: 56px;
+  --icon-sm: 16px;    --icon-md: 20px;    --icon-lg: 24px;
+
+  /* ---- layering: every stacking context in the system, lowest first. Consumers use these and
+     never a literal, so a new layer is a decision made here. ---- */
+  --z-sticky: 10; --z-rail: 20; --z-nav: 30; --z-fab: 40; --z-overlay: 90;
+  --z-sheet: 300; --z-dialog: 320; --z-popover: 340; --z-toast: 400;
 
   /* ---- semantic color (light) ---- */
   --bg: #f4efe9;
@@ -55,11 +87,37 @@
   --separator: rgba(60, 40, 30, 0.12);
   --accent: #cf5410;       /* colored glyphs/text on glass */
   --accent-fill: #d95b43;  /* solid accent behind white text (buttons/badges) */
-  --danger: #d0342c;
+  /* ONE negative colour. --danger and --expense were two reds 3 degrees of hue apart, both
+     within 7 degrees of --accent-fill, so an over-budget bar and a healthy one read as one
+     colour. --negative is a cooler red, about 22 degrees from the brand fill (6.3:1 on
+     --surface). The two old names stay as aliases, so every consumer and every brand file
+     that sets one of them keeps working; a brand that wants them apart can still set each. */
+  --negative: #b4232a;
+  --danger: var(--negative);
   --income: #0b6e2f;
-  --expense: #c0392b;
+  --expense: var(--negative);
   --warning: #8a5200;      /* warning text/glyphs on tinted chips (AA at caption sizes) */
   --warning-fill: #d08a2c; /* solid warning fill behind no text (progress bars) */
+
+  /* ---- data palette: chart series in rank order, plus a neutral for "everything else".
+     Charts label directly, so colour is never the only cue. These are fills, not text. ---- */
+  --data-1: #c2501a; --data-2: #1f7a7a; --data-3: #4b5bbf;
+  --data-4: #b7791f; --data-5: #8b4a8f; --data-6: #5a7d3a;
+  --data-other: #a39a94;
+
+  /* ---- interaction tints: one definition each for the fills typed as color-mix() at every
+     site. They compose from --label and --accent, so they resolve per theme and per brand. ---- */
+  --fill-subtle: color-mix(in srgb, var(--label) 4%, transparent);
+  --fill-hover: color-mix(in srgb, var(--label) 6%, transparent);
+  --fill-pressed: color-mix(in srgb, var(--label) 10%, transparent);
+  --accent-tint: color-mix(in srgb, var(--accent) 16%, transparent);
+  /* The focus ring every control draws. */
+  --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  /* What dims the page behind a sheet or dialog. Sheet used 0.35 and Modal 0.40. */
+  --scrim: rgba(0, 0, 0, 0.4);
+  /* Elevation for the two floating things that are not sheets. */
+  --elev-menu: 0 20px 50px rgba(0, 0, 0, 0.3);
+  --elev-fab: 0 12px 28px -10px color-mix(in srgb, var(--accent-fill) 60%, transparent);
 
   /* ---- Material blur ladder (Apple §12: bigger surfaces read as THICKER material) ----
      One tier per surface ROLE, strictly increasing with surface size, so the heaviest blur is
@@ -148,12 +206,15 @@
   --separator: rgba(255, 255, 255, 0.12);
   --accent: #ffb4a5;
   --accent-fill: #d95b43;
-  --danger: #ff6b6b;
+  --negative: #ff7a8a;     /* 7.0:1 on --surface; --danger and --expense alias it (see light) */
   --income: #4ade80;
-  --expense: #ff8f7a;
   --warning: #f0b269;      /* lightened for text contrast on dark tints; black theme inherits
                               this via data-theme="dark" (see applyTheme.ts), like --income */
   --warning-fill: #d08a2c;
+  /* the light hues, lifted to hold on a dark surface */
+  --data-1: #f08a52; --data-2: #4fb8b8; --data-3: #8e9bf0;
+  --data-4: #e0a84a; --data-5: #c88bcc; --data-6: #93b86e;
+  --data-other: #8f8782;
 
   --glass-bg: rgba(40, 30, 26, 0.34);
   --glass-bg-strong: rgba(48, 36, 32, 0.54);

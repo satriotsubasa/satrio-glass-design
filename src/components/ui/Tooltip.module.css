@@ -1,7 +1,7 @@
 /* Chrome-tier material: a tooltip is small floating chrome, so it takes the chrome blur rather
    than the sheet blur the modal layer uses (Apple §12 — bigger surfaces read as thicker). */
 .tip {
-  z-index: 340;
+  z-index: var(--z-popover);
   max-width: 28ch;
   padding: 6px 10px;
   border-radius: var(--radius-control);

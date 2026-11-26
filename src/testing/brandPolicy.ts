@@ -13,7 +13,9 @@ export const BRAND_TOKENS: ReadonlySet<string> = new Set([
   // neutral palette + text
   '--bg', '--surface', '--surface-2', '--label', '--label-2', '--label-3', '--separator',
   // accent + status
-  '--accent', '--accent-fill', '--danger', '--income', '--expense', '--warning', '--warning-fill',
+  '--accent', '--accent-fill', '--negative', '--danger', '--income', '--expense', '--warning', '--warning-fill',
+  // chart series
+  '--data-1', '--data-2', '--data-3', '--data-4', '--data-5', '--data-6', '--data-other',
   // glass + surface tints (colors, not blur amounts)
   '--glass-bg', '--glass-bg-strong', '--glass-border', '--glass-highlight', '--glass-shadow',
   '--shadow-sheet', '--sheet-bg', '--menu-bg', '--nav-bg',

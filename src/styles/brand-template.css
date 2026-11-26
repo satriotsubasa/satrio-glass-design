@@ -28,9 +28,10 @@
   /* ---- accent + status ---- */
   /* --accent: #cf5410; */       /* colored glyphs/text on glass */
   /* --accent-fill: #d95b43; */  /* solid accent behind white text (buttons/badges) */
-  /* --danger: #d0342c; */
+  /* --negative: #b4232a; */  /* --danger and --expense both follow it unless set */
+  /* --danger: var(--negative); */
   /* --income: #0b6e2f; */
-  /* --expense: #c0392b; */
+  /* --expense: var(--negative); */
   /* --warning: #8a5200; */      /* warning text/glyphs on tinted chips */
   /* --warning-fill: #d08a2c; */ /* solid warning fill behind no text */
 
@@ -93,9 +94,8 @@
 
   /* --accent: #ffb4a5; */
   /* --accent-fill: #d95b43; */
-  /* --danger: #ff6b6b; */
+  /* --negative: #ff7a8a; */
   /* --income: #4ade80; */
-  /* --expense: #ff8f7a; */
   /* --warning: #f0b269; */
   /* --warning-fill: #d08a2c; */
 
