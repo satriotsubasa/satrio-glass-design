@@ -25,8 +25,16 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.8.0
+npm i github:satriotsubasa/satrio-glass-design#v1.9.0
 ```
+
+**Upgrading to 1.9:** additive only.
+
+- **`SectionHeader`** gains `size?: 'title' | 'headline'`. `title` (default) is the 22px step it
+  always was. `headline` is 17px, for a section inside a card or under a `PageHeader`, so a page
+  title and a section title stop looking the same. Still an `h2`.
+- **`PageHeader`** gains `back?: { label, onClick }`: an `IconButton` before the title, for a
+  page reached from another. Without it the header is laid out exactly as before.
 
 **Upgrading to 1.8:** additive only.
 
