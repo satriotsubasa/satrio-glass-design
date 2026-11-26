@@ -25,8 +25,25 @@ Headings come in two levels: `PageHeader` renders the page title as an `h1` (one
 No npm registry — installed as a git dependency, pinned to a tag:
 
 ```
-npm i github:satriotsubasa/satrio-glass-design#v1.6.0
+npm i github:satriotsubasa/satrio-glass-design#v1.7.0
 ```
+
+**Upgrading to 1.7:** additive only. Nothing changes until you use it.
+
+- **`Button`** gains `size="tap"` (44px; `md` stays 42px), `round` (pill ends, a circle with
+  `iconOnly`) and `variant="link"` (text only, accent-coloured, sized by its text).
+- **`ButtonLink`** is an `<a>` with the Button look, for a navigation that should read as a
+  button. It has no `disabled` or `loading`.
+- **`IconButton`** (`label`, `icon`, `size` 32 | 36 | 44, `variant`, `round`) is a button that is
+  only an icon. `label` is required and is its accessible name. Whatever size is drawn, it takes
+  a tap over at least 44px.
+- **`Pressable`** is a tap target with no look of its own (`as="a"` for a link, `press` of
+  `compact`, `large` or `none`): a real button, the inherited font and colour, the house press
+  scale and the focus ring. Use it for rows, tiles and cards that do something when pressed.
+- **Font roles.** `--font-numeric` (amounts, counts, stat values) and `--font-meta` (chips,
+  eyebrows) are what the components read now. Both default to `--font-mono`, so nothing moves.
+  They are brandable: set either to `var(--font-sans)` in your brand file to take that role out
+  of mono. `.mono` follows `--font-numeric`.
 
 **Upgrading to 1.6:** new tokens, and one colour change you will see.
 
